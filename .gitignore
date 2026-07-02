@@ -39,6 +39,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# eval harness output (reportes generados)
+/scripts/eval/out/
+
+# fotos de prueba del eval (imágenes de personas, no van al repo)
+/test-photos/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

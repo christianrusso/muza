@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreOutfit, AIScoringError } from "@/lib/ai/scoreOutfit";
+import { getFewShotExamples } from "@/lib/scoring/knowledgeBase";
 import { computeOverallScore, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, buildStubScoringResult } from "@/lib/demo";
@@ -72,11 +73,16 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     );
   }
 
+  // Ejemplos de referencia (few-shot). Devuelve [] si el flag está apagado o no
+  // hay ejemplos para la ocasión → el scoring se comporta igual que hoy.
+  const examples = await getFewShotExamples(supabase, analysis.occasion_id as string);
+
   try {
     const result = await scoreOutfit({
       photoUrl: signed.signedUrl,
       occasionLabel: occasionLabel(analysis.occasion_id as OccasionId),
       analysisType: analysis.analysis_type as AnalysisType,
+      examples,
     });
 
     const overallScore = computeOverallScore(result.categories);

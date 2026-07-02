@@ -42,10 +42,25 @@ export function scoreBandColorVar(score: number): string {
   return band === "high" ? "var(--green)" : band === "medium" ? "var(--amber)" : "var(--red)";
 }
 
+// La adecuación a la ocasión actúa como TECHO del score final, no solo como un
+// término más del promedio ponderado. Motivo: con la ponderación sola (ocasión
+// pesa 20%), un outfit muy inadecuado para la ocasión igual quedaba en ~60
+// porque las otras categorías lo sostenían (ej. remera de fútbol para un
+// casamiento → 61). Con el techo, si la ocasión puntúa bajo, el score final no
+// puede superar ese techo. La ocasión solo puede BAJAR el score, nunca inflarlo.
+// Validado contra ground truth (2026-07-02): no baja ningún caso bien puntuado.
+export function occasionCeiling(occasionScore: number): number {
+  if (occasionScore >= 70) return 100; // ocasión adecuada → sin techo
+  if (occasionScore >= 40) return 40 + (occasionScore - 40) * 2; // zona media (40→40, 70→100)
+  return occasionScore; // desajuste fuerte → el techo es la propia nota de ocasión
+}
+
 export function computeOverallScore(categories: { key: CategoryKey; score: number }[]): number {
-  const total = categories.reduce((sum, c) => {
+  const weighted = categories.reduce((sum, c) => {
     const def = SCORE_CATEGORIES.find((d) => d.key === c.key);
     return sum + (def ? def.weight * c.score : 0);
   }, 0);
-  return Math.round(total);
+  const occasion = categories.find((c) => c.key === "ocasion");
+  const capped = occasion ? Math.min(weighted, occasionCeiling(occasion.score)) : weighted;
+  return Math.round(capped);
 }

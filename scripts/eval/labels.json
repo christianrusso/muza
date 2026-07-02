@@ -1,0 +1,1372 @@
+{
+  "andrea-cipriani-RthWUusZL4Q-unsplash.jpg": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "WhatsApp Image 2026-07-02 at 10.02.02.jpeg": {
+    "validation": null,
+    "scoring": null,
+    "note": "hola"
+  },
+  "Men full outfit/IMG_8558.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "holaaa"
+  },
+  "Men full outfit/IMG_8558.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8558.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "camisa para gym no va"
+  },
+  "Men full outfit/IMG_8558.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy desarreglado"
+  },
+  "Men full outfit/IMG_8558.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8558.jpg · Viaje": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Men full outfit/IMG_8558.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "camisa suelta asi desarreglada pra fiesta no"
+  },
+  "Men full outfit/IMG_8558.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "camisa asi suelta para casamiento no"
+  },
+  "Men full outfit/IMG_8558.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8559.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8559.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "una cita con ropa deportiva esta mal"
+  },
+  "Men full outfit/IMG_8559.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8559.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8559.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "fiesta con remera de futbol mal"
+  },
+  "Men full outfit/IMG_8559.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8559.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "entrevista laboral con ropa de futbol mal"
+  },
+  "Men full outfit/IMG_8559.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "no podes ir a un casamitno con ropa deportiva"
+  },
+  "Men full outfit/IMG_8559.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "no se puede ir a trabjaar en ropa de futbol"
+  },
+  "Men full outfit/IMG_8560.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8560.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy desarreglado y casual para una cita"
+  },
+  "Men full outfit/IMG_8560.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy desarregladoa"
+  },
+  "Men full outfit/IMG_8560.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8560.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy poco formal"
+  },
+  "Men full outfit/IMG_8560.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8560.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8560.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "poco formal"
+  },
+  "Men full outfit/IMG_8560.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "poco formal"
+  },
+  "Men full outfit/IMG_8600.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8600.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8600.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "no es ropa deportiva"
+  },
+  "Men full outfit/IMG_8600.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muchos dibujos y medio payaso"
+  },
+  "Men full outfit/IMG_8600.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Men full outfit/IMG_8600.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "maso menos"
+  },
+  "Men full outfit/IMG_8600.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta un pco serio, pero esrta OK"
+  },
+  "Men full outfit/IMG_8600.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "poco formal"
+  },
+  "Men full outfit/IMG_8600.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "depende que tipo de trabjao puede ser que sim o que no."
+  },
+  "randoms/rqd3yufp6gah1.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/rqd3yufp6gah1.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/rqd3yufp6gah1.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "es un vestido, no puede ir a gym asi"
+  },
+  "randoms/rqd3yufp6gah1.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy escotada para ir a trabajar"
+  },
+  "randoms/rqd3yufp6gah1.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/rqd3yufp6gah1.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/rqd3yufp6gah1.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy incomodo para un viaje"
+  },
+  "randoms/rqd3yufp6gah1.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "no es formal, pero esta bien"
+  },
+  "randoms/rqd3yufp6gah1.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "para mi muy provocativo"
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "para una cita informal esta ok"
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "tiene short de gym no puede entrenar asi"
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta casual"
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (1).jpeg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en shorcito. no para trabjaar"
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en shorcito para gym no"
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "depende la cita"
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "no"
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "randoms/s1oymn5khuah1 (2).jpeg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en shorcito. no para trabjaar"
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (1).png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (2).png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1 (3).png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/s70vqhlq0xzg1.png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Casual": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Viaje": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (1).jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Otro": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Entrevista": {
+    "validation": "good",
+    "scoring": null,
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Viaje": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1 (2).jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1.jpg · Casual": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/slightly-obsessed-with-wearing-this-pattern-v0-50uo1hx1ub5h1.jpg · Otro": {
+    "validation": null,
+    "scoring": "bad",
+    "note": "esta muy desdnuda"
+  },
+  "randoms/Snoo_Expression_Blanc.png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Blanc.png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Snoo_Expression_Smile_EyesOpen.png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/Wow_40.png · Trabajo": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Entrevista": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Cita": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Casual": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Otro": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Fiesta": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Viaje": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "randoms/ZzFkaWhrazV1bHZnMfvlpUhPbSM4to29epZoUS8Om2cCS7R9tDkIXhREwOaF.png · Casamiento": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Casual": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Cita": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": "no tiene ropa deportiva"
+  },
+  "Women full outfi/IMG_8582.jpg · Viaje": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": null,
+    "note": "maso menos.."
+  },
+  "Women full outfi/IMG_8582.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8582.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8583.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8583.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8583.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8583.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8583.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8583.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8583.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8583.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8583.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta muuyy casual"
+  },
+  "Women full outfi/IMG_8584.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy formal"
+  },
+  "Women full outfi/IMG_8584.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "nose,"
+  },
+  "Women full outfi/IMG_8584.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8584.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Casual": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Cita": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Gimnasio": {
+    "validation": "bad",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Casamiento": {
+    "validation": "bad",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8585.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8586.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8591.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8591.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esrta muy formal"
+  },
+  "Women full outfi/IMG_8591.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esrta muy formal"
+  },
+  "Women full outfi/IMG_8591.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8591.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esrta muy formal"
+  },
+  "Women full outfi/IMG_8591.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esrta muy formal"
+  },
+  "Women full outfi/IMG_8591.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esrta muy formal"
+  },
+  "Women full outfi/IMG_8591.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8592.jpg · Casual": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "bastatne seria para ser casual perop estaria bien igual"
+  },
+  "Women full outfi/IMG_8592.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8592.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8592.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy seria"
+  },
+  "Women full outfi/IMG_8592.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "muy seria"
+  },
+  "Women full outfi/IMG_8592.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8592.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy seria"
+  },
+  "Women full outfi/IMG_8592.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8592.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy seria"
+  },
+  "Women full outfi/IMG_8604.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "muy de trabajo"
+  },
+  "Women full outfi/IMG_8604.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "muy de trabajo"
+  },
+  "Women full outfi/IMG_8604.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "muy de trabajo"
+  },
+  "Women full outfi/IMG_8605.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en vestido, no va"
+  },
+  "Women full outfi/IMG_8605.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8605.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8604.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8605.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en vestido, no va"
+  },
+  "Women full outfi/IMG_8605.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8605.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "en vestido de dia"
+  },
+  "Women full outfi/IMG_8605.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8605.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8605.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": null,
+    "note": ""
+  },
+  "Women full outfi/IMG_8606.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8606.jpg · Cita": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8606.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta normal"
+  },
+  "Women full outfi/IMG_8606.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8606.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta normal"
+  },
+  "Women full outfi/IMG_8606.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta normal"
+  },
+  "Women full outfi/IMG_8606.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8606.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta normal de dia a dia"
+  },
+  "Women full outfi/IMG_8606.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8607.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8607.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8607.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8607.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8607.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8607.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8607.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta de gym comodo para viajar"
+  },
+  "Women full outfi/IMG_8607.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8608.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8608.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8608.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8608.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8608.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": ""
+  },
+  "Women full outfi/IMG_8608.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta de gym comoda"
+  },
+  "Women full outfi/IMG_8608.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8608.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8608.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Casual": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Cita": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Gimnasio": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8609.jpg · Viaje": {
+    "validation": "good",
+    "scoring": "good",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Fiesta": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Otro": {
+    "validation": "good",
+    "scoring": "good",
+    "note": ""
+  },
+  "Women full outfi/IMG_8609.jpg · Entrevista": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Casamiento": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  },
+  "Women full outfi/IMG_8609.jpg · Trabajo": {
+    "validation": "good",
+    "scoring": "bad",
+    "note": "esta de gym"
+  }
+}
