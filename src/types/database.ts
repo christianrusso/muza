@@ -33,6 +33,31 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["occasions"]["Row"]>;
         Relationships: [];
       };
+      scoring_examples: {
+        Row: {
+          id: string;
+          photo_path: string;
+          occasion_id: string;
+          verdict: "good" | "bad";
+          note: string | null;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["scoring_examples"]["Row"]> & {
+          photo_path: string;
+          occasion_id: string;
+          verdict: "good" | "bad";
+        };
+        Update: Partial<Database["public"]["Tables"]["scoring_examples"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "scoring_examples_occasion_id_fkey";
+            columns: ["occasion_id"];
+            referencedRelation: "occasions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       analyses: {
         Row: {
           id: string;

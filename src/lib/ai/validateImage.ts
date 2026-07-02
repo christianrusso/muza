@@ -9,6 +9,9 @@ export class AIValidationError extends Error {}
 export async function validateOutfitImage(photoUrl: string): Promise<ValidationResult> {
   const response = await getOpenAIClient().responses.parse({
     model: VISION_MODEL,
+    // temperature 0: la validación debe ser determinística (la misma foto no puede
+    // pasar una vez y ser rechazada la siguiente).
+    temperature: 0,
     input: [
       { role: "system", content: buildValidationPrompt() },
       {
