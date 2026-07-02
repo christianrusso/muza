@@ -38,7 +38,7 @@ export default function LoginPage() {
     setTimeout(() => router.push("/home"), 700);
   }
 
-  async function continueWithOAuth(provider: "google" | "apple") {
+  async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
       router.push("/home");
       return;
@@ -89,14 +89,9 @@ export default function LoginPage() {
           <span className="h-px flex-1 bg-line-strong" />
         </div>
 
-        <div className="flex gap-3">
-          <Button variant="outline" type="button" onClick={() => continueWithOAuth("google")}>
-            Google
-          </Button>
-          <Button variant="outline" type="button" onClick={() => continueWithOAuth("apple")}>
-            Apple
-          </Button>
-        </div>
+        <Button variant="outline" type="button" onClick={() => continueWithOAuth("google")}>
+          Google
+        </Button>
 
         <p className="mt-auto text-center text-sm font-semibold text-muted">
           ¿No tenés cuenta?{" "}

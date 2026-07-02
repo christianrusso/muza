@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/Button";
 
 export default function WelcomePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState<"google" | "apple" | null>(null);
+  const [loading, setLoading] = useState<"google" | null>(null);
 
-  async function continueWithOAuth(provider: "google" | "apple") {
+  async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
       router.push("/home");
       return;
@@ -26,7 +26,7 @@ export default function WelcomePage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-dvh flex-col">
       <div className="ph-dark absolute inset-0" />
       <div
         className="absolute inset-0"
@@ -55,17 +55,6 @@ export default function WelcomePage() {
             G
           </span>
           Continuar con Google
-        </Button>
-        <Button
-          variant="ghost"
-          className="mt-3"
-          onClick={() => continueWithOAuth("apple")}
-          disabled={loading !== null}
-        >
-          <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-paper text-xs font-extrabold text-ink">
-            A
-          </span>
-          Continuar con Apple
         </Button>
         <Link href="/register" className="mt-3 w-full">
           <Button variant="primary">Continuar con email</Button>

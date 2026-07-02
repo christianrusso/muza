@@ -30,6 +30,7 @@ async function loadHomeData() {
 
     return {
       firstName: DEMO_USER.full_name.split(" ")[0],
+      avatarUrl: null as string | null,
       latest,
       totalCount: allScores.length,
       average: allScores.length
@@ -45,7 +46,7 @@ async function loadHomeData() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, avatar_url")
     .eq("id", user!.id)
     .single();
 
@@ -72,6 +73,7 @@ async function loadHomeData() {
 
   return {
     firstName: profile?.full_name?.split(" ")[0] ?? "",
+    avatarUrl: profile?.avatar_url ?? null,
     latest,
     totalCount: all.length,
     average,
@@ -79,7 +81,7 @@ async function loadHomeData() {
 }
 
 export default async function HomePage() {
-  const { firstName, latest, totalCount, average } = await loadHomeData();
+  const { firstName, avatarUrl, latest, totalCount, average } = await loadHomeData();
 
   return (
     <div className="screen-body pad-tab" style={{ gap: 18 }}>
@@ -92,7 +94,12 @@ export default async function HomePage() {
         </div>
         <div
           className="ph h-[46px] w-[46px] rounded-full border-2 border-white"
-          style={{ boxShadow: "0 2px 8px rgba(0,0,0,.08)" }}
+          style={{
+            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+            ...(avatarUrl
+              ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+              : {}),
+          }}
         />
       </div>
 

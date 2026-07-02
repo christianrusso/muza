@@ -18,6 +18,7 @@ async function loadProfileData() {
     }));
     return {
       firstName: DEMO_USER.full_name.split(" ")[0],
+      avatarUrl: null as string | null,
       planTier: DEMO_USER.plan_tier,
       average,
       analysesCount: scores.length,
@@ -61,6 +62,7 @@ async function loadProfileData() {
 
   return {
     firstName: profile?.full_name?.split(" ")[0] ?? "",
+    avatarUrl: profile?.avatar_url ?? null,
     planTier: profile?.plan_tier ?? "free",
     average,
     analysesCount: scores.length,
@@ -69,7 +71,7 @@ async function loadProfileData() {
 }
 
 export default async function ProfilePage() {
-  const { firstName, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await loadProfileData();
+  const { firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await loadProfileData();
 
   return (
     <div className="flex min-h-screen flex-col gap-4 px-[22px] pt-[60px]">
@@ -77,7 +79,12 @@ export default async function ProfilePage() {
         <div className="relative">
           <div
             className="ph h-[104px] w-[104px] rounded-full border-2 border-white"
-            style={{ boxShadow: "0 2px 8px rgba(0,0,0,.08)" }}
+            style={{
+              boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+              ...(avatarUrl
+                ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+                : {}),
+            }}
           />
           <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-coral text-white">
             <MaterialIcon name="edit" size={16} />
