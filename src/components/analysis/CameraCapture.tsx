@@ -30,6 +30,8 @@ export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
         }
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          // iOS Safari a veces no arranca con autoPlay: forzamos play().
+          await videoRef.current.play().catch(() => {});
           setStreamOk(true);
         }
       } catch {
@@ -121,15 +123,23 @@ export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
       className="screen-body relative"
       style={{ background: "linear-gradient(#1F1B17,#141210)", minHeight: "100vh" }}
     >
-      {streamOk ? (
-        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 h-full w-full object-cover" />
-      ) : null}
+      {/* El video se monta siempre para que videoRef exista cuando llega el
+          stream; se muestra recién cuando la cámara está lista. */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity ${
+          streamOk ? "opacity-100" : "opacity-0"
+        }`}
+      />
       <canvas ref={canvasRef} className="hidden" />
+      {/* Sin `capture`: en iOS eso fuerza la cámara; sin él abre la galería. */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         className="hidden"
         onChange={handleFileSelected}
       />
