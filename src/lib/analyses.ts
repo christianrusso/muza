@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { isDemoMode, DEMO_ANALYSES, getDemoAnalysis } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import type { Analysis, AnalysisCategoryRow, AnalysisFeedbackRow, CategoryKey, FeedbackKind } from "@/types/domain";
@@ -41,7 +42,7 @@ export async function getHydratedAnalysis(id: string): Promise<Analysis | null> 
   const { data: row } = await supabase.from("analyses").select("*").eq("id", id).single();
   if (!row) return null;
 
-  const [{ data: categories }, { data: feedback }, { data: signed }] = await Promise.all([
+  const [{ data: categories }, { data: feedback }, photoUrl] = await Promise.all([
     supabase
       .from("analysis_categories")
       .select("category_key, weight, score, justification")
@@ -51,7 +52,7 @@ export async function getHydratedAnalysis(id: string): Promise<Analysis | null> 
       .select("kind, text, sort_order")
       .eq("analysis_id", id)
       .order("sort_order", { ascending: true }),
-    supabase.storage.from("outfit-photos").createSignedUrl(row.photo_path, 3600),
+    signedPhotoUrl(supabase, row.photo_path, "full"),
   ]);
 
   const categoryRows: AnalysisCategoryRow[] = (categories ?? []).map((c) => ({
@@ -72,7 +73,7 @@ export async function getHydratedAnalysis(id: string): Promise<Analysis | null> 
     userId: row.user_id,
     occasionId: row.occasion_id as Analysis["occasionId"],
     photoPath: row.photo_path,
-    photoUrl: signed?.signedUrl,
+    photoUrl: photoUrl ?? undefined,
     analysisType: (row.analysis_type ?? "completo") as Analysis["analysisType"],
     validityStatus: row.validity_status as Analysis["validityStatus"],
     overallScore: row.overall_score,

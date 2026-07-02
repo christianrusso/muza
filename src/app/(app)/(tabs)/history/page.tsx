@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { historyCutoffDate } from "@/lib/plans/gating";
 import { occasionLabel } from "@/lib/occasions";
 import { relativeShortDate } from "@/lib/dates";
@@ -7,6 +9,7 @@ import { scoreBandColorVar } from "@/lib/scoring/categories";
 import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
+import { GridSkeleton } from "@/components/loading/Skeletons";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
@@ -67,21 +70,16 @@ async function loadHistoryData(activeType: AnalysisType | "all"): Promise<Histor
 
   const { data: analyses } = await query;
 
-  return Promise.all(
-    (analyses ?? []).map(async (a) => {
-      const { data: signed } = await supabase.storage
-        .from("outfit-photos")
-        .createSignedUrl(a.photo_path, 3600);
-      return {
-        id: a.id,
-        occasion_id: a.occasion_id,
-        analysis_type: a.analysis_type as AnalysisType,
-        overall_score: a.overall_score ?? 0,
-        created_at: a.created_at,
-        photoUrl: signed?.signedUrl ?? null,
-      };
-    }),
-  );
+  const photoUrls = await signedPhotoUrls(supabase, (analyses ?? []).map((a) => a.photo_path), "thumb");
+
+  return (analyses ?? []).map((a) => ({
+    id: a.id,
+    occasion_id: a.occasion_id,
+    analysis_type: a.analysis_type as AnalysisType,
+    overall_score: a.overall_score ?? 0,
+    created_at: a.created_at,
+    photoUrl: photoUrls.get(a.photo_path) ?? null,
+  }));
 }
 
 const TYPE_FILTERS: { value: AnalysisType | "all"; label: string; dot?: string }[] = [
@@ -92,6 +90,47 @@ const TYPE_FILTERS: { value: AnalysisType | "all"; label: string; dot?: string }
   { value: "individual", label: "Individual", dot: "var(--pink)" },
 ];
 
+async function HistoryGrid({ activeType }: { activeType: AnalysisType | "all" }) {
+  const withPhotoUrls = await loadHistoryData(activeType);
+
+  if (withPhotoUrls.length === 0) {
+    return (
+      <p className="px-[22px] py-10 text-center text-sm font-semibold text-muted">
+        No hay análisis para mostrar con este filtro.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid flex-1 content-start grid-cols-2 gap-[13px] px-[22px]">
+      {withPhotoUrls.map((a) => (
+        <Link key={a.id} href={`/analysis/${a.id}/result`}>
+          <div className="gcard ph">
+            {a.photoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={a.photoUrl}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+            <AnalysisTypePill type={a.analysis_type as AnalysisType} className="gbadge" />
+            <span className="gscore" style={{ background: scoreBandColorVar(a.overall_score ?? 0) }}>
+              {a.overall_score}
+            </span>
+          </div>
+          <div className="gmeta">
+            <span>{occasionLabel(a.occasion_id as OccasionId)}</span>
+            <span>{relativeShortDate(a.created_at)}</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default async function HistoryPage({
   searchParams,
 }: {
@@ -99,7 +138,6 @@ export default async function HistoryPage({
 }) {
   const { type } = await searchParams;
   const activeType = (type ?? "all") as AnalysisType | "all";
-  const withPhotoUrls = await loadHistoryData(activeType);
 
   return (
     <div className="flex min-h-screen flex-col pt-[60px]">
@@ -129,31 +167,10 @@ export default async function HistoryPage({
         </button>
       </div>
 
-      <div className="grid flex-1 content-start grid-cols-2 gap-[13px] px-[22px]">
-        {withPhotoUrls.map((a) => (
-          <Link key={a.id} href={`/analysis/${a.id}/result`}>
-            <div
-              className="gcard ph"
-              style={a.photoUrl ? { backgroundImage: `url(${a.photoUrl})`, backgroundSize: "cover" } : {}}
-            >
-              <AnalysisTypePill type={a.analysis_type as AnalysisType} className="gbadge" />
-              <span className="gscore" style={{ background: scoreBandColorVar(a.overall_score ?? 0) }}>
-                {a.overall_score}
-              </span>
-            </div>
-            <div className="gmeta">
-              <span>{occasionLabel(a.occasion_id as OccasionId)}</span>
-              <span>{relativeShortDate(a.created_at)}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {withPhotoUrls.length === 0 && (
-        <p className="px-[22px] py-10 text-center text-sm font-semibold text-muted">
-          No hay análisis para mostrar con este filtro.
-        </p>
-      )}
+      {/* Header y filtros pintan al instante; la grilla llega por streaming. */}
+      <Suspense key={activeType} fallback={<GridSkeleton columns={2} />}>
+        <HistoryGrid activeType={activeType} />
+      </Suspense>
     </div>
   );
 }

@@ -1,9 +1,12 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_COMMUNITY_POSTS, DEMO_USER } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { PostCard } from "@/components/community/PostCard";
+import { FeedSkeleton } from "@/components/loading/Skeletons";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
@@ -88,24 +91,55 @@ async function loadCommunityFeed(activeTab: string): Promise<FeedPost[]> {
     .eq("user_id", user!.id);
   const myReactionByPost = new Map((myReactions ?? []).map((r) => [r.post_id, r.reaction]));
 
-  return Promise.all(
-    (posts ?? []).map(async (p) => {
-      const { data: signed } = await supabase.storage
-        .from("outfit-photos")
-        .createSignedUrl(p.photo_path, 3600);
-      return {
-        post_id: p.post_id,
-        author_name: p.author_name,
-        occasion_id: p.occasion_id,
-        posted_at: p.posted_at,
-        analysis_type: p.analysis_type,
-        photoUrl: signed?.signedUrl ?? null,
-        overall_score: p.overall_score,
-        like_count: p.like_count,
-        comment_count: p.comment_count,
-        myReaction: (myReactionByPost.get(p.post_id) ?? null) as "like" | "dislike" | null,
-      };
-    }),
+  const photoUrls = await signedPhotoUrls(supabase, (posts ?? []).map((p) => p.photo_path), "feed");
+
+  return (posts ?? []).map((p) => ({
+    post_id: p.post_id,
+    author_name: p.author_name,
+    occasion_id: p.occasion_id,
+    posted_at: p.posted_at,
+    analysis_type: p.analysis_type,
+    photoUrl: photoUrls.get(p.photo_path) ?? null,
+    overall_score: p.overall_score,
+    like_count: p.like_count,
+    comment_count: p.comment_count,
+    myReaction: (myReactionByPost.get(p.post_id) ?? null) as "like" | "dislike" | null,
+  }));
+}
+
+async function CommunityFeed({ activeTab }: { activeTab: string }) {
+  const withPhotoUrls = await loadCommunityFeed(activeTab);
+
+  if (withPhotoUrls.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col px-[22px] py-4">
+        <p className="py-10 text-center text-sm font-semibold text-muted">
+          Todavía no hay publicaciones acá.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-1 flex-col gap-5 px-[22px] py-4">
+      {withPhotoUrls.map((post) => (
+        <PostCard
+          key={post.post_id}
+          post={{
+            id: post.post_id,
+            authorName: post.author_name,
+            occasionLabel: occasionLabel(post.occasion_id as OccasionId),
+            postedAt: post.posted_at,
+            analysisType: post.analysis_type ?? "completo",
+            photoUrl: post.photoUrl,
+            overallScore: post.overall_score ?? 0,
+            likeCount: post.like_count,
+            commentCount: post.comment_count,
+            myReaction: post.myReaction,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -116,7 +150,6 @@ export default async function CommunityPage({
 }) {
   const { tab } = await searchParams;
   const activeTab = tab ?? "popular";
-  const withPhotoUrls = await loadCommunityFeed(activeTab);
 
   return (
     <div className="flex min-h-full flex-col pt-[60px]">
@@ -141,30 +174,10 @@ export default async function CommunityPage({
         ))}
       </div>
 
-      <div className="flex flex-1 flex-col gap-5 px-[22px] py-4">
-        {withPhotoUrls.map((post) => (
-          <PostCard
-            key={post.post_id}
-            post={{
-              id: post.post_id,
-              authorName: post.author_name,
-              occasionLabel: occasionLabel(post.occasion_id as OccasionId),
-              postedAt: post.posted_at,
-              analysisType: post.analysis_type ?? "completo",
-              photoUrl: post.photoUrl,
-              overallScore: post.overall_score ?? 0,
-              likeCount: post.like_count,
-              commentCount: post.comment_count,
-              myReaction: post.myReaction,
-            }}
-          />
-        ))}
-        {withPhotoUrls.length === 0 && (
-          <p className="py-10 text-center text-sm font-semibold text-muted">
-            Todavía no hay publicaciones acá.
-          </p>
-        )}
-      </div>
+      {/* Header y tabs pintan al instante; el feed llega por streaming. */}
+      <Suspense key={activeTab} fallback={<FeedSkeleton />}>
+        <CommunityFeed activeTab={activeTab} />
+      </Suspense>
 
       <Link href="/community/publish" className="fab">
         <MaterialIcon name="add_a_photo" />

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
@@ -58,20 +59,15 @@ async function loadEligibleAnalyses(): Promise<EligibleAnalysis[]> {
 
   const eligible = (analyses ?? []).filter((a) => !postedIds.has(a.id));
 
-  return Promise.all(
-    eligible.map(async (a) => {
-      const { data: signed } = await supabase.storage
-        .from("outfit-photos")
-        .createSignedUrl(a.photo_path, 3600);
-      return {
-        id: a.id,
-        occasion_id: a.occasion_id,
-        analysis_type: a.analysis_type as AnalysisType,
-        overall_score: a.overall_score ?? 0,
-        photoUrl: signed?.signedUrl ?? null,
-      };
-    }),
-  );
+  const photoUrls = await signedPhotoUrls(supabase, eligible.map((a) => a.photo_path), "thumb");
+
+  return eligible.map((a) => ({
+    id: a.id,
+    occasion_id: a.occasion_id,
+    analysis_type: a.analysis_type as AnalysisType,
+    overall_score: a.overall_score ?? 0,
+    photoUrl: photoUrls.get(a.photo_path) ?? null,
+  }));
 }
 
 export default async function PublishPage() {
@@ -87,10 +83,18 @@ export default async function PublishPage() {
       <div className="flex flex-col gap-3">
         {withPhotoUrls.map((a) => (
           <div key={a.id} className="card flex items-center gap-3 p-3">
-            <div
-              className="ph h-16 w-14 flex-none rounded-xl"
-              style={a.photoUrl ? { backgroundImage: `url(${a.photoUrl})`, backgroundSize: "cover" } : {}}
-            />
+            <div className="ph relative h-16 w-14 flex-none overflow-hidden rounded-xl">
+              {a.photoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={a.photoUrl}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              )}
+            </div>
             <div className="flex flex-1 flex-col gap-1">
               <AnalysisTypePill type={a.analysis_type} />
               <span className="text-sm font-bold">{occasionLabel(a.occasion_id as OccasionId)}</span>

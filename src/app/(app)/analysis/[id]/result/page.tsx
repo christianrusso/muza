@@ -23,14 +23,16 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="min-h-screen pb-[130px]">
-      <div
-        className="ph relative"
-        style={
-          analysis.photoUrl
-            ? { height: 266, backgroundImage: `url(${analysis.photoUrl})`, backgroundSize: "cover" }
-            : { height: 266 }
-        }
-      >
+      <div className="ph relative overflow-hidden" style={{ height: 266 }}>
+        {analysis.photoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={analysis.photoUrl}
+            alt=""
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <div
           className="absolute inset-0"
           style={{

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { greetingDate } from "@/lib/dates";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
@@ -65,9 +66,7 @@ async function loadHomeData() {
   const latest = latestCompleto
     ? {
         ...latestCompleto,
-        photoUrl: (
-          await supabase.storage.from("outfit-photos").createSignedUrl(latestCompleto.photo_path, 3600)
-        ).data?.signedUrl ?? null,
+        photoUrl: await signedPhotoUrl(supabase, latestCompleto.photo_path, "full"),
       }
     : null;
 
@@ -110,11 +109,19 @@ export default async function HomePage() {
             <span className="section-label">Último Outfit Score</span>
           </div>
           <div className="flex items-center gap-4">
-            <div
-              className="ph flex h-[132px] w-[104px] flex-none items-end justify-center rounded-2xl pb-2"
-              style={latest.photoUrl ? { backgroundImage: `url(${latest.photoUrl})`, backgroundSize: "cover" } : {}}
-            >
-              {!latest.photoUrl && <span className="ph-cap">foto de outfit</span>}
+            <div className="ph relative flex h-[132px] w-[104px] flex-none items-end justify-center overflow-hidden rounded-2xl pb-2">
+              {latest.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={latest.photoUrl}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <span className="ph-cap">foto de outfit</span>
+              )}
             </div>
             <div className="flex flex-1 flex-col gap-3">
               <ScoreRing score={latest.overall_score ?? 0} size={92} innerInset={8} valueFontSize={30} maxFontSize={8} />

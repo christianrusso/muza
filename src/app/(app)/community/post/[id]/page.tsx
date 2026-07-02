@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_USER, DEMO_COMMUNITY_POSTS } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
@@ -56,9 +57,7 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
   const { data: post } = await supabase.from("community_feed_view").select("*").eq("post_id", id).single();
   if (!post) return null;
 
-  const { data: signed } = await supabase.storage
-    .from("outfit-photos")
-    .createSignedUrl(post.photo_path, 3600);
+  const photoUrl = await signedPhotoUrl(supabase, post.photo_path, "full");
 
   const { data: myReaction } = await supabase
     .from("post_reactions")
@@ -80,7 +79,7 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
       occasionLabel: occasionLabel(post.occasion_id as OccasionId),
       postedAt: post.posted_at,
       analysisType: post.analysis_type ?? "completo",
-      photoUrl: signed?.signedUrl ?? null,
+      photoUrl,
       overallScore: post.overall_score ?? 0,
       likeCount: post.like_count,
       commentCount: post.comment_count,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -51,14 +52,18 @@ async function loadProfileData() {
     .eq("user_id", user!.id)
     .order("created_at", { ascending: false });
 
-  const postsWithPhotoUrls = await Promise.all(
-    (posts ?? []).map(async (p) => {
-      const photoPath = (p as unknown as { analyses: { photo_path: string } | null }).analyses?.photo_path;
-      if (!photoPath) return { id: p.id, photoUrl: null };
-      const { data: signed } = await supabase.storage.from("outfit-photos").createSignedUrl(photoPath, 3600);
-      return { id: p.id, photoUrl: signed?.signedUrl ?? null };
-    }),
+  const postPaths = (posts ?? []).map(
+    (p) => (p as unknown as { analyses: { photo_path: string } | null }).analyses?.photo_path ?? null,
   );
+  const photoUrls = await signedPhotoUrls(
+    supabase,
+    postPaths.filter((path): path is string => path !== null),
+    "thumb",
+  );
+  const postsWithPhotoUrls = (posts ?? []).map((p, i) => ({
+    id: p.id,
+    photoUrl: postPaths[i] ? photoUrls.get(postPaths[i]!) ?? null : null,
+  }));
 
   return {
     firstName: profile?.full_name?.split(" ")[0] ?? "",
@@ -115,11 +120,18 @@ export default async function ProfilePage() {
       <span className="section-label">Tus publicaciones</span>
       <div className="grid grid-cols-3 gap-2">
         {postsWithPhotoUrls.map((p) => (
-          <div
-            key={p.id}
-            className="ph aspect-square rounded-xl"
-            style={p.photoUrl ? { backgroundImage: `url(${p.photoUrl})`, backgroundSize: "cover" } : {}}
-          />
+          <div key={p.id} className="ph relative aspect-square overflow-hidden rounded-xl">
+            {p.photoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.photoUrl}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+          </div>
         ))}
         {postsWithPhotoUrls.length === 0 && (
           <p className="col-span-3 py-4 text-center text-sm font-semibold text-muted">

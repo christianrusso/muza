@@ -59,11 +59,18 @@ export function PostCard({ post }: { post: PostCardData }) {
       <Link
         href={`/community/post/${post.id}`}
         className="ph relative block overflow-hidden rounded-[18px]"
-        style={{
-          aspectRatio: "4/5",
-          ...(post.photoUrl ? { backgroundImage: `url(${post.photoUrl})`, backgroundSize: "cover" } : {}),
-        }}
+        style={{ aspectRatio: "4/5" }}
       >
+        {post.photoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.photoUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <span
           className="absolute bottom-3 left-3 flex h-[38px] items-center gap-2 rounded-full py-0 pl-1.5 pr-3"
           style={{ background: "rgba(20,18,16,.72)", backdropFilter: "blur(4px)" }}
