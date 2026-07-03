@@ -11,17 +11,21 @@ export function OccasionGrid() {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
   const [variant, setVariant] = useState<string | null>(null);
+  const [context, setContext] = useState("");
 
   const variants = selected ? occasionVariants(selected as OccasionId) : [];
 
   function selectOccasion(id: string) {
     setSelected(id);
-    setVariant(null); // al cambiar de ocasión, se resetea la variante
+    setVariant(null); // al cambiar de ocasión, se resetean variante y contexto
+    setContext("");
   }
 
   function handleContinue() {
     const qs = new URLSearchParams({ occasion: selected! });
     if (variant) qs.set("variant", variant);
+    const ctx = context.trim();
+    if (ctx) qs.set("context", ctx);
     router.push(`/analysis/new/capture?${qs.toString()}`);
   }
 
@@ -56,6 +60,20 @@ export function OccasionGrid() {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {selected && (
+        <div className="mt-4">
+          <span className="section-label mb-2 block px-1">Contá más (opcional)</span>
+          <input
+            type="text"
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            maxLength={120}
+            placeholder="Ej: cumpleaños infantil, asado, boda en la playa…"
+            className="w-full rounded-2xl border-[1.5px] border-line bg-white px-4 py-3 text-sm font-semibold outline-none placeholder:font-medium placeholder:text-muted focus:border-coral"
+          />
         </div>
       )}
 

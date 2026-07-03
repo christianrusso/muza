@@ -11,9 +11,11 @@ import type { OccasionId } from "@/types/domain";
 export function CameraCapture({
   occasionId,
   variant,
+  context,
 }: {
   occasionId: OccasionId;
   variant?: string | null;
+  context?: string | null;
 }) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -84,7 +86,7 @@ export function CameraCapture({
         const res = await fetch("/api/analyses", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ occasionId, occasionVariant: variant, photoDataUrl }),
+          body: JSON.stringify({ occasionId, occasionVariant: variant, occasionContext: context, photoDataUrl }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");
@@ -107,7 +109,7 @@ export function CameraCapture({
       const res = await fetch("/api/analyses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ occasionId, occasionVariant: variant, photoPath }),
+        body: JSON.stringify({ occasionId, occasionVariant: variant, occasionContext: context, photoPath }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");

@@ -9,6 +9,7 @@ import type { OccasionId } from "@/types/domain";
 const CreateAnalysisSchema = z.object({
   occasionId: z.string(),
   occasionVariant: z.string().nullable().optional(),
+  occasionContext: z.string().trim().max(200).nullable().optional(),
   photoPath: z.string().optional(),
   photoDataUrl: z.string().optional(),
 });
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
       user_id: user.id,
       occasion_id: body.data.occasionId,
       occasion_variant: body.data.occasionVariant ?? null,
+      occasion_context: body.data.occasionContext || null,
       photo_path: body.data.photoPath,
     })
     .select("id")

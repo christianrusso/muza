@@ -47,7 +47,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const { data: analysis } = await supabase
     .from("analyses")
-    .select("id, photo_path, occasion_id, occasion_variant, analysis_type, validity_status")
+    .select("id, photo_path, occasion_id, occasion_variant, occasion_context, analysis_type, validity_status")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -82,6 +82,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       photoUrl: signed.signedUrl,
       occasionLabel: occasionLabel(analysis.occasion_id as OccasionId),
       occasionVariant: analysis.occasion_variant,
+      occasionContext: analysis.occasion_context,
       analysisType: analysis.analysis_type as AnalysisType,
       examples,
     });

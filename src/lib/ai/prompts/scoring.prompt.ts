@@ -4,10 +4,12 @@ import type { AnalysisType } from "@/types/domain";
 export function buildScoringPrompt({
   occasionLabel,
   occasionVariant,
+  occasionContext,
   analysisType,
 }: {
   occasionLabel: string;
   occasionVariant?: string | null;
+  occasionContext?: string | null;
   analysisType: AnalysisType;
 }): string {
   const categoriesList = SCORE_CATEGORIES.map(
@@ -20,10 +22,16 @@ export function buildScoringPrompt({
     ? `\n- Matiz específico de la ocasión: "${occasionVariant}". Ajustá el criterio a ese matiz — no es lo mismo, por ejemplo, una fiesta de día que una de noche, o una cita informal que una formal. Puntuá la adecuación considerando este sub-contexto.`
     : "";
 
+  // Contexto libre que escribió el usuario (ej. "cumpleaños infantil", "boda en
+  // la playa"). Le da a la IA detalle que los chips no capturan.
+  const contextLine = occasionContext
+    ? `\n- Contexto adicional que aclaró el usuario: "${occasionContext}". Tenelo muy en cuenta al evaluar la adecuación del outfit a la situación real.`
+    : "";
+
   return `Sos el motor de puntuación de outfits de Muza. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones. NUNCA evalúes ni menciones el cuerpo, la apariencia física o cualquier atributo personal de quien aparece en la foto.
 
 Contexto de este análisis:
-- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}
+- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}
 - El tipo de análisis ya fue clasificado como: "${analysisType}" (completo=cuerpo entero, superior=solo parte de arriba, inferior=solo parte de abajo, individual=prenda suelta). Si alguna categoría no aplica por el tipo de análisis (ej. "calzado" en un análisis "superior" sin calzado visible), asignale un puntaje neutro (70) y aclaralo en la justificación en vez de inventar un dato no visible.
 
 Puntuá estas 10 categorías fijas, cada una de 0 a 100:

@@ -64,6 +64,7 @@ export interface Database {
           user_id: string;
           occasion_id: string;
           occasion_variant: string | null;
+          occasion_context: string | null;
           photo_path: string;
           analysis_type: "completo" | "superior" | "inferior" | "individual" | null;
           validity_status: "pending" | "valid" | "partial" | "invalid";

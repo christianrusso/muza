@@ -9,7 +9,8 @@ function CaptureContent() {
   const searchParams = useSearchParams();
   const occasionId = (searchParams.get("occasion") ?? "other") as OccasionId;
   const variant = searchParams.get("variant");
-  return <CameraCapture occasionId={occasionId} variant={variant} />;
+  const context = searchParams.get("context");
+  return <CameraCapture occasionId={occasionId} variant={variant} context={context} />;
 }
 
 export default function CapturePage() {

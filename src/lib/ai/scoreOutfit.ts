@@ -49,12 +49,14 @@ export async function scoreOutfit({
   photoUrl,
   occasionLabel,
   occasionVariant,
+  occasionContext,
   analysisType,
   examples = [],
 }: {
   photoUrl: string;
   occasionLabel: string;
   occasionVariant?: string | null;
+  occasionContext?: string | null;
   analysisType: AnalysisType;
   examples?: FewShotExample[];
 }): Promise<ScoringResult> {
@@ -64,7 +66,7 @@ export async function scoreOutfit({
     // no puede dar 82 una vez y 74 la siguiente.
     temperature: 0,
     input: [
-      { role: "system", content: buildScoringPrompt({ occasionLabel, occasionVariant, analysisType }) },
+      { role: "system", content: buildScoringPrompt({ occasionLabel, occasionVariant, occasionContext, analysisType }) },
       { role: "user", content: buildScoringUserContent(photoUrl, occasionLabel, examples) },
     ],
     text: { format: zodTextFormat(ScoringResultSchema, "scoring_result") },
