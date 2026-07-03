@@ -476,7 +476,7 @@ async function main() {
               : [];
             sc = await score(dataUrl, v.result.analysisType, occasionLabel(occ), examples);
           }
-          const overall = sc ? computeOverallScore(sc.result.categories) : null;
+          const overall = sc ? computeOverallScore(sc.result.categories, sc.result.analysisType) : null;
           runsByOcc.get(occ)!.push({
             run: r,
             validation: v.result,

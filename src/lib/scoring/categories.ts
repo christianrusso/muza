@@ -1,4 +1,4 @@
-import type { CategoryKey } from "@/types/domain";
+import type { CategoryKey, AnalysisType } from "@/types/domain";
 
 export interface CategoryDef {
   key: CategoryKey;
@@ -55,11 +55,35 @@ export function occasionCeiling(occasionScore: number): number {
   return occasionScore; // desajuste fuerte → el techo es la propia nota de ocasión
 }
 
-export function computeOverallScore(categories: { key: CategoryKey; score: number }[]): number {
-  const weighted = categories.reduce((sum, c) => {
+// Categorías que NO aplican según el tipo de análisis. En una foto "superior"
+// (solo torso) no hay calzado visible: puntuarlo y meterlo en el promedio castiga
+// algo que no existe (10% del score fijo en ~70 o menos). Esas categorías se
+// descartan y su peso se REPARTE entre las que sí aplican (renormalización), en
+// vez de arrastrar el overall hacia abajo. La ocasión nunca se descarta (es el techo).
+const INAPPLICABLE_BY_TYPE: Partial<Record<AnalysisType, CategoryKey[]>> = {
+  superior: ["calzado"],
+};
+
+export function computeOverallScore(
+  categories: { key: CategoryKey; score: number }[],
+  analysisType?: AnalysisType,
+): number {
+  const inapplicable = new Set(analysisType ? INAPPLICABLE_BY_TYPE[analysisType] ?? [] : []);
+  const applicable = categories.filter((c) => !inapplicable.has(c.key));
+
+  // Renormalizar: dividir por la suma de pesos de las categorías que aplican.
+  // Con todas presentes suma 1 (sin efecto); al descartar "calzado" (0.1) el
+  // divisor es 0.9 y el resto se reparte ese 10%.
+  const totalWeight = applicable.reduce((sum, c) => {
+    const def = SCORE_CATEGORIES.find((d) => d.key === c.key);
+    return sum + (def ? def.weight : 0);
+  }, 0);
+  const weightedSum = applicable.reduce((sum, c) => {
     const def = SCORE_CATEGORIES.find((d) => d.key === c.key);
     return sum + (def ? def.weight * c.score : 0);
   }, 0);
+  const weighted = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
   const occasion = categories.find((c) => c.key === "ocasion");
   const capped = occasion ? Math.min(weighted, occasionCeiling(occasion.score)) : weighted;
   return Math.round(capped);

@@ -17,7 +17,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: { code: "NOT_FOUND", message: "Análisis no encontrado." } }, { status: 404 });
     }
     const result = buildStubScoringResult(occasionLabel(analysis.occasionId));
-    const overallScore = computeOverallScore(result.categories);
+    const overallScore = computeOverallScore(result.categories, result.analysisType);
     updateDemoAnalysisScore(id, {
       overallScore,
       qualitativeBadge: result.qualitativeBadge,
@@ -85,7 +85,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       examples,
     });
 
-    const overallScore = computeOverallScore(result.categories);
+    const overallScore = computeOverallScore(result.categories, result.analysisType);
 
     await supabase
       .from("analyses")
