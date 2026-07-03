@@ -47,7 +47,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const { data: analysis } = await supabase
     .from("analyses")
-    .select("id, photo_path, occasion_id, occasion_variant, occasion_context, analysis_type, validity_status")
+    .select("id, photo_path, occasion_id, occasion_variant, occasion_context, analysis_type, validity_status, overall_score")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -60,6 +60,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       { error: { code: "NOT_VALIDATED", message: "El análisis no pasó la validación de imagen." } },
       { status: 409 },
     );
+  }
+
+  // Idempotencia: si ya está puntuado (ej. la pantalla de resultado se refrescó
+  // mientras cargaba), no re-scoreamos ni duplicamos categorías/feedback.
+  if (analysis.overall_score !== null) {
+    return NextResponse.json({ id: analysis.id, overallScore: analysis.overall_score, alreadyScored: true });
   }
 
   const { data: signed } = await supabase.storage

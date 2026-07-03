@@ -30,13 +30,8 @@ function ValidatingContent() {
         return;
       }
 
-      const scoreRes = await fetch(`/api/analyses/${params.id}/score`, { method: "POST" });
-      if (!scoreRes.ok) {
-        router.replace(`/analysis/${params.id}/invalid?occasion=${occasion}`);
-        return;
-      }
-      const scoreData = await scoreRes.json();
-      console.log(`[Muza] AI response for analysis ${params.id}:`, scoreData.aiRawResponse);
+      // Validación OK: avanzamos ya al resultado, que muestra la foto + skeleton
+      // y dispara el scoring. Así no bloqueamos con la pantalla negra durante la IA.
       router.replace(`/analysis/${params.id}/result`);
     }
 

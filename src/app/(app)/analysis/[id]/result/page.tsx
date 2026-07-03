@@ -6,13 +6,22 @@ import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
 import { SaveShareBar } from "@/components/analysis/SaveShareBar";
+import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
 export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const analysis = await getHydratedAnalysis(id);
-  if (!analysis || analysis.overallScore === null) notFound();
+  if (!analysis) notFound();
+
+  // La validación ya pasó pero la IA todavía no puntuó → mostramos la foto + un
+  // skeleton y disparamos el scoring; al terminar refresca y cae al render real.
+  if (analysis.overallScore === null) {
+    return (
+      <ScoringInProgress analysisId={id} occasionId={analysis.occasionId} photoUrl={analysis.photoUrl} />
+    );
+  }
 
   const fortalezas = analysis.feedback.filter((f) => f.kind === "fortaleza");
   const aspectos = analysis.feedback.filter((f) => f.kind === "aspecto_mejorar");
