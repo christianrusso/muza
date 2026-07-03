@@ -11,17 +11,24 @@
 // SEGURO POR DEFECTO: sin --apply solo muestra qué haría (dry-run), no escribe.
 //
 // Uso:
-//   npm run eval:import -- --dir test-photos                 # dry-run (ver el plan)
-//   npm run eval:import -- --dir test-photos --apply         # escribe de verdad
+//   npm run eval:import -- --dir test-photos                      # dry-run (ver el plan)
+//   npm run eval:import -- --dir test-photos --holdout 0.2        # dry-run + aparta 20% (seed 42)
+//   npm run eval:import -- --dir test-photos --holdout 0.2 --apply    # escribe de verdad
 //   npm run eval:import -- --dir test-photos --apply --replace   # reemplaza el banco entero
 //   npm run eval:import -- --dir test-photos --holdout-file scripts/eval/holdout.txt --apply
+//
+// Holdout (medir sin trampa):
+//   --holdout <frac>   aparta al azar esa fracción de fotos (nivel foto, no celda)
+//   --seed <n>         semilla del split (default 42, reproducible)
+//   --holdout-out <f>  dónde escribir la lista apartada (default scripts/eval/holdout.txt)
+//   --holdout-file <f> lista manual de fotos a excluir (se une al split automático)
 //
 // Requiere en .env.local:
 //   NEXT_PUBLIC_SUPABASE_URL
 //   SUPABASE_SERVICE_ROLE_KEY   (service role: bypassa RLS para insertar/subir)
 // ============================================================================
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -61,6 +68,27 @@ function arg(name: string): string | undefined {
 }
 const has = (name: string) => process.argv.includes(`--${name}`);
 
+// PRNG determinístico (mulberry32) para que el split de holdout sea reproducible
+// con la misma --seed: la misma foto cae siempre del mismo lado.
+function mulberry32(seed: number) {
+  return function () {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Fisher-Yates in-place con RNG inyectado.
+function shuffle<T>(a: T[], rng: () => number): T[] {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // clave de storage estable a partir de la ruta relativa (sin espacios)
 const storageKey = (relFile: string) => `examples/${relFile.replace(/\s+/g, "_")}`;
 
@@ -79,18 +107,54 @@ async function main() {
   const key = env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   // Las credenciales solo hacen falta para escribir; el dry-run corre sin ellas.
 
-  // holdout: fotos que NO van al banco (para medir sin data leakage)
+  const labels: Record<string, { scoring?: string | null; note?: string }> = JSON.parse(
+    readFileSync(LABELS_FILE, "utf8"),
+  );
+
+  // Fotos únicas con al menos una celda de scoring (👍/👎). El holdout se decide
+  // a NIVEL FOTO (no por celda): una foto va entera al banco o entera al holdout,
+  // así ninguna referencia se filtra a la medición.
+  const scoredPhotos = new Set<string>();
+  for (const [k, v] of Object.entries(labels)) {
+    if (!k.includes(" · ")) continue;
+    if (v.scoring !== "good" && v.scoring !== "bad") continue;
+    scoredPhotos.add(k.slice(0, k.lastIndexOf(" · ")));
+  }
+
+  // holdout: fotos que NO van al banco (para medir sin data leakage).
   const holdout = new Set<string>();
+  // 1) lista manual explícita (--holdout-file), tiene prioridad.
   if (holdoutFile && existsSync(holdoutFile)) {
     for (const l of readFileSync(holdoutFile, "utf8").split("\n")) {
       const t = l.trim();
       if (t) holdout.add(t);
     }
   }
-
-  const labels: Record<string, { scoring?: string | null; note?: string }> = JSON.parse(
-    readFileSync(LABELS_FILE, "utf8"),
-  );
+  // 2) split automático al azar (--holdout 0.2) con seed fija (--seed, default 42).
+  //    Reproducible: misma seed → mismas fotos apartadas. Se reparte sobre TODAS
+  //    las fotos con score, y como cada foja cubre varias ocasiones, el ~20% queda
+  //    naturalmente balanceado por ocasión.
+  const holdoutFrac = Number(arg("holdout") ?? 0);
+  const seed = Number(arg("seed") ?? 42);
+  if (holdoutFrac > 0) {
+    if (holdoutFrac >= 1) {
+      console.error(`✖ --holdout debe ser una fracción entre 0 y 1 (ej. 0.2), no ${holdoutFrac}`);
+      process.exit(1);
+    }
+    const target = Math.round(holdoutFrac * scoredPhotos.size);
+    const pool = shuffle(
+      [...scoredPhotos].filter((p) => !holdout.has(p)).sort(),
+      mulberry32(seed),
+    );
+    for (const p of pool) {
+      if (holdout.size >= target) break;
+      holdout.add(p);
+    }
+    // Persistir la lista para que la medición use exactamente estas fotos.
+    const holdoutOut = arg("holdout-out") ?? join(__dirname, "holdout.txt");
+    writeFileSync(holdoutOut, [...holdout].sort().join("\n") + "\n");
+    console.log(`   holdout: ${holdout.size}/${scoredPhotos.size} fotos (seed ${seed}) → ${holdoutOut}`);
+  }
 
   // armar: fotos únicas a subir + filas a insertar
   const photos = new Map<string, string>(); // relFile -> storageKey
@@ -141,7 +205,7 @@ async function main() {
   for (const [o, c] of Object.entries(bal).sort()) console.log(`     ${o.padEnd(11)} 👍${c.g} 👎${c.b}`);
 
   if (!apply) {
-    console.log(`\n(dry-run: no se escribió nada. Agregá --apply para ejecutar.)\n`);
+    console.log(`\n(dry-run: no se tocó Supabase. Agregá --apply para ejecutar.)\n`);
     return;
   }
 

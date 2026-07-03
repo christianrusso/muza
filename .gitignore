@@ -42,6 +42,9 @@ yarn-error.log*
 # eval harness output (reportes generados)
 /scripts/eval/out/
 
+# holdout del import (split reproducible por seed, no versionar)
+/scripts/eval/holdout.txt
+
 # fotos de prueba del eval (imágenes de personas, no van al repo)
 /test-photos/
 
