@@ -2,13 +2,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OCCASIONS } from "@/lib/occasions";
+import { OCCASIONS, occasionVariants } from "@/lib/occasions";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { Button } from "@/components/ui/Button";
+import type { OccasionId } from "@/types/domain";
 
 export function OccasionGrid() {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
+  const [variant, setVariant] = useState<string | null>(null);
+
+  const variants = selected ? occasionVariants(selected as OccasionId) : [];
+
+  function selectOccasion(id: string) {
+    setSelected(id);
+    setVariant(null); // al cambiar de ocasión, se resetea la variante
+  }
+
+  function handleContinue() {
+    const qs = new URLSearchParams({ occasion: selected! });
+    if (variant) qs.set("variant", variant);
+    router.push(`/analysis/new/capture?${qs.toString()}`);
+  }
 
   return (
     <>
@@ -18,18 +33,33 @@ export function OccasionGrid() {
             key={occasion.id}
             type="button"
             className={`occ ${selected === occasion.id ? "sel" : ""}`}
-            onClick={() => setSelected(occasion.id)}
+            onClick={() => selectOccasion(occasion.id)}
           >
             <MaterialIcon name={occasion.icon} size={26} />
             <span>{occasion.label}</span>
           </button>
         ))}
       </div>
-      <Button
-        style={{ marginTop: "auto" }}
-        disabled={!selected}
-        onClick={() => router.push(`/analysis/new/capture?occasion=${selected}`)}
-      >
+
+      {variants.length > 0 && (
+        <div className="mt-4">
+          <span className="section-label mb-2 block px-1">¿Cuál? (opcional)</span>
+          <div className="flex flex-wrap gap-2">
+            {variants.map((v) => (
+              <button
+                key={v}
+                type="button"
+                className={`chip ${variant === v ? "active" : ""}`}
+                onClick={() => setVariant((cur) => (cur === v ? null : v))}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button style={{ marginTop: "auto" }} disabled={!selected} onClick={handleContinue}>
         Continuar
       </Button>
     </>

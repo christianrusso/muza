@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getHydratedAnalysis } from "@/lib/analyses";
-import { occasionLabel } from "@/lib/occasions";
+import { occasionFullLabel } from "@/lib/occasions";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
@@ -18,7 +18,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   const aspectos = analysis.feedback.filter((f) => f.kind === "aspecto_mejorar");
   const recomendaciones = analysis.feedback.filter((f) => f.kind === "recomendacion");
 
-  const occasionAndStyle = [occasionLabel(analysis.occasionId), ...analysis.styleDescriptors]
+  const occasionAndStyle = [occasionFullLabel(analysis.occasionId, analysis.occasionVariant), ...analysis.styleDescriptors]
     .filter(Boolean)
     .join(" · ");
 

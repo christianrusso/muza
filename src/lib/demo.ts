@@ -129,6 +129,7 @@ export function getDemoAnalysis(id: string): Analysis | null {
     id: found.id,
     userId: DEMO_USER.id,
     occasionId: found.occasionId,
+    occasionVariant: null,
     photoPath: "",
     photoUrl: undefined,
     analysisType: found.analysisType,

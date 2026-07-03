@@ -46,6 +46,7 @@ export interface Analysis {
   id: string;
   userId: string;
   occasionId: OccasionId;
+  occasionVariant: string | null;
   photoPath: string;
   photoUrl?: string;
   analysisType: AnalysisType;

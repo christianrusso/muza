@@ -4,11 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image/compress";
-import { occasionLabel } from "@/lib/occasions";
+import { occasionFullLabel } from "@/lib/occasions";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { OccasionId } from "@/types/domain";
 
-export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
+export function CameraCapture({
+  occasionId,
+  variant,
+}: {
+  occasionId: OccasionId;
+  variant?: string | null;
+}) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -78,7 +84,7 @@ export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
         const res = await fetch("/api/analyses", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ occasionId, photoDataUrl }),
+          body: JSON.stringify({ occasionId, occasionVariant: variant, photoDataUrl }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");
@@ -101,7 +107,7 @@ export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
       const res = await fetch("/api/analyses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ occasionId, photoPath }),
+        body: JSON.stringify({ occasionId, occasionVariant: variant, photoPath }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");
@@ -183,7 +189,7 @@ export function CameraCapture({ occasionId }: { occasionId: OccasionId }) {
         </button>
         <span className="flex h-[34px] items-center gap-1.5 rounded-full bg-white/[.14] px-3.5 text-sm font-bold text-white">
           <MaterialIcon name="favorite" size={16} className="text-coral" />
-          {occasionLabel(occasionId)}
+          {occasionFullLabel(occasionId, variant)}
         </span>
         <div className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/[.14]">
           <MaterialIcon name="bolt" size={22} className="text-white" />
