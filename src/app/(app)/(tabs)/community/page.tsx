@@ -13,7 +13,6 @@ import type { AnalysisType, OccasionId } from "@/types/domain";
 const TABS = [
   { value: "popular", label: "Popular" },
   { value: "reciente", label: "Reciente" },
-  { value: "siguiendo", label: "Siguiendo" },
 ] as const;
 
 interface FeedPost {
@@ -58,8 +57,7 @@ async function loadCommunityFeed(activeTab: string): Promise<FeedPost[]> {
       comment_count: p.comment_count,
       myReaction: null,
     }));
-    const all = [...created, ...seeded];
-    return activeTab === "siguiendo" ? [] : all;
+    return [...created, ...seeded];
   }
 
   const supabase = await createClient();
@@ -68,15 +66,6 @@ async function loadCommunityFeed(activeTab: string): Promise<FeedPost[]> {
   } = await supabase.auth.getUser();
 
   let query = supabase.from("community_feed_view").select("*");
-
-  if (activeTab === "siguiendo") {
-    const { data: follows } = await supabase
-      .from("follows")
-      .select("following_id")
-      .eq("follower_id", user!.id);
-    const followingIds = (follows ?? []).map((f) => f.following_id);
-    query = query.in("author_id", followingIds.length ? followingIds : ["00000000-0000-0000-0000-000000000000"]);
-  }
 
   query =
     activeTab === "popular"

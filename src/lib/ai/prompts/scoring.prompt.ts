@@ -30,7 +30,7 @@ Además devolvé:
 - "detected": prendas superiores, prendas inferiores, calzado, accesorios y colores predominantes detectados (listas de strings en español, vacías si no aplica/no visibles), y "estilo" (una palabra que describa el estilo general, o null).
 - "strengths": 2-4 fortalezas concretas del outfit (en español, frases cortas).
 - "improvements": 2-4 aspectos a mejorar concretos (en español, frases cortas, constructivas).
-- "recommendations": 2-4 recomendaciones de acción concretas y accionables (en español, frases cortas tipo "Agregá un cinturón de cuero").
+- "recommendations": 4-6 recomendaciones de acción concretas y accionables (en español, frases cortas tipo "Agregá un cinturón de cuero"). Que sean variadas y no redundantes entre sí.
 
 No calcules ni devuelvas un puntaje general: el sistema lo calcula server-side a partir de tus puntajes por categoría y los pesos fijos. Respondé exclusivamente con la estructura de datos solicitada, en español (Argentina).`;
 }

@@ -6,6 +6,7 @@ import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
 import { SaveShareBar } from "@/components/analysis/SaveShareBar";
+import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
 export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,7 +23,8 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
     .join(" · ");
 
   return (
-    <div className="min-h-screen pb-[130px]">
+    <div className="relative flex h-dvh flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto pb-[130px]">
       <div className="ph relative overflow-hidden" style={{ height: 266 }}>
         {analysis.photoUrl && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -128,7 +130,9 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      <SaveShareBar />
+        <SaveShareBar />
+      </div>
+      <BottomTabBar />
     </div>
   );
 }
