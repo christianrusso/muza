@@ -19,7 +19,7 @@ export function isFewShotEnabled(): boolean {
 
 // Bucket de storage donde viven las imágenes de referencia. Por defecto reusa el
 // de las fotos de usuario; se puede apuntar a uno dedicado con env.
-const EXAMPLES_BUCKET = process.env.SCORING_EXAMPLES_BUCKET ?? "outfit-photos";
+const EXAMPLES_BUCKET = process.env.SCORING_EXAMPLES_BUCKET ?? "scoring-examples";
 const DEFAULT_MAX = Number(process.env.SCORING_FEWSHOT_MAX ?? 4);
 const SIGNED_URL_TTL = 300; // segundos, igual que la foto del usuario
 
