@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OCCASIONS, occasionVariants } from "@/lib/occasions";
+import { OCCASIONS, occasionVariantGroups } from "@/lib/occasions";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { Button } from "@/components/ui/Button";
 import type { OccasionId } from "@/types/domain";
@@ -10,19 +10,36 @@ import type { OccasionId } from "@/types/domain";
 export function OccasionGrid() {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
-  const [variant, setVariant] = useState<string | null>(null);
+  // variante elegida por grupo (clave = label del grupo, ej. "Momento" → "Noche")
+  const [byGroup, setByGroup] = useState<Record<string, string>>({});
   const [context, setContext] = useState("");
 
-  const variants = selected ? occasionVariants(selected as OccasionId) : [];
+  const groups = selected ? occasionVariantGroups(selected as OccasionId) : [];
 
   function selectOccasion(id: string) {
     setSelected(id);
-    setVariant(null); // al cambiar de ocasión, se resetean variante y contexto
+    setByGroup({}); // al cambiar de ocasión, se resetean variantes y contexto
     setContext("");
+  }
+
+  function toggle(groupLabel: string, option: string) {
+    setByGroup((cur) => {
+      if (cur[groupLabel] === option) {
+        const next = { ...cur };
+        delete next[groupLabel];
+        return next;
+      }
+      return { ...cur, [groupLabel]: option };
+    });
   }
 
   function handleContinue() {
     const qs = new URLSearchParams({ occasion: selected! });
+    // Se juntan las variantes elegidas en orden de grupo (ej. "Noche · Cóctel").
+    const variant = groups
+      .map((g) => byGroup[g.label])
+      .filter(Boolean)
+      .join(" · ");
     if (variant) qs.set("variant", variant);
     const ctx = context.trim();
     if (ctx) qs.set("context", ctx);
@@ -45,23 +62,23 @@ export function OccasionGrid() {
         ))}
       </div>
 
-      {variants.length > 0 && (
-        <div className="mt-4">
-          <span className="section-label mb-2 block px-1">¿Cuál? (opcional)</span>
+      {groups.map((group) => (
+        <div key={group.label} className="mt-4">
+          <span className="section-label mb-2 block px-1">{group.label} (opcional)</span>
           <div className="flex flex-wrap gap-2">
-            {variants.map((v) => (
+            {group.options.map((option) => (
               <button
-                key={v}
+                key={option}
                 type="button"
-                className={`chip ${variant === v ? "active" : ""}`}
-                onClick={() => setVariant((cur) => (cur === v ? null : v))}
+                className={`chip ${byGroup[group.label] === option ? "active" : ""}`}
+                onClick={() => toggle(group.label, option)}
               >
-                {v}
+                {option}
               </button>
             ))}
           </div>
         </div>
-      )}
+      ))}
 
       {selected && (
         <div className="mt-4">
