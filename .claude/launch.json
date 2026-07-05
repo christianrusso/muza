@@ -7,6 +7,12 @@
       "runtimeArgs": ["run", "dev"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "eval-report",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "eval:serve"],
+      "port": 4599
     }
   ]
 }
