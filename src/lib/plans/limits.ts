@@ -19,8 +19,11 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
-    monthlyAnalyses: FREE_MONTHLY_ANALYSES_LIMIT,
-    historyWindowDays: FREE_HISTORY_WINDOW_DAYS,
+    // LANZAMIENTO GRATIS (2026-07): sin tope de análisis ni recorte de historial
+    // hasta activar la monetización. Revertir a FREE_MONTHLY_ANALYSES_LIMIT /
+    // FREE_HISTORY_WINDOW_DAYS cuando se prenda el pago.
+    monthlyAnalyses: null,
+    historyWindowDays: null,
     canSimulate: false,
     simulationsLifetime: FREE_LIFETIME_SIMULATIONS,
     advancedRecommendations: false,

@@ -11,6 +11,10 @@ const AUTH_ROUTES = [
   "/auth/callback",
 ];
 
+// Rutas públicas: accesibles con o sin sesión, sin redirigir. Legales debe
+// poder verse antes de registrarse y como URL pública (stores/footer).
+const PUBLIC_ROUTES = ["/legal"];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -48,8 +52,9 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/welcome";
     return NextResponse.redirect(url);

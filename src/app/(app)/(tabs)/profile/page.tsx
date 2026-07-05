@@ -151,6 +151,11 @@ export default async function ProfilePage() {
           <span className="txt">Configuración</span>
           <MaterialIcon name="chevron_right" className="chev" />
         </Link>
+        <Link href="/legal" className="row">
+          <MaterialIcon name="gavel" />
+          <span className="txt">Legales</span>
+          <MaterialIcon name="chevron_right" className="chev" />
+        </Link>
       </div>
     </div>
   );
