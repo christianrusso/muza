@@ -81,7 +81,10 @@ export default async function SettingsPage() {
           <div className="row">
             <MaterialIcon name="translate" />
             <span className="txt">Idioma</span>
-            <span className="meta">Español</span>
+            <span className="meta flex items-center gap-1">
+              <MaterialIcon name="schedule" size={14} />
+              Próximamente
+            </span>
           </div>
           <div className="row">
             <MaterialIcon name="notifications" />
