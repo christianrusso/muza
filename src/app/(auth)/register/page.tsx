@@ -63,8 +63,12 @@ export default function RegisterPage() {
       return;
     }
     await supabase.auth.signOut();
+    setSubmitting(false);
     setSuccess(true);
-    setTimeout(() => router.push("/login"), 1200);
+    // Con verificación de email activada en Supabase, la cuenta queda pendiente
+    // hasta confirmar el correo. NO redirigimos a /login: dejamos visible el
+    // aviso de "revisá tu correo" (si redirigíamos, el usuario no lo alcanzaba a
+    // leer y después el login fallaba con "Email not confirmed" sin contexto).
   }
 
   return (
@@ -126,12 +130,23 @@ export default function RegisterPage() {
 
         {error && <Banner variant="error">{translateAuthError(error)}</Banner>}
         {success && (
-          <Banner variant="success">¡Cuenta creada con éxito! Ya podés iniciar sesión.</Banner>
+          <Banner variant="success">
+            ¡Cuenta creada! Te enviamos un correo a <b>{email}</b> para verificar tu cuenta.
+            Confirmalo y después iniciá sesión. Revisá también la carpeta de spam.
+          </Banner>
         )}
 
-        <Button type="submit" disabled={!canSubmit || submitting || success} className="mt-auto">
-          {success ? "Listo" : submitting ? "Creando..." : "Crear cuenta"}
-        </Button>
+        {success ? (
+          <Link href="/login" className="mt-auto">
+            <Button type="button" className="w-full">
+              Ir a iniciar sesión
+            </Button>
+          </Link>
+        ) : (
+          <Button type="submit" disabled={!canSubmit || submitting} className="mt-auto">
+            {submitting ? "Creando..." : "Crear cuenta"}
+          </Button>
+        )}
         <p className="text-center text-sm font-semibold text-muted">
           ¿Ya tenés cuenta?{" "}
           <Link href="/login" className="font-bold text-coral">
