@@ -5,6 +5,7 @@ import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { AvatarUploader } from "@/components/profile/AvatarUploader";
 
 async function loadProfileData() {
   if (isDemoMode()) {
@@ -19,6 +20,7 @@ async function loadProfileData() {
       photoUrl: store.analyses.get(p.analysisId)?.photoDataUrl ?? null,
     }));
     return {
+      userId: DEMO_USER.id,
       firstName: DEMO_USER.full_name.split(" ")[0],
       avatarUrl: null as string | null,
       planTier: DEMO_USER.plan_tier,
@@ -67,6 +69,7 @@ async function loadProfileData() {
   }));
 
   return {
+    userId: user!.id,
     firstName: profile?.full_name?.split(" ")[0] ?? "",
     avatarUrl: profile?.avatar_url ?? null,
     planTier: profile?.plan_tier ?? "free",
@@ -77,25 +80,12 @@ async function loadProfileData() {
 }
 
 export default async function ProfilePage() {
-  const { firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await timed("profile:data", loadProfileData);
+  const { userId, firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await timed("profile:data", loadProfileData);
 
   return (
     <div className="flex min-h-screen flex-col gap-4 px-[22px] pt-[60px]">
       <div className="flex flex-col items-center">
-        <div className="relative">
-          <div
-            className="ph h-[104px] w-[104px] rounded-full border-2 border-white"
-            style={{
-              boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-              ...(avatarUrl
-                ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : {}),
-            }}
-          />
-          <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-coral text-white">
-            <MaterialIcon name="edit" size={16} />
-          </span>
-        </div>
+        <AvatarUploader userId={userId} avatarUrl={avatarUrl} />
         <span className="font-serif italic mt-3 text-[26px]">{firstName}</span>
         <span className="chip mt-2">
           <MaterialIcon name="star" size={15} />

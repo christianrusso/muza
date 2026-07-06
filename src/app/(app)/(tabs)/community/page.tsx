@@ -36,13 +36,10 @@ export default async function CommunityPage({
 
   return (
     <div className="flex min-h-full flex-col pt-[60px]">
-      <div className="flex items-center justify-between px-[22px] pb-3">
+      <div className="flex items-center px-[22px] pb-3">
         <span className="font-serif italic" style={{ fontSize: 34 }}>
           Comunidad
         </span>
-        <button type="button" className="btn-icon" style={{ width: 40, height: 40, borderRadius: 12 }}>
-          <MaterialIcon name="search" size={21} />
-        </button>
       </div>
 
       <div className="flex gap-5 border-b border-line px-[22px]">

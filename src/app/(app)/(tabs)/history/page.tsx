@@ -10,7 +10,6 @@ import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { GridSkeleton } from "@/components/loading/Skeletons";
-import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
 interface HistoryItem {
@@ -141,13 +140,10 @@ export default async function HistoryPage({
 
   return (
     <div className="flex min-h-screen flex-col pt-[60px]">
-      <div className="flex items-center justify-between px-[22px] pb-3.5">
+      <div className="flex items-center px-[22px] pb-3.5">
         <span className="font-serif italic" style={{ fontSize: 34 }}>
           Historial
         </span>
-        <button type="button" className="btn-icon" style={{ width: 40, height: 40, borderRadius: 12 }}>
-          <MaterialIcon name="search" size={21} />
-        </button>
       </div>
 
       <div className="flex gap-2 overflow-x-auto px-[22px] pb-4">
@@ -161,10 +157,6 @@ export default async function HistoryPage({
             {f.label}
           </Link>
         ))}
-        <button type="button" className="chip">
-          <MaterialIcon name="tune" size={15} />
-          Ocasión
-        </button>
       </div>
 
       {/* Header y filtros pintan al instante; la grilla llega por streaming. */}
