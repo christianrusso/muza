@@ -8,6 +8,10 @@ import { isDemoMode, buildStubScoringResult } from "@/lib/demo";
 import { getDemoCreatedAnalysis, updateDemoAnalysisScore } from "@/lib/demoStore";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
+// La llamada a OpenAI (visión, detail "high" + few-shots) puede tardar; le damos
+// margen para que no la corte el gateway de Vercel antes de responder.
+export const maxDuration = 60;
+
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 

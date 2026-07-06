@@ -4,6 +4,10 @@ import { validateOutfitImage, AIValidationError } from "@/lib/ai/validateImage";
 import { isDemoMode, buildStubValidationResult } from "@/lib/demo";
 import { getDemoCreatedAnalysis, updateDemoAnalysisValidation } from "@/lib/demoStore";
 
+// La validación de imagen llama a OpenAI (visión, detail "high"); margen para
+// que no la corte el gateway de Vercel antes de responder.
+export const maxDuration = 60;
+
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
