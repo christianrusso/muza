@@ -74,11 +74,6 @@ export default async function SettingsPage() {
             <span className="txt">Editar nombre</span>
             <MaterialIcon name="chevron_right" className="chev" />
           </Link>
-          <Link href="/profile/edit-email" className="row">
-            <MaterialIcon name="mail" />
-            <span className="txt">Editar email</span>
-            <MaterialIcon name="chevron_right" className="chev" />
-          </Link>
         </div>
       </div>
 
