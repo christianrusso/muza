@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signedPhotoUrls } from "@/lib/supabase/photos";
+import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -76,7 +77,7 @@ async function loadProfileData() {
 }
 
 export default async function ProfilePage() {
-  const { firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await loadProfileData();
+  const { firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await timed("profile:data", loadProfileData);
 
   return (
     <div className="flex min-h-screen flex-col gap-4 px-[22px] pt-[60px]">

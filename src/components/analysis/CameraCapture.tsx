@@ -156,7 +156,12 @@ export function CameraCapture({
       style={{ background: "linear-gradient(#1F1B17,#141210)", minHeight: "100vh" }}
     >
       {/* El video se monta siempre para que videoRef exista cuando llega el
-          stream; se muestra recién cuando la cámara está lista. */}
+          stream; se muestra recién cuando la cámara está lista.
+          Con foto elegida NO apagamos la cámara (retake instantáneo, igual que en
+          iPhone): la ocultamos con visibility:hidden. En Android el <video> en
+          vivo se compone por hardware y "atraviesa" el <img> del preview sin
+          respetar el z-index; visibility:hidden saca ese overlay sin cortar el
+          stream (opacity:0 no alcanza, el overlay igual se pinta). */}
       <video
         ref={videoRef}
         autoPlay
@@ -164,7 +169,7 @@ export function CameraCapture({
         muted
         className={`absolute inset-0 h-full w-full object-cover transition-opacity ${
           streamOk ? "opacity-100" : "opacity-0"
-        }`}
+        } ${captured ? "invisible" : ""}`}
       />
       {/* Foto congelada, encima del video, mientras se confirma. */}
       {captured && (

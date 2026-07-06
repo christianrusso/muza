@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { greetingDate } from "@/lib/dates";
 import { occasionLabel } from "@/lib/occasions";
+import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -80,7 +81,7 @@ async function loadHomeData() {
 }
 
 export default async function HomePage() {
-  const { firstName, avatarUrl, latest, totalCount, average } = await loadHomeData();
+  const { firstName, avatarUrl, latest, totalCount, average } = await timed("home:data", loadHomeData);
 
   return (
     <div className="screen-body pad-tab" style={{ gap: 18 }}>

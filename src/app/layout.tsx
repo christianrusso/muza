@@ -2,10 +2,44 @@ import type { Metadata } from "next";
 import { instrumentSerif, manrope } from "@/lib/fonts";
 import "./globals.css";
 
+// metadataBase resuelve las URLs absolutas de los previews (OG/Twitter). Sin
+// dominio propio todavía: usa NEXT_PUBLIC_SITE_URL si está, si no la URL que
+// inyecta Vercel, y en local cae a localhost. Cambiar cuando haya dominio final.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+const title = "Muza — Tu outfit, evaluado";
+const description = "Analizá tu outfit con IA: puntaje, recomendaciones y comunidad.";
+
 export const metadata: Metadata = {
-  title: "Muza — Tu outfit, evaluado",
-  description: "Analizá tu outfit con IA: puntaje, recomendaciones y comunidad.",
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  applicationName: "Muza",
+  appleWebApp: { capable: true, title: "Muza", statusBarStyle: "black-translucent" },
+  // Next toma automáticamente src/app/opengraph-image.png y los íconos; acá solo
+  // completamos los textos que acompañan el preview al compartir el link.
+  openGraph: {
+    type: "website",
+    siteName: "Muza",
+    title,
+    description,
+    locale: "es_AR",
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
+
+// Origen de Supabase para adelantar el handshake TLS: el login OAuth y toda
+// llamada a la DB pegan acá, así el preconnect recorta el arranque del redirect.
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : null;
 
 export default function RootLayout({
   children,
@@ -20,6 +54,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block"
           rel="stylesheet"

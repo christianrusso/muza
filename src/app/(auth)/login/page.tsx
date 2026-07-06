@@ -9,6 +9,7 @@ import { ScreenHead } from "@/components/navigation/TopBar";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
+import { Spinner } from "@/components/ui/Spinner";
 import { translateAuthError } from "@/lib/supabase/authErrors";
 
 export default function LoginPage() {
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,11 +45,26 @@ export default function LoginPage() {
       router.push("/home");
       return;
     }
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    // Feedback inmediato: el redirect OAuth (Supabase → Google) tarda unos
+    // segundos por red y hasta que llega la pantalla actual sigue visible. Sin
+    // esto el botón parece muerto. En éxito el navegador redirige y no volvemos;
+    // solo reseteamos el estado si signInWithOAuth falla (antes se ignoraba).
+    setOauthLoading(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        setOauthLoading(false);
+      }
+    } catch {
+      setError("No pudimos conectar con Google. Reintentá.");
+      setOauthLoading(false);
+    }
   }
 
   return (
@@ -80,7 +97,7 @@ export default function LoginPage() {
         {error && <Banner variant="error">{translateAuthError(error)}</Banner>}
         {success && <Banner variant="success">Sesión iniciada, cargando tu perfil...</Banner>}
 
-        <Button type="submit" disabled={submitting || success}>
+        <Button type="submit" disabled={submitting || success || oauthLoading}>
           {success ? "Ingresando..." : submitting ? "Verificando..." : "Ingresar"}
         </Button>
 
@@ -89,8 +106,20 @@ export default function LoginPage() {
           <span className="h-px flex-1 bg-line-strong" />
         </div>
 
-        <Button variant="outline" type="button" onClick={() => continueWithOAuth("google")}>
-          Google
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => continueWithOAuth("google")}
+          disabled={oauthLoading || submitting || success}
+        >
+          {oauthLoading ? (
+            <>
+              <Spinner size={18} />
+              Conectando con Google...
+            </>
+          ) : (
+            "Google"
+          )}
         </Button>
 
         <p className="mt-auto text-center text-sm font-semibold text-muted">

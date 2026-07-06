@@ -46,9 +46,16 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // getUser() valida el token contra Supabase Auth por red en CADA request, así
+  // que es un costo fijo por click. Lo medimos y lo exponemos como Server-Timing
+  // (visible en el Network → Timing del navegador) para dimensionar cuánto pesa.
+  const authStart = performance.now();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const authMs = Math.round(performance.now() - authStart);
+  supabaseResponse.headers.set("Server-Timing", `auth;dur=${authMs}`);
+  if (process.env.PERF_LOG) console.log(`[perf] middleware auth (${request.nextUrl.pathname}): ${authMs}ms`);
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));

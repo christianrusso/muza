@@ -7,22 +7,37 @@ import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function WelcomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState<"google" | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
       router.push("/home");
       return;
     }
+    // El redirect OAuth tarda unos segundos por red; mostramos spinner ni bien
+    // se toca para que no parezca que no pasa nada. En éxito el navegador
+    // redirige; solo reseteamos si signInWithOAuth falla (antes se ignoraba).
     setLoading(provider);
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        setLoading(null);
+      }
+    } catch {
+      setError("No pudimos conectar con Google. Reintentá.");
+      setLoading(null);
+    }
   }
 
   return (
@@ -51,11 +66,25 @@ export default function WelcomePage() {
           onClick={() => continueWithOAuth("google")}
           disabled={loading !== null}
         >
-          <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-coral text-xs font-extrabold text-white">
-            G
-          </span>
-          Continuar con Google
+          {loading === "google" ? (
+            <>
+              <Spinner size={18} />
+              Conectando con Google...
+            </>
+          ) : (
+            <>
+              <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-coral text-xs font-extrabold text-white">
+                G
+              </span>
+              Continuar con Google
+            </>
+          )}
         </Button>
+        {error && (
+          <p className="mt-3 w-full rounded-xl bg-black/40 px-3 py-2 text-center text-sm font-semibold text-white">
+            {error}
+          </p>
+        )}
         <Link href="/register" className="mt-3 w-full">
           <Button variant="primary">Continuar con email</Button>
         </Link>
