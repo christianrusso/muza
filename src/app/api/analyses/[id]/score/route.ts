@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreOutfit, AIScoringError } from "@/lib/ai/scoreOutfit";
 import { getFewShotExamples } from "@/lib/scoring/knowledgeBase";
-import { computeOverallScore, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, buildStubScoringResult } from "@/lib/demo";
 import { getDemoCreatedAnalysis, updateDemoAnalysisScore } from "@/lib/demoStore";
@@ -26,7 +26,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       overallScore,
       qualitativeBadge: result.qualitativeBadge,
       styleDescriptors: result.styleDescriptors,
-      categories: result.categories.map((c) => ({
+      // Solo guardamos las categorías que aplican al tipo (ej. sin "calzado" en
+      // una foto "superior") para que no aparezcan en el desglose como neutras.
+      categories: applicableCategories(result.categories, result.analysisType).map((c) => ({
         categoryKey: c.key,
         weight: SCORE_CATEGORIES.find((d) => d.key === c.key)?.weight ?? 0,
         score: c.score,
@@ -117,7 +119,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       .eq("id", id);
 
     await supabase.from("analysis_categories").insert(
-      result.categories.map((c) => ({
+      // Solo las categorías que aplican al tipo (ej. sin "calzado" en "superior").
+      applicableCategories(result.categories, result.analysisType).map((c) => ({
         analysis_id: id,
         category_key: c.key,
         // weight is looked up server-side from the fixed category defs, never trusted from the model

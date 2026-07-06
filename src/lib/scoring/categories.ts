@@ -64,12 +64,23 @@ const INAPPLICABLE_BY_TYPE: Partial<Record<AnalysisType, CategoryKey[]>> = {
   superior: ["calzado"],
 };
 
+// Fuente de verdad de qué categorías aplican según el tipo. Se usa tanto para el
+// promedio (descarta y renormaliza) como para el guardado/desglose (que la
+// categoría directamente NO aparezca, en vez de mostrarse con un 70 "neutro" que
+// parece restar). Ej.: en una foto "superior" no hay calzado → no se muestra.
+export function applicableCategories<T extends { key: CategoryKey }>(
+  categories: T[],
+  analysisType?: AnalysisType,
+): T[] {
+  const inapplicable = new Set(analysisType ? INAPPLICABLE_BY_TYPE[analysisType] ?? [] : []);
+  return categories.filter((c) => !inapplicable.has(c.key));
+}
+
 export function computeOverallScore(
   categories: { key: CategoryKey; score: number }[],
   analysisType?: AnalysisType,
 ): number {
-  const inapplicable = new Set(analysisType ? INAPPLICABLE_BY_TYPE[analysisType] ?? [] : []);
-  const applicable = categories.filter((c) => !inapplicable.has(c.key));
+  const applicable = applicableCategories(categories, analysisType);
 
   // Renormalizar: dividir por la suma de pesos de las categorías que aplican.
   // Con todas presentes suma 1 (sin efecto); al descartar "calzado" (0.1) el

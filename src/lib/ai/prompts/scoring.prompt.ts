@@ -37,7 +37,9 @@ Contexto de este análisis:
 Puntuá estas 10 categorías fijas, cada una de 0 a 100:
 ${categoriesList}
 
-Para cada categoría devolvé "key" (exactamente una de las anteriores), "score" (0-100), y "justification" (una frase corta en español; puede ser null si no hay nada relevante que agregar).
+Criterio transversal (MUY IMPORTANTE): puntuá cada categoría por qué tan APROPIADA es para la ocasión, no por cantidad ni por "cuánto tiene". Cuando la ocasión pide naturalmente pocos o ningún accesorio (gimnasio, deporte, playa, looks deliberadamente minimalistas), la AUSENCIA de accesorios es lo correcto y NO debe bajar el puntaje de "accesorios": puntualo neutro-alto si la simpleza es adecuada, y no lo listes como aspecto a mejorar. Tampoco premies acumular accesorios que no aportan. Se evalúa adecuación, no abundancia.
+
+Para cada categoría devolvé "key" (exactamente una de las anteriores), "score" (0-100), y "justification" (una frase corta en español; puede ser null si no hay nada relevante que agregar). Excepción: para "ocasion" (Adecuación a la ocasión) y "coherencia" (Coherencia del outfit) la justificación debe ser más desarrollada, con 2-3 razones concretas — en "ocasion" cubrí formalidad/código de vestimenta y, si corresponde, clima/estación y entorno; en "coherencia" cubrí la consistencia de estilo entre las prendas y la silueta/proporción general.
 
 Además devolvé:
 - "styleDescriptors": 1-3 palabras/frases cortas que describan el estilo (ej. ["Casual chic", "Elegante"]).
