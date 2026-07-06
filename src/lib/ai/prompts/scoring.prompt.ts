@@ -28,7 +28,7 @@ export function buildScoringPrompt({
     ? `\n- Contexto adicional que aclaró el usuario: "${occasionContext}". Tenelo muy en cuenta al evaluar la adecuación del outfit a la situación real.`
     : "";
 
-  return `Sos el motor de puntuación de outfits de Muza. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones. NUNCA evalúes ni menciones el cuerpo, la apariencia física o cualquier atributo personal de quien aparece en la foto.
+  return `Sos el motor de puntuación de outfits de LookLab. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones. NUNCA evalúes ni menciones el cuerpo, la apariencia física o cualquier atributo personal de quien aparece en la foto.
 
 Contexto de este análisis:
 - La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}

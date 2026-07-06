@@ -58,7 +58,7 @@ export default function WelcomePage() {
           <Logo size={58} />
         </div>
         <span className="font-serif italic text-white" style={{ fontSize: 62, lineHeight: 1 }}>
-          Muza
+          LookLab
         </span>
         <span className="mb-6 mt-1 text-[15px] font-semibold text-white/85">
           Tu outfit, evaluado

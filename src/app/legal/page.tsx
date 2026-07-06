@@ -2,8 +2,8 @@ import Link from "next/link";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
 export const metadata = {
-  title: "Legales — Muza",
-  description: "Política de privacidad y términos de uso de Muza.",
+  title: "Legales — LookLab",
+  description: "Política de privacidad y términos de uso de LookLab.",
 };
 
 // Página pública (ver middleware): accesible con o sin sesión, para poder
@@ -68,7 +68,7 @@ export default function LegalPage() {
 
       <Section title="Menores de edad">
         <p>
-          Muza es para <b>mayores de 18 años</b>. No está dirigido a menores de edad; si sos menor,
+          LookLab es para <b>mayores de 18 años</b>. No está dirigido a menores de edad; si sos menor,
           no uses la app.
         </p>
       </Section>
@@ -78,7 +78,7 @@ export default function LegalPage() {
 
       <Section title="El puntaje es orientativo">
         <p>
-          El score y las recomendaciones de Muza son una <b>opinión generada por IA</b> con fines
+          El score y las recomendaciones de LookLab son una <b>opinión generada por IA</b> con fines
           orientativos y de entretenimiento. No constituyen asesoramiento profesional de imagen ni
           garantizan ningún resultado.
         </p>
@@ -111,7 +111,7 @@ export default function LegalPage() {
 
       <Section title="Contacto">
         <p>
-          Muza es operado por <b>Christian Russo</b>. Consultas:{" "}
+          LookLab es operado por <b>Christian Russo</b>. Consultas:{" "}
           <a href="mailto:crusso@clamaco.com.ar" className="font-bold text-coral underline">
             crusso@clamaco.com.ar
           </a>

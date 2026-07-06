@@ -33,7 +33,7 @@ export function Logo({ size = 58, onDark = true }: { size?: number; onDark?: boo
             className="m"
             style={{ fontSize: holeSize * 0.55, color: onDark ? "var(--paper)" : "var(--ink-deep)" }}
           >
-            M
+            L
           </span>
         </div>
       </div>

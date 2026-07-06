@@ -6,7 +6,7 @@ const missingCreds = !process.env.NEXT_PUBLIC_SUPABASE_URL;
 // un build de producción. Si faltan las credenciales en prod, fallamos ruidoso.
 if (missingCreds && process.env.NODE_ENV === "production") {
   throw new Error(
-    "[Muza] Falta NEXT_PUBLIC_SUPABASE_URL en producción: la app no puede correr en modo demo en prod.",
+    "[LookLab] Falta NEXT_PUBLIC_SUPABASE_URL en producción: la app no puede correr en modo demo en prod.",
   );
 }
 

@@ -9,20 +9,20 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-const title = "Muza — Tu outfit, evaluado";
+const title = "LookLab — Tu outfit, evaluado";
 const description = "Analizá tu outfit con IA: puntaje, recomendaciones y comunidad.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title,
   description,
-  applicationName: "Muza",
-  appleWebApp: { capable: true, title: "Muza", statusBarStyle: "black-translucent" },
+  applicationName: "LookLab",
+  appleWebApp: { capable: true, title: "LookLab", statusBarStyle: "black-translucent" },
   // Next toma automáticamente src/app/opengraph-image.png y los íconos; acá solo
   // completamos los textos que acompañan el preview al compartir el link.
   openGraph: {
     type: "website",
-    siteName: "Muza",
+    siteName: "LookLab",
     title,
     description,
     locale: "es_AR",

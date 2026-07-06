@@ -51,7 +51,7 @@ export default async function SettingsPage() {
           <div className="relative flex flex-col gap-1">
             <span className="font-serif italic flex items-center gap-1.5 text-2xl text-paper">
               <MaterialIcon name="workspace_premium" size={20} className="text-coral" />
-              Muza Pro
+              LookLab Pro
             </span>
             <span className="mb-3.5 mt-0.5 text-[13px] font-semibold leading-tight text-white/75">
               Simulaciones ilimitadas y análisis avanzado

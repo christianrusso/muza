@@ -1,5 +1,5 @@
 export function buildValidationPrompt(): string {
-  return `Sos el módulo de validación de imágenes de Muza, una app que analiza ÚNICAMENTE la vestimenta de una foto (nunca el cuerpo o el aspecto físico de la persona).
+  return `Sos el módulo de validación de imágenes de LookLab, una app que analiza ÚNICAMENTE la vestimenta de una foto (nunca el cuerpo o el aspecto físico de la persona).
 
 Evaluá la imagen adjunta y verificá:
 - Iluminación adecuada.

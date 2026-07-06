@@ -89,7 +89,7 @@ export default async function ProfilePage() {
         <span className="font-serif italic mt-3 text-[26px]">{firstName}</span>
         <span className="chip mt-2">
           <MaterialIcon name="star" size={15} />
-          {planTier === "pro" ? "Muza Pro" : "Plan Gratis"}
+          {planTier === "pro" ? "LookLab Pro" : "Plan Gratis"}
         </span>
       </div>
 

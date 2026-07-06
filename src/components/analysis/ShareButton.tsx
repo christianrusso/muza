@@ -14,7 +14,7 @@ export function ShareButton() {
     const url = window.location.href;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "Muza — Mi Outfit Score", url });
+        await navigator.share({ title: "LookLab — Mi Outfit Score", url });
       } catch {
         // el usuario canceló el share sheet — nada que hacer
       }

@@ -21,7 +21,7 @@ export function isDemoMode(): boolean {
   // silencio a una app falsa. En dev/preview sigue funcionando como antes.
   if (missingCreds && process.env.NODE_ENV === "production") {
     throw new Error(
-      "[Muza] Faltan NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY en producción. " +
+      "[LookLab] Faltan NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY en producción. " +
         "La app no debe correr en modo demo en prod: configurá las variables de entorno.",
     );
   }
