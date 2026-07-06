@@ -56,12 +56,10 @@ export default async function SettingsPage() {
             <span className="mb-3.5 mt-0.5 text-[13px] font-semibold leading-tight text-white/75">
               Simulaciones ilimitadas y análisis avanzado
             </span>
-            <button
-              type="button"
-              className="self-start rounded-2xl bg-coral px-5 py-2.5 text-[13px] font-extrabold text-white"
-            >
-              Mejorar plan
-            </button>
+            <span className="flex items-center gap-1.5 self-start rounded-2xl bg-white/[.14] px-5 py-2.5 text-[13px] font-extrabold text-white/85">
+              <MaterialIcon name="schedule" size={16} />
+              Próximamente
+            </span>
           </div>
         </div>
       )}
