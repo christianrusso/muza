@@ -13,7 +13,19 @@ import { SCORE_CATEGORIES } from "@/lib/scoring/categories";
 // responses instead of a real backend. Never true once NEXT_PUBLIC_SUPABASE_URL
 // is set (i.e. never in a real deployment).
 export function isDemoMode(): boolean {
-  return !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const missingCreds =
+    !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Red de seguridad: el modo demo (login falso, datos en memoria, IA stub) JAMÁS
+  // debe activarse en producción. Si el build/deploy de prod arranca sin las
+  // credenciales de Supabase, fallamos ruidosamente en vez de degradar en
+  // silencio a una app falsa. En dev/preview sigue funcionando como antes.
+  if (missingCreds && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "[Muza] Faltan NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY en producción. " +
+        "La app no debe correr en modo demo en prod: configurá las variables de entorno.",
+    );
+  }
+  return missingCreds;
 }
 
 export const DEMO_USER = {

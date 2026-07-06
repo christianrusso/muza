@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
-import { ScreenHead } from "@/components/navigation/TopBar";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
 import { Spinner } from "@/components/ui/Spinner";
+import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { translateAuthError } from "@/lib/supabase/authErrors";
 
 export default function LoginPage() {
@@ -68,8 +68,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="screen-body pad">
-      <ScreenHead title="Iniciar sesión" backHref="/welcome" />
+    <div className="relative flex min-h-dvh flex-col">
+      {/* Foto de fondo full-bleed que funde hacia el papel donde vive el form. */}
+      <div className="ph-dark absolute inset-x-0 top-0 h-[42vh] max-h-[360px] min-h-[220px] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/login-bg.webp" alt="" className="h-full w-full object-cover" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(20,18,16,.28) 0%, rgba(20,18,16,0) 38%, rgba(247,245,240,0) 62%, var(--paper) 100%)",
+          }}
+        />
+      </div>
+
+      {/* Volver: sobre la foto, en blanco. */}
+      <Link
+        href="/welcome"
+        aria-label="Volver"
+        className="relative z-10 mx-5 mt-5 flex h-10 w-10 items-center justify-center rounded-full text-white"
+        style={{ background: "rgba(20,18,16,.4)", backdropFilter: "blur(4px)" }}
+      >
+        <MaterialIcon name="arrow_back" size={22} />
+      </Link>
+
+      {/* Tarjeta de papel con el formulario, montada sobre la foto. */}
+      <div className="relative z-10 mt-auto flex flex-col gap-4 rounded-t-[28px] bg-paper px-6 pb-8 pt-7">
+        <span className="font-serif" style={{ fontSize: 27 }}>
+          Iniciar sesión
+        </span>
 
       <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4">
         <Field label="Email">
@@ -129,6 +156,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </form>
+      </div>
     </div>
   );
 }

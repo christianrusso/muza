@@ -23,14 +23,11 @@ export default function LegalPage() {
         </span>
       </div>
 
-      <p className="rounded-xl bg-black/[.04] px-4 py-3 text-[12.5px] font-semibold text-muted">
-        ⚠️ Borrador inicial. Antes del lanzamiento público, revisá y ajustá este texto con
-        asesoramiento legal. Los campos entre corchetes [ ] hay que completarlos.
-      </p>
-
       {/* ==================== PRIVACIDAD ==================== */}
-      <h2 className="font-serif mt-8 text-[22px]">Política de Privacidad</h2>
-      <p className="mt-1 text-[12px] font-semibold text-muted">Última actualización: [fecha]</p>
+      <h2 className="font-serif mt-2 text-[22px]">Política de Privacidad</h2>
+      <p className="mt-1 text-[12px] font-semibold text-muted">
+        Última actualización: 6 de julio de 2026
+      </p>
 
       <Section title="Qué datos recolectamos">
         <ul className="flex list-disc flex-col gap-1.5 pl-5">
@@ -61,14 +58,18 @@ export default function LegalPage() {
       <Section title="Tus derechos">
         <p>
           Podés acceder, corregir o borrar tus datos personales. Para ejercer estos derechos o ante
-          cualquier consulta, escribinos a <b>[tu email de contacto]</b>.
+          cualquier consulta, escribinos a{" "}
+          <a href="mailto:crusso@clamaco.com.ar" className="font-bold text-coral underline">
+            crusso@clamaco.com.ar
+          </a>
+          .
         </p>
       </Section>
 
       <Section title="Menores de edad">
         <p>
-          Muza está pensado para mayores de <b>[13/16/18]</b> años. Si sos menor, usá la app con
-          autorización de tu madre, padre o tutor.
+          Muza es para <b>mayores de 18 años</b>. No está dirigido a menores de edad; si sos menor,
+          no uses la app.
         </p>
       </Section>
 
@@ -110,8 +111,11 @@ export default function LegalPage() {
 
       <Section title="Contacto">
         <p>
-          Muza es operado por <b>[nombre de la empresa/persona]</b>. Consultas: <b>[tu email de
-          contacto]</b>.
+          Muza es operado por <b>Christian Russo</b>. Consultas:{" "}
+          <a href="mailto:crusso@clamaco.com.ar" className="font-bold text-coral underline">
+            crusso@clamaco.com.ar
+          </a>
+          .
         </p>
       </Section>
     </div>

@@ -40,7 +40,7 @@ function ValidatingContent() {
 
   return (
     <div
-      className="screen-body relative flex min-h-screen flex-col items-center justify-center gap-[22px]"
+      className="screen-body relative flex min-h-dvh flex-col items-center justify-center gap-[22px]"
       style={{ background: "linear-gradient(#1F1B17,#141210)" }}
     >
       <div className="spinner" style={{ width: 66, height: 66 }} />

@@ -1,105 +1,19 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { signedPhotoUrls } from "@/lib/supabase/photos";
-import { occasionLabel } from "@/lib/occasions";
-import { isDemoMode, DEMO_COMMUNITY_POSTS, DEMO_USER } from "@/lib/demo";
-import { getDemoStore } from "@/lib/demoStore";
-import { PostCard } from "@/components/community/PostCard";
+import { loadCommunityFeed } from "@/lib/community/feed";
+import { InfiniteFeed } from "@/components/community/InfiniteFeed";
 import { FeedSkeleton } from "@/components/loading/Skeletons";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
-import type { AnalysisType, OccasionId } from "@/types/domain";
 
 const TABS = [
   { value: "popular", label: "Popular" },
   { value: "reciente", label: "Reciente" },
 ] as const;
 
-interface FeedPost {
-  post_id: string;
-  author_name: string;
-  occasion_id: string;
-  posted_at: string;
-  analysis_type: AnalysisType | null;
-  photoUrl: string | null;
-  overall_score: number | null;
-  like_count: number;
-  comment_count: number;
-  myReaction: "like" | "dislike" | null;
-}
-
-async function loadCommunityFeed(activeTab: string): Promise<FeedPost[]> {
-  if (isDemoMode()) {
-    const created = Array.from(getDemoStore().posts.values()).map((p) => {
-      const analysis = getDemoStore().analyses.get(p.analysisId);
-      return {
-        post_id: p.id,
-        author_name: DEMO_USER.full_name,
-        occasion_id: analysis?.occasionId ?? "other",
-        posted_at: p.createdAt,
-        analysis_type: analysis?.analysisType ?? "completo",
-        photoUrl: analysis?.photoDataUrl ?? null,
-        overall_score: analysis?.overallScore ?? 0,
-        like_count: Array.from(p.reactions.values()).filter((r) => r === "like").length,
-        comment_count: p.comments.length,
-        myReaction: p.reactions.get(DEMO_USER.id) ?? null,
-      };
-    });
-    const seeded = DEMO_COMMUNITY_POSTS.map((p) => ({
-      post_id: p.post_id,
-      author_name: p.author_name,
-      occasion_id: p.occasion_id,
-      posted_at: p.posted_at,
-      analysis_type: p.analysis_type,
-      photoUrl: null,
-      overall_score: p.overall_score,
-      like_count: p.like_count,
-      comment_count: p.comment_count,
-      myReaction: null,
-    }));
-    return [...created, ...seeded];
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let query = supabase.from("community_feed_view").select("*");
-
-  query =
-    activeTab === "popular"
-      ? query.order("like_count", { ascending: false })
-      : query.order("posted_at", { ascending: false });
-
-  const { data: posts } = await query.limit(30);
-
-  const { data: myReactions } = await supabase
-    .from("post_reactions")
-    .select("post_id, reaction")
-    .eq("user_id", user!.id);
-  const myReactionByPost = new Map((myReactions ?? []).map((r) => [r.post_id, r.reaction]));
-
-  const photoUrls = await signedPhotoUrls(supabase, (posts ?? []).map((p) => p.photo_path), "feed");
-
-  return (posts ?? []).map((p) => ({
-    post_id: p.post_id,
-    author_name: p.author_name,
-    occasion_id: p.occasion_id,
-    posted_at: p.posted_at,
-    analysis_type: p.analysis_type,
-    photoUrl: photoUrls.get(p.photo_path) ?? null,
-    overall_score: p.overall_score,
-    like_count: p.like_count,
-    comment_count: p.comment_count,
-    myReaction: (myReactionByPost.get(p.post_id) ?? null) as "like" | "dislike" | null,
-  }));
-}
-
 async function CommunityFeed({ activeTab }: { activeTab: string }) {
-  const withPhotoUrls = await loadCommunityFeed(activeTab);
+  const posts = await loadCommunityFeed(activeTab);
 
-  if (withPhotoUrls.length === 0) {
+  if (posts.length === 0) {
     return (
       <div className="flex flex-1 flex-col px-[22px] py-4">
         <p className="py-10 text-center text-sm font-semibold text-muted">
@@ -109,27 +23,7 @@ async function CommunityFeed({ activeTab }: { activeTab: string }) {
     );
   }
 
-  return (
-    <div className="flex flex-1 flex-col gap-5 px-[22px] py-4">
-      {withPhotoUrls.map((post) => (
-        <PostCard
-          key={post.post_id}
-          post={{
-            id: post.post_id,
-            authorName: post.author_name,
-            occasionLabel: occasionLabel(post.occasion_id as OccasionId),
-            postedAt: post.posted_at,
-            analysisType: post.analysis_type ?? "completo",
-            photoUrl: post.photoUrl,
-            overallScore: post.overall_score ?? 0,
-            likeCount: post.like_count,
-            commentCount: post.comment_count,
-            myReaction: post.myReaction,
-          }}
-        />
-      ))}
-    </div>
-  );
+  return <InfiniteFeed initialPosts={posts} activeTab={activeTab} />;
 }
 
 export default async function CommunityPage({

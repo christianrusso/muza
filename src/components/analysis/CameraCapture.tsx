@@ -153,7 +153,7 @@ export function CameraCapture({
   return (
     <div
       className="screen-body relative"
-      style={{ background: "linear-gradient(#1F1B17,#141210)", minHeight: "100vh" }}
+      style={{ background: "linear-gradient(#1F1B17,#141210)", minHeight: "100dvh" }}
     >
       {/* El video se monta siempre para que videoRef exista cuando llega el
           stream; se muestra recién cuando la cámara está lista.

@@ -5,7 +5,7 @@ import { occasionFullLabel } from "@/lib/occasions";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
-import { SaveShareBar } from "@/components/analysis/SaveShareBar";
+import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -33,22 +33,27 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto pb-[130px]">
+      <div className="flex-1 overflow-y-auto pb-[100px]">
       <div className="ph relative overflow-hidden" style={{ height: 266 }}>
         {analysis.photoUrl && (
+          // Foto como fondo ambiental (borrosa): antes se veía nítida y quedaba
+          // rara según el encuadre (ej. la cara en una foto "superior"). El blur
+          // + scale la vuelve una textura de color detrás del score. El scale
+          // evita que el blur deje bordes transparentes.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={analysis.photoUrl}
             alt=""
             decoding="async"
             className="absolute inset-0 h-full w-full object-cover"
+            style={{ filter: "blur(20px)", transform: "scale(1.2)" }}
           />
         )}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(20,18,16,.28), rgba(20,18,16,0) 30%, rgba(247,245,240,0) 70%, var(--paper))",
+              "linear-gradient(to bottom, rgba(20,18,16,.42), rgba(20,18,16,.1) 34%, rgba(247,245,240,0) 68%, var(--paper))",
           }}
         />
         <div className="absolute left-5 right-5 top-[58px] flex items-center justify-between">
@@ -60,13 +65,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             <MaterialIcon name="chevron_left" size={22} />
           </Link>
           <AnalysisTypePill type={analysis.analysisType} style={{ height: 32, background: "rgba(247,245,240,.92)" }} />
-          <button
-            type="button"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-full"
-            style={{ background: "rgba(247,245,240,.9)" }}
-          >
-            <MaterialIcon name="ios_share" size={20} />
-          </button>
+          <ShareButton />
         </div>
       </div>
 
@@ -138,8 +137,6 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           </div>
         )}
       </div>
-
-        <SaveShareBar />
       </div>
       <BottomTabBar />
     </div>

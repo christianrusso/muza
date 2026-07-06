@@ -18,7 +18,7 @@ function InvalidContent() {
 
   return (
     <div
-      className="relative flex min-h-screen flex-col justify-end"
+      className="relative flex min-h-dvh flex-col justify-end"
       style={{ background: "linear-gradient(#1F1B17,#141210)" }}
     >
       <div className="absolute left-5 top-[58px]">
@@ -31,7 +31,10 @@ function InvalidContent() {
         </button>
       </div>
 
-      <div className="rounded-t-[28px] bg-card p-6 pt-8">
+      <div
+        className="rounded-t-[28px] bg-card p-6 pt-8"
+        style={{ paddingBottom: "calc(24px + env(safe-area-inset-bottom))" }}
+      >
         <div className="mb-4 flex flex-col items-center gap-3 text-center">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-coral-soft">
             <MaterialIcon name="visibility_off" size={30} className="text-coral" />

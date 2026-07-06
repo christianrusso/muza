@@ -42,7 +42,10 @@ export default function WelcomePage() {
 
   return (
     <div className="relative flex min-h-dvh flex-col">
-      <div className="ph-dark absolute inset-0" />
+      <div className="ph-dark absolute inset-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/login-bg.webp" alt="" className="h-full w-full object-cover" />
+      </div>
       <div
         className="absolute inset-0"
         style={{
