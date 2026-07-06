@@ -46,13 +46,18 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // getUser() valida el token contra Supabase Auth por red en CADA request, así
-  // que es un costo fijo por click. Lo medimos y lo exponemos como Server-Timing
-  // (visible en el Network → Timing del navegador) para dimensionar cuánto pesa.
+  // getClaims() verifica el JWT LOCALMENTE si el proyecto tiene JWT signing keys
+  // asimétricas habilitadas (Supabase → Auth → JWT/Signing Keys). Eso elimina el
+  // round-trip a Supabase Auth que hacía getUser() en cada request: el middleware
+  // corre en el edge (São Paulo) y Supabase está en US East, así que cada getUser
+  // cruzaba de región (~170ms por click, medido). getSession() interno sigue
+  // refrescando la cookie cuando corresponde. Si las signing keys todavía NO están
+  // habilitadas, getClaims cae de forma segura a getUser() (mismo comportamiento
+  // de hoy, cero regresión). El router solo necesita saber si hay sesión válida;
+  // las páginas siguen validando con getUser() (misma región = rápido).
   const authStart = performance.now();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims ?? null;
   const authMs = Math.round(performance.now() - authStart);
   supabaseResponse.headers.set("Server-Timing", `auth;dur=${authMs}`);
   if (process.env.PERF_LOG) console.log(`[perf] middleware auth (${request.nextUrl.pathname}): ${authMs}ms`);
