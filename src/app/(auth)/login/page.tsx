@@ -20,11 +20,16 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  // Cuando el login falla por email sin confirmar, ofrecemos reenviar el correo.
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [resend, setResend] = useState<"idle" | "sending" | "sent">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setNeedsConfirm(false);
+    setResend("idle");
     if (DEMO_MODE) {
       router.push("/home");
       return;
@@ -34,10 +39,24 @@ export default function LoginPage() {
     if (signInError) {
       setSubmitting(false);
       setError(signInError.message);
+      setNeedsConfirm(signInError.message === "Email not confirmed");
       return;
     }
     setSuccess(true);
     setTimeout(() => router.push("/home"), 700);
+  }
+
+  async function resendConfirmation() {
+    if (!email) return;
+    setResend("sending");
+    const supabase = createClient();
+    const { error: resendError } = await supabase.auth.resend({ type: "signup", email });
+    if (resendError) {
+      setError(resendError.message);
+      setResend("idle");
+      return;
+    }
+    setResend("sent");
   }
 
   async function continueWithOAuth(provider: "google") {
@@ -122,6 +141,21 @@ export default function LoginPage() {
         </Link>
 
         {error && <Banner variant="error">{translateAuthError(error)}</Banner>}
+        {needsConfirm &&
+          (resend === "sent" ? (
+            <Banner variant="success">
+              Te reenviamos el correo de verificación a <b>{email}</b>. Revisá tu bandeja (y spam).
+            </Banner>
+          ) : (
+            <button
+              type="button"
+              onClick={resendConfirmation}
+              disabled={resend === "sending"}
+              className="-mt-1 self-start text-sm font-bold text-coral underline disabled:opacity-60"
+            >
+              {resend === "sending" ? "Enviando..." : "Reenviar correo de verificación"}
+            </button>
+          ))}
         {success && <Banner variant="success">Sesión iniciada, cargando tu perfil...</Banner>}
 
         <Button type="submit" disabled={submitting || success || oauthLoading}>
