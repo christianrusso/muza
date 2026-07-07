@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LookLab — Tu outfit, evaluado</title>
+<meta name="description" content="Subí una foto de tu outfit y recibí un puntaje honesto y consejos concretos para mejorar tu estilo. En segundos, con IA.">
+<meta property="og:title" content="LookLab — Tu outfit, evaluado">
+<meta property="og:description" content="Subí una foto y recibí un puntaje honesto + tips para subir tu estilo. En segundos, con IA.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://looklab.io">
+<meta name="theme-color" content="#141210">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --coral:#ec5a2e; --coral-soft:#fceee8;
+    --ink:#1a1712; --ink-deep:#141210;
+    --paper:#f7f5f0; --card:#fff; --line:#ede9df;
+    --muted:#6b655a; --faint:#9a9488;
+    --green:#2fa36b; --amber:#f5a524; --red:#e5484d;
+    --serif:'Instrument Serif',Georgia,serif;
+    --sans:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden;max-width:100%}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+
+  .wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
+  @media(min-width:768px){.wrap{padding:0 40px}}
+
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral)}
+  h1,h2,h3{font-weight:400;line-height:1.05}
+  .serif{font-family:var(--serif)}
+
+  /* botones */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    height:52px;padding:0 26px;border-radius:14px;font-family:var(--sans);
+    font-weight:700;font-size:15px;cursor:pointer;border:none;transition:.15s;white-space:nowrap}
+  .btn-primary{background:var(--coral);color:#fff}
+  .btn-primary:hover{background:#d64f24}
+  .btn-ghost{background:transparent;color:var(--paper);border:1.5px solid rgba(247,245,240,.35)}
+  .btn-ghost:hover{background:rgba(247,245,240,.08)}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;background:var(--ink-deep);color:var(--paper);overflow:hidden}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+  .hero::before{top:-140px;right:-120px;width:min(70vw,460px);height:min(70vw,460px);
+    background:radial-gradient(circle at 40% 40%,rgba(236,90,46,.55),rgba(236,90,46,0) 68%);filter:blur(6px)}
+  .hero::after{bottom:-160px;left:-140px;width:min(80vw,520px);height:min(80vw,520px);
+    background:radial-gradient(circle at 60% 40%,rgba(154,148,136,.22),rgba(154,148,136,0) 70%)}
+
+  .nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+  .brand{display:flex;align-items:center;gap:10px}
+  .mark{width:34px;height:34px;border-radius:50%;flex:none;
+    background:conic-gradient(from -55deg,var(--coral) 0turn .72turn,rgba(247,245,240,.4) .72turn 1turn);
+    display:grid;place-items:center}
+  .mark span{width:27px;height:27px;border-radius:50%;background:var(--ink-deep);
+    display:grid;place-items:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--paper)}
+  .brand b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:22px;color:var(--paper)}
+  .nav-links{display:none}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  .nav-login{display:none}
+  .nav .btn{height:42px;padding:0 18px;font-size:14px}
+  @media(min-width:900px){
+    .nav-links{display:flex;gap:34px;font-weight:600;font-size:14px;color:rgba(247,245,240,.85)}
+    .nav-links a:hover{color:var(--paper)}
+    .nav-login{display:inline;font-weight:600;font-size:14px;color:rgba(247,245,240,.85)}
+    .nav-login:hover{color:var(--paper)}
+  }
+
+  .hero-inner{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;padding:44px 0 0}
+  .hero h1{font-family:var(--serif);font-style:italic;
+    font-size:clamp(2.9rem,13vw,5.2rem);margin:16px 0 20px;color:var(--paper)}
+  .hero p.lead{font-weight:500;font-size:clamp(1rem,4.4vw,1.2rem);line-height:1.6;
+    color:rgba(247,245,240,.72);max-width:34ch;margin:0 auto}
+  .hero-cta{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;margin:30px auto 0}
+  .hero-cta .btn{width:100%}
+  @media(min-width:560px){
+    .hero-cta{flex-direction:row;justify-content:center;max-width:none;width:auto}
+    .hero-cta .btn{width:auto}
+  }
+
+  /* phone mockup */
+  .phone{position:relative;z-index:2;width:min(78vw,290px);margin:40px auto -12px;
+    border-radius:36px;background:#0c0b0a;padding:10px;
+    box-shadow:0 40px 80px -30px rgba(0,0,0,.7);border:1px solid #2a2622}
+  .phone-screen{border-radius:28px;overflow:hidden;background:#1c1916}
+  .ph-top{display:flex;align-items:center;gap:7px;padding:14px 16px 10px}
+  .ph-top .m{width:22px;height:22px;border-radius:50%;flex:none;
+    background:conic-gradient(from -55deg,var(--coral) 0turn .72turn,rgba(247,245,240,.35) .72turn 1turn);
+    display:grid;place-items:center}
+  .ph-top .m i{width:17px;height:17px;border-radius:50%;background:#1c1916;display:grid;place-items:center;
+    font-family:var(--serif);font-style:italic;font-size:10px;color:var(--paper)}
+  .ph-top b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:14px;color:var(--paper)}
+  .ph-photo{height:230px;background:
+    radial-gradient(120% 80% at 30% 10%,#3a332c,transparent 60%),
+    linear-gradient(160deg,#5a5048,#221f1b 75%);position:relative}
+  .ph-photo::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to bottom,transparent 40%,rgba(12,11,10,.85))}
+  .ph-card{position:relative;margin:-52px 14px 16px;background:rgba(20,18,16,.72);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border:1px solid rgba(247,245,240,.1);border-radius:16px;
+    padding:14px;display:flex;align-items:center;gap:14px}
+  .ph-card .info{flex:1;text-align:left}
+  .ph-card .info .t{font-weight:700;font-size:13px;color:var(--paper)}
+  .ph-card .info .s{font-size:11px;color:rgba(247,245,240,.6);margin-top:2px;line-height:1.4}
+
+  .ring{--p:82;--c:var(--green);--rs:60px;width:var(--rs);height:var(--rs);flex:none;border-radius:50%;
+    background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(247,245,240,.14) 0);display:grid;place-items:center}
+  .ring i{width:calc(var(--rs) - 12px);height:calc(var(--rs) - 12px);border-radius:50%;
+    background:#141210;display:grid;place-items:center;font-family:var(--serif);
+    font-size:calc(var(--rs)*.42);color:var(--paper);line-height:1}
+
+  /* ===== SECCIONES ===== */
+  section{padding:72px 0}
+  .sec-head{text-align:center;max-width:34ch;margin:0 auto 40px}
+  .sec-head h2{font-family:var(--serif);font-size:clamp(2rem,8vw,2.9rem);margin:12px 0 0}
+  .sec-head p{color:var(--muted);font-size:15px;margin-top:12px}
+
+  /* pasos */
+  .steps{display:grid;gap:16px}
+  @media(min-width:760px){.steps{grid-template-columns:repeat(3,1fr)}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px}
+  .step .n{width:42px;height:42px;border-radius:12px;background:var(--coral-soft);color:var(--coral);
+    display:grid;place-items:center;font-family:var(--serif);font-size:22px;margin-bottom:16px}
+  .step h3{font-family:var(--serif);font-size:1.45rem;margin-bottom:8px}
+  .step p{color:var(--muted);font-size:14.5px}
+
+  /* score */
+  .score-card{background:var(--ink-deep);color:var(--paper);border-radius:26px;
+    padding:36px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:26px}
+  @media(min-width:820px){.score-card{flex-direction:row;text-align:left;padding:52px;gap:48px}}
+  .score-copy{flex:1}
+  .score-copy h2{font-family:var(--serif);font-size:clamp(1.9rem,7vw,2.7rem);margin:12px 0 16px;color:var(--paper)}
+  .score-copy p{color:rgba(247,245,240,.72);font-size:15px;max-width:46ch;margin:0 auto}
+  @media(min-width:820px){.score-copy p{margin:0}}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+  @media(min-width:820px){.legend{justify-content:flex-start}}
+  .legend span{display:inline-flex;align-items:center;gap:7px;background:rgba(247,245,240,.06);
+    border:1px solid rgba(247,245,240,.1);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600}
+  .dot{width:7px;height:7px;border-radius:50%;flex:none}
+  .score-visual{flex:none}
+  .score-visual .ring{--rs:clamp(150px,42vw,190px)}
+
+  /* comunidad */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(min-width:820px){.grid{grid-template-columns:repeat(4,1fr)}}
+  .tile{position:relative;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,var(--g1),var(--g2))}
+  .tile:nth-child(1){--g1:#6b5d50;--g2:#2a2420}
+  .tile:nth-child(2){--g1:#7a5c4a;--g2:#2b211c}
+  .tile:nth-child(3){--g1:#55606b;--g2:#20262b}
+  .tile:nth-child(4){--g1:#6a5566;--g2:#251f24}
+  .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.6),transparent 55%)}
+  .tile .badge{position:absolute;left:12px;bottom:12px;z-index:2;
+    display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,16,.65);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    border:1px solid rgba(247,245,240,.15);border-radius:999px;padding:5px 10px;
+    font-size:12px;font-weight:700;color:var(--paper)}
+
+  /* cierre */
+  .closing{background:var(--ink-deep);color:var(--paper);text-align:center}
+  .closing h2{font-family:var(--serif);font-style:italic;font-size:clamp(2.4rem,10vw,4rem);color:var(--paper)}
+  .closing p{color:rgba(247,245,240,.72);font-size:16px;margin:14px auto 28px;max-width:32ch}
+
+  /* footer */
+  footer{background:var(--ink-deep);color:rgba(247,245,240,.6);padding:0 0 48px}
+  .foot{border-top:1px solid rgba(247,245,240,.1);padding-top:32px;
+    display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center}
+  @media(min-width:720px){.foot{flex-direction:row;justify-content:space-between;text-align:left}}
+  .foot .brand b{font-size:20px}
+  .foot .tag{font-size:13px;margin-top:10px;color:rgba(247,245,240,.5);max-width:40ch}
+  .foot-links{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;font-size:14px;font-weight:600}
+  .foot-links a{color:rgba(247,245,240,.78)}
+  .foot-links a:hover{color:var(--paper)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <nav class="nav">
+      <a class="brand" href="/">
+        <span class="mark"><span>L</span></span>
+        <b>LookLab</b>
+      </a>
+      <div class="nav-links">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#score">Outfit Score</a>
+        <a href="#comunidad">Comunidad</a>
+      </div>
+      <div class="nav-right">
+        <a class="nav-login" href="https://looklab.io/login">Iniciar sesión</a>
+        <a class="btn btn-primary" href="https://looklab.io/welcome">Probá LookLab</a>
+      </div>
+    </nav>
+
+    <div class="hero-inner">
+      <p class="eyebrow">Tu outfit, evaluado</p>
+      <h1>Tu outfit,<br>evaluado.</h1>
+      <p class="lead">Subí una foto y recibí un puntaje honesto y consejos concretos para llevar tu estilo un paso más allá. Sin vueltas, en segundos.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://looklab.io/welcome">Probá LookLab</a>
+        <a class="btn btn-ghost" href="#como-funciona">Ver cómo funciona</a>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ph-top"><span class="m"><i>L</i></span><b>LookLab</b></div>
+          <div class="ph-photo"></div>
+          <div class="ph-card">
+            <div class="ring" style="--p:82;--c:var(--green);--rs:60px"><i>82</i></div>
+            <div class="info">
+              <div class="t">Tu look funciona</div>
+              <div class="s">Buena paleta y calce. Probá un calzado más claro.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CÓMO FUNCIONA -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2 class="serif">Tres pasos, un minuto.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <h3 class="serif">Subí tu foto</h3>
+        <p>Una foto de tu outfit. Nada más.</p>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3 class="serif">La IA lo analiza</h3>
+        <p>Color, calce, ocasión y coherencia. En segundos.</p>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3 class="serif">Recibí tu score + tips</h3>
+        <p>Un puntaje claro y consejos accionables para mejorarlo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORE -->
+<section id="score" style="padding-top:0">
+  <div class="wrap">
+    <div class="score-card">
+      <div class="score-copy">
+        <p class="eyebrow">Outfit Score</p>
+        <h2 class="serif">Un número que motiva, nunca castiga.</h2>
+        <p>El mismo anillo de progreso en toda la app: verde cuando el look funciona, ámbar y rojo cuando hay margen para mejorar. Analizamos color, calce, ocasión y coherencia — nunca tu cuerpo.</p>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--red)"></i>0–59</span>
+          <span><i class="dot" style="background:var(--amber)"></i>60–79</span>
+          <span><i class="dot" style="background:var(--green)"></i>80–100</span>
+        </div>
+      </div>
+      <div class="score-visual">
+        <div class="ring" style="--p:82;--c:var(--green)"><i>82</i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMUNIDAD -->
+<section id="comunidad" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Comunidad</p>
+      <h2 class="serif">Inspiración de gente real.</h2>
+      <p>Mirá cómo se visten otros, sumá tus looks y descubrí qué está funcionando hoy.</p>
+    </div>
+    <div class="grid">
+      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>91</span></div>
+      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>84</span></div>
+      <div class="tile"><span class="badge"><i class="dot" style="background:var(--amber)"></i>76</span></div>
+      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>88</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section class="closing">
+  <div class="wrap">
+    <p class="eyebrow">Tu outfit, evaluado</p>
+    <h2>¿Tu outfit paga?</h2>
+    <p>Averigualo en menos de un minuto.</p>
+    <a class="btn btn-primary" href="https://looklab.io/welcome">Subí tu look</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="/">
+          <span class="mark"><span>L</span></span>
+          <b>LookLab</b>
+        </a>
+        <p class="tag">Tu outfit, evaluado por IA. El puntaje es orientativo y con fines de entretenimiento.</p>
+      </div>
+      <div class="foot-links">
+        <a href="https://instagram.com/looklab.io" target="_blank" rel="noopener">Instagram</a>
+        <a href="/legal">Términos y privacidad</a>
+        <a href="mailto:info@looklab.io">info@looklab.io</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
