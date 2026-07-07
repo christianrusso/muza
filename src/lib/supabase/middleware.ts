@@ -13,7 +13,9 @@ const AUTH_ROUTES = [
 
 // Rutas públicas: accesibles con o sin sesión, sin redirigir. Legales debe
 // poder verse antes de registrarse y como URL pública (stores/footer).
-const PUBLIC_ROUTES = ["/legal"];
+// /landing.html es la landing de marketing servida en la raíz a visitantes
+// sin sesión (ver rewrite de "/" más abajo).
+const PUBLIC_ROUTES = ["/legal", "/landing.html"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -65,6 +67,13 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+
+  // Visitante sin sesión en la raíz: mostramos la landing de marketing (servida
+  // como estático desde /public/landing.html) manteniendo la URL en "/". Los
+  // usuarios con sesión siguen de largo y page.tsx los manda a /home.
+  if (!user && pathname === "/") {
+    return NextResponse.rewrite(new URL("/landing.html", request.url));
+  }
 
   if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();

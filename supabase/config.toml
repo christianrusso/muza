@@ -233,26 +233,37 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Production SMTP (Resend). For the HOSTED project this is set in the
+# Dashboard → Authentication → SMTP Settings; that is what prod uses.
+# Uncomment below to also send real emails from LOCAL dev via Resend
+# (otherwise local uses the Inbucket test inbox). Needs RESEND_SMTP_PASSWORD
+# in the environment (the Resend API key, re_...).
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_SMTP_PASSWORD)"
+# admin_email = "info@looklab.io"
+# sender_name = "LookLab"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
-# Custom confirmation template requires a paid plan or custom SMTP to push
-# remotely (free tier rejects it). Re-enable once the project has one.
+# Branded confirmation email (LookLab). Custom templates on remote require a
+# paid plan or custom SMTP to push (free tier rejects it). Uncomment this
+# block once Resend is verified and wired as custom SMTP.
 # [auth.email.template.confirmation]
-# subject = "Confirmá tu cuenta en Muza"
+# subject = "Confirmá tu cuenta en LookLab"
 # content_path = "./supabase/templates/confirmation.html"
+
+# Branded password recovery (LookLab). Shows the 6-digit code ({{ .Token }})
+# because the app verifies with verifyOtp({ type: "recovery" }) — NOT a link.
+# [auth.email.template.recovery]
+# subject = "Restablecé tu contraseña en LookLab"
+# content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]

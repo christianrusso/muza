@@ -59,8 +59,8 @@ export default function LegalPage() {
         <p>
           Podés acceder, corregir o borrar tus datos personales. Para ejercer estos derechos o ante
           cualquier consulta, escribinos a{" "}
-          <a href="mailto:crusso@clamaco.com.ar" className="font-bold text-coral underline">
-            crusso@clamaco.com.ar
+          <a href="mailto:info@looklab.io" className="font-bold text-coral underline">
+            info@looklab.io
           </a>
           .
         </p>
@@ -112,8 +112,8 @@ export default function LegalPage() {
       <Section title="Contacto">
         <p>
           LookLab es operado por <b>Christian Russo</b>. Consultas:{" "}
-          <a href="mailto:crusso@clamaco.com.ar" className="font-bold text-coral underline">
-            crusso@clamaco.com.ar
+          <a href="mailto:info@looklab.io" className="font-bold text-coral underline">
+            info@looklab.io
           </a>
           .
         </p>
