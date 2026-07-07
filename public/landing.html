@@ -157,6 +157,7 @@
   .tile:nth-child(2){--g1:#7a5c4a;--g2:#2b211c}
   .tile:nth-child(3){--g1:#55606b;--g2:#20262b}
   .tile:nth-child(4){--g1:#6a5566;--g2:#251f24}
+  .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
   .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.6),transparent 55%)}
   .tile .badge{position:absolute;left:12px;bottom:12px;z-index:2;
     display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,16,.65);
@@ -276,10 +277,10 @@
       <p>Mirá cómo se visten otros, sumá tus looks y descubrí qué está funcionando hoy.</p>
     </div>
     <div class="grid">
-      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>91</span></div>
-      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>84</span></div>
-      <div class="tile"><span class="badge"><i class="dot" style="background:var(--amber)"></i>76</span></div>
-      <div class="tile"><span class="badge"><i class="dot" style="background:var(--green)"></i>88</span></div>
+      <div class="tile"><img src="/look1.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>91</span></div>
+      <div class="tile"><img src="/look2.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>84</span></div>
+      <div class="tile"><img src="/look3.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--amber)"></i>76</span></div>
+      <div class="tile"><img src="/look4.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>88</span></div>
     </div>
   </div>
 </section>
