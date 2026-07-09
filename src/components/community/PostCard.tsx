@@ -23,6 +23,22 @@ export interface PostCardData {
 export function PostCard({ post }: { post: PostCardData }) {
   const [reaction, setReaction] = useState(post.myReaction);
   const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [toast, setToast] = useState<string | null>(null);
+
+  async function share() {
+    const url = `${window.location.origin}/community/post/${post.id}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: `LookLab — Outfit de ${post.authorName}`, url });
+      } catch {
+        // el usuario canceló el share sheet — nada que hacer
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setToast("Enlace copiado");
+      setTimeout(() => setToast(null), 2000);
+    }
+  }
 
   async function react(next: "like" | "dislike") {
     const previous = reaction;
@@ -94,8 +110,23 @@ export function PostCard({ post }: { post: PostCardData }) {
           <MaterialIcon name="chat_bubble_outline" size={22} />
           {post.commentCount}
         </Link>
-        <MaterialIcon name="ios_share" size={22} className="ml-auto text-muted" />
+        <button
+          type="button"
+          onClick={share}
+          aria-label="Compartir"
+          className="react ml-auto text-muted"
+        >
+          <MaterialIcon name="ios_share" size={22} />
+        </button>
       </div>
+      {toast && (
+        <div
+          className="fixed inset-x-0 bottom-8 z-50 flex justify-center"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <span className="rounded-full bg-ink px-4 py-2 text-sm font-bold text-paper">{toast}</span>
+        </div>
+      )}
     </div>
   );
 }

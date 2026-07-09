@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
+import { nextQuery, safeNextPath } from "@/lib/redirect";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -13,10 +14,17 @@ export default function WelcomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState<"google" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Destino post-login (deep link de un post compartido, etc.). Lo leemos de la
+  // URL en el cliente para evitar el Suspense que exige useSearchParams.
+  const [next, setNext] = useState<string | null>(null);
+  useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get("next"));
+  }, []);
+  const nextSuffix = nextQuery(next);
 
   async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     // El redirect OAuth tarda unos segundos por red; mostramos spinner ni bien
@@ -28,7 +36,7 @@ export default function WelcomePage() {
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback${nextSuffix}` },
       });
       if (oauthError) {
         setError(oauthError.message);
@@ -88,13 +96,13 @@ export default function WelcomePage() {
             {error}
           </p>
         )}
-        <Link href="/register" className="mt-3 w-full">
+        <Link href={`/register${nextSuffix}`} className="mt-3 w-full">
           <Button variant="primary">Continuar con email</Button>
         </Link>
 
         <p className="mt-5 text-sm font-semibold text-white/85">
           ¿Ya tenés cuenta?{" "}
-          <Link href="/login" className="font-bold text-white underline">
+          <Link href={`/login${nextSuffix}`} className="font-bold text-white underline">
             Iniciar sesión
           </Link>
         </p>

@@ -76,8 +76,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!user && !isAuthRoute && !isPublicRoute) {
+    // Guardamos la ruta pedida en `next` para volver a ella después del login
+    // (deep links de posts compartidos, etc.). /home es el default, así que no
+    // ensuciamos la URL con ?next=/home.
+    const next = pathname + request.nextUrl.search;
     const url = request.nextUrl.clone();
     url.pathname = "/welcome";
+    url.search = "";
+    if (next !== "/home") url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 
