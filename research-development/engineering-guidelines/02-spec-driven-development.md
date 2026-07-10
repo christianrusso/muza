@@ -1,6 +1,6 @@
 # Spec-Driven Development (SDD)
 
-Este proyecto adopta un flujo donde **toda feature no trivial arranca con una spec escrita, no con código**. El objetivo es pensar el problema (alcance, datos, flujos, casos borde) antes de comprometerse a una implementación, y dejar un registro de por qué se tomó cada decisión — algo que hoy el repo no tiene (ver [risks.md](../general-app-research/risks.md), no hay documentación de por qué existen ciertos placeholders/decisiones).
+Este proyecto adopta un flujo donde **toda feature no trivial arranca con una spec escrita, no con código**. El objetivo es pensar el problema (alcance, datos, flujos, casos borde) antes de comprometerse a una implementación, y dejar un registro de por qué se tomó cada decisión — algo que hoy el repo no tiene (ver [09-risks.md](../general-app-research/09-risks.md), no hay documentación de por qué existen ciertos placeholders/decisiones).
 
 ## Dónde viven las specs
 
@@ -42,4 +42,4 @@ Ante la duda, mejor una spec corta que ninguna.
 
 ## Relación con el resto de la documentación
 
-Si una spec introduce un patrón nuevo que debería aplicar a todo el proyecto (no solo a esa feature), ese patrón se termina reflejando en [best-practices.md](./best-practices.md) o en `design-system/` — las specs son el punto de entrada de una decisión, los docs de `research-development/` son donde esa decisión se consolida como criterio general.
+Si una spec introduce un patrón nuevo que debería aplicar a todo el proyecto (no solo a esa feature), ese patrón se termina reflejando en [00-best-practices.md](./00-best-practices.md) o en `design-system/` — las specs son el punto de entrada de una decisión, los docs de `research-development/` son donde esa decisión se consolida como criterio general.

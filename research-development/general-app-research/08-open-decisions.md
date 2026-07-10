@@ -24,4 +24,4 @@ El sistema de auth de `/admin` usa un único par `ADMIN_EMAIL`/`ADMIN_PASSWORD` 
 
 ## README y onboarding
 
-El `README.md` de la raíz sigue siendo el boilerplate de `create-next-app` — no documenta el proyecto real. No hay `.env.example`; las variables de entorno necesarias (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, credenciales OpenAI, PostHog, `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, etc.) solo se descubren leyendo código. Ver [risks.md](./risks.md) para el impacto de esto.
+El `README.md` de la raíz sigue siendo el boilerplate de `create-next-app` — no documenta el proyecto real. No hay `.env.example`; las variables de entorno necesarias (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, credenciales OpenAI, PostHog, `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, etc.) solo se descubren leyendo código. Ver [09-risks.md](./09-risks.md) para el impacto de esto.

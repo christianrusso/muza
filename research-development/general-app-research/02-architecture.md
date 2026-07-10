@@ -26,15 +26,15 @@ Server Components por defecto; `"use client"` solo donde hace falta interactivid
 
 ## El proxy como router de dos mundos
 
-`src/proxy.ts` resuelve primero si el path es `/admin/*`: si lo es, corta ahí mismo (chequea la cookie `ll_admin`, redirige a `/admin/login` si hace falta) **sin tocar Supabase**. Si no es `/admin`, delega en `updateSession()` (`src/lib/supabase/middleware.ts`), que maneja sesión de usuario normal. Esto evita que la lógica de redirect de usuarios (por ejemplo, "sin sesión → `/welcome`") interfiera con el panel admin, que tiene su propio esquema de auth. Detalle completo en [flows.md](./flows.md).
+`src/proxy.ts` resuelve primero si el path es `/admin/*`: si lo es, corta ahí mismo (chequea la cookie `ll_admin`, redirige a `/admin/login` si hace falta) **sin tocar Supabase**. Si no es `/admin`, delega en `updateSession()` (`src/lib/supabase/middleware.ts`), que maneja sesión de usuario normal. Esto evita que la lógica de redirect de usuarios (por ejemplo, "sin sesión → `/welcome`") interfiera con el panel admin, que tiene su propio esquema de auth. Detalle completo en [07-flows.md](./07-flows.md).
 
 ## Modo demo como capa de fallback completa
 
-Si faltan credenciales de Supabase (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`), `src/lib/demo.ts` activa un modo donde **toda** la app corre con datos en memoria (`demoStore.ts`) y stubs de IA (`buildStubValidationResult`, `buildStubScoringResult`), sin pegarle a Supabase ni a OpenAI. Permite clonar el repo y probar el flujo completo sin backend. Tiene un guard explícito que impide que esto pase en producción por accidente (lanza `Error` si `NODE_ENV=production` y faltan las credenciales) — ver [risks.md](./risks.md).
+Si faltan credenciales de Supabase (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`), `src/lib/demo.ts` activa un modo donde **toda** la app corre con datos en memoria (`demoStore.ts`) y stubs de IA (`buildStubValidationResult`, `buildStubScoringResult`), sin pegarle a Supabase ni a OpenAI. Permite clonar el repo y probar el flujo completo sin backend. Tiene un guard explícito que impide que esto pase en producción por accidente (lanza `Error` si `NODE_ENV=production` y faltan las credenciales) — ver [09-risks.md](./09-risks.md).
 
 ## Instrumentación de performance
 
-`src/lib/perf.ts` (función `timed()`) + headers `Server-Timing` seteados desde el middleware de Supabase. Existe porque el edge corre en São Paulo (`gru1`) y Supabase en US East — hay decisiones de código tomadas específicamente para minimizar ese round-trip (ej. usar `getClaims()` en vez de `getUser()`, ver [flows.md](./flows.md#auth-usuarios)).
+`src/lib/perf.ts` (función `timed()`) + headers `Server-Timing` seteados desde el middleware de Supabase. Existe porque el edge corre en São Paulo (`gru1`) y Supabase en US East — hay decisiones de código tomadas específicamente para minimizar ese round-trip (ej. usar `getClaims()` en vez de `getUser()`, ver [07-flows.md](./07-flows.md#auth-usuarios)).
 
 ## Streaming / loading states
 
@@ -46,4 +46,4 @@ Patrón consistente: cada ruta principal (`home`, `history`, `community`, `resul
 2. Server Components en `src/app/` llaman a funciones de `src/lib/*` (nunca a Supabase/OpenAI directo desde el componente).
 3. `src/lib/*` decide, vía `isDemoMode()`, si pegarle a Supabase/OpenAI reales o devolver datos mock.
 4. La lógica de negocio pura (scoring, gating) vive separada de la capa de datos — `src/lib/scoring/categories.ts` no sabe nada de Supabase ni de IA, solo recibe números y aplica reglas.
-5. El resultado de un análisis se persiste en 3 tablas relacionadas (`analyses`, `analysis_categories`, `analysis_feedback`) — ver [data-model.md](./data-model.md).
+5. El resultado de un análisis se persiste en 3 tablas relacionadas (`analyses`, `analysis_categories`, `analysis_feedback`) — ver [04-data-model.md](./04-data-model.md).

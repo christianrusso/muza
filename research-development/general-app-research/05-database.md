@@ -46,4 +46,4 @@ Lección para trabajo futuro: **cualquier policy o vista que necesite cruzar dat
 
 ## Workflow de migraciones
 
-No hay evidencia de un pipeline de CI que corra las migraciones automáticamente (ver [risks.md](./risks.md)) — se gestionan con la CLI de Supabase (`supabase/config.toml` presente) de forma manual/local.
+No hay evidencia de un pipeline de CI que corra las migraciones automáticamente (ver [09-risks.md](./09-risks.md)) — se gestionan con la CLI de Supabase (`supabase/config.toml` presente) de forma manual/local.

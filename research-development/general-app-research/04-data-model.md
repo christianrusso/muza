@@ -1,6 +1,6 @@
 # Data model
 
-Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para políticas RLS, storage y funciones ver [database.md](./database.md).
+Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para políticas RLS, storage y funciones ver [05-database.md](./05-database.md).
 
 ## Tablas núcleo de usuario
 
@@ -30,7 +30,7 @@ Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para p
 - Índices: `(user_id, created_at desc)`, `(user_id, analysis_type)`
 
 **`analysis_categories`** — 10 filas por análisis (una por categoría de scoring)
-- `analysis_id → analyses (cascade)`, `category_key` (check, uno de los 10 keys — ver [scoring-engine.md](./scoring-engine.md))
+- `analysis_id → analyses (cascade)`, `category_key` (check, uno de los 10 keys — ver [06-scoring-engine.md](./06-scoring-engine.md))
 - `weight numeric (0,1]`, `score int (0-100)`, `justification text`
 - `unique(analysis_id, category_key)`
 
@@ -40,7 +40,7 @@ Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para p
 
 **`plan_usage`** — contador mensual para gating
 - PK compuesta `(user_id, period_month)`, `analyses_count int default 0`
-- Solo se escribe vía RPC `increment_analysis_usage()` (nunca directo, ver [database.md](./database.md))
+- Solo se escribe vía RPC `increment_analysis_usage()` (nunca directo, ver [05-database.md](./05-database.md))
 
 **`scoring_examples`** — banco few-shot para calibrar IA (migración `0009`)
 - `photo_path text`, `occasion_id → occasions`, `verdict` (check `good|bad`), `note text`, `active boolean default true`
@@ -65,7 +65,7 @@ Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para p
 **View `community_feed_view`** (no es tabla — join precalculado)
 - Combina `community_posts` + `profiles` (autor) + `analyses` (foto/score/ocasión)
 - Expone `like_count`, `dislike_count`, `comment_count` como subconsultas correlacionadas
-- `security_invoker = false` (importante, ver [database.md](./database.md))
+- `security_invoker = false` (importante, ver [05-database.md](./05-database.md))
 
 ## Diagrama de relaciones (simplificado)
 

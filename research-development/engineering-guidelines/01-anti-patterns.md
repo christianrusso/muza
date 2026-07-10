@@ -4,7 +4,7 @@ Cada punto acá tiene un motivo concreto en este repo, no es una regla genérica
 
 ## No relajar una RLS policy para "arreglar" un problema de visibilidad
 
-Ya pasó dos veces en este proyecto (migraciones `0005` y `0007`): un dato no era visible para otro usuario por culpa de cómo interactúan RLS + vistas/subqueries, y la solución correcta no fue abrir la policy — fue usar una función `security definer` acotada al caso puntual. Abrir una policy general "para que funcione" es fácil de hacer y fácil de que se convierta en una fuga de datos entre usuarios. Ver [database.md](../general-app-research/database.md#historial-de-bugs-de-seguridadrls).
+Ya pasó dos veces en este proyecto (migraciones `0005` y `0007`): un dato no era visible para otro usuario por culpa de cómo interactúan RLS + vistas/subqueries, y la solución correcta no fue abrir la policy — fue usar una función `security definer` acotada al caso puntual. Abrir una policy general "para que funcione" es fácil de hacer y fácil de que se convierta en una fuga de datos entre usuarios. Ver [05-database.md](../general-app-research/05-database.md#historial-de-bugs-de-seguridadrls).
 
 ## No llamar a Supabase u OpenAI directo desde un client component
 
@@ -24,7 +24,7 @@ Este fork tiene diferencias reales de convención (`AGENTS.md` lo advierte, conf
 
 ## No hardcodear límites de plan en un componente
 
-`FREE_MONTHLY_ANALYSES_LIMIT`, `PRO_MONTHLY_PRICE_USD_PLACEHOLDER`, etc. viven en `src/lib/plans/limits.ts`, con comentarios explicando por qué están en `null`/placeholder hoy (ver [open-decisions.md](../general-app-research/open-decisions.md)). No copiar un número "5" o similar directo en una pantalla — siempre leer de `PLAN_LIMITS`.
+`FREE_MONTHLY_ANALYSES_LIMIT`, `PRO_MONTHLY_PRICE_USD_PLACEHOLDER`, etc. viven en `src/lib/plans/limits.ts`, con comentarios explicando por qué están en `null`/placeholder hoy (ver [08-open-decisions.md](../general-app-research/08-open-decisions.md)). No copiar un número "5" o similar directo en una pantalla — siempre leer de `PLAN_LIMITS`.
 
 ## No agregar credenciales/roles de admin fuera de `src/lib/admin/auth.ts`
 
@@ -32,11 +32,11 @@ El panel admin usa un único par `ADMIN_EMAIL`/`ADMIN_PASSWORD` por variable de 
 
 ## No recrear estilos de botón/card/badge con utilities sueltas de Tailwind
 
-Ver [design-system/components-and-patterns.md](../design-system/components-and-patterns.md#qué-evitar) — duplica el sistema visual y lo desincroniza apenas alguien cambie un token de color en un solo lugar.
+Ver [design-system/02-components-and-patterns.md](../design-system/02-components-and-patterns.md#qué-evitar) — duplica el sistema visual y lo desincroniza apenas alguien cambie un token de color en un solo lugar.
 
 ## No commitear assets pesados de marketing dentro del código de la app
 
-`public/social/` (campañas de Instagram) no es consumido por el runtime de la app, pero pesa varios MB en el repo — evitar seguir sumando ahí sin optimizar o sin evaluar si corresponde a un repo/bucket separado. Ver [risks.md](../general-app-research/risks.md).
+`public/social/` (campañas de Instagram) no es consumido por el runtime de la app, pero pesa varios MB en el repo — evitar seguir sumando ahí sin optimizar o sin evaluar si corresponde a un repo/bucket separado. Ver [09-risks.md](../general-app-research/09-risks.md).
 
 ## No mergear cambios en scoring/gating sin actualizar los tests
 

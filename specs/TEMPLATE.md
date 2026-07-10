@@ -21,7 +21,7 @@ Por qué se hace ahora, qué la motiva.
 
 ## Data model
 
-Tablas/columnas nuevas o modificadas. Políticas RLS necesarias (recordar: no relajar policies existentes, usar funciones `security definer` acotadas si hace falta cruzar datos de otro usuario — ver [anti-patterns.md](../research-development/engineering-guidelines/anti-patterns.md)).
+Tablas/columnas nuevas o modificadas. Políticas RLS necesarias (recordar: no relajar policies existentes, usar funciones `security definer` acotadas si hace falta cruzar datos de otro usuario — ver [01-anti-patterns.md](../research-development/engineering-guidelines/01-anti-patterns.md)).
 
 ## Flows
 

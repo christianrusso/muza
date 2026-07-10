@@ -26,6 +26,6 @@ Al agregar un elemento flotante nuevo, respetar el orden de `z-index` ya estable
 
 ## Accesibilidad y buenas prácticas a mantener
 
-- Contraste: los pares de color `*-soft`/base (ver [colors.md](./colors.md)) existen específicamente para mantener contraste legible en fondos de color — no reemplazar un fondo `-soft` + texto de color por un fondo saturado + texto blanco sin chequear contraste.
+- Contraste: los pares de color `*-soft`/base (ver [00-colors.md](./00-colors.md)) existen específicamente para mantener contraste legible en fondos de color — no reemplazar un fondo `-soft` + texto de color por un fondo saturado + texto blanco sin chequear contraste.
 - Área táctil: botones principales (`.btn`) son de 54px de alto, iconos (`.btn-icon`, `.back`) 52px/40px — tamaños ya pensados para touch target mínimo cómodo en mobile. No achicar por debajo de eso para elementos interactivos nuevos.
 - `-webkit-font-smoothing: antialiased` aplicado globalmente — mantener en cualquier texto custom para que el peso de Manrope/Instrument Serif se vea consistente entre pantallas.

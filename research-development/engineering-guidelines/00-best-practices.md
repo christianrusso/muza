@@ -9,7 +9,7 @@
 
 ## Base de datos / Supabase
 
-- **Cuando necesites que una policy o vista muestre datos de otro usuario, resolvelo con una función `security definer` acotada**, no relajando la policy general de la tabla (ver ejemplos: `increment_analysis_usage`, `is_community_photo`, `admin_metrics`). El historial de este repo ya mostró que "una policy más permisiva" rompe cosas de forma no obvia (ver [anti-patterns.md](./anti-patterns.md)).
+- **Cuando necesites que una policy o vista muestre datos de otro usuario, resolvelo con una función `security definer` acotada**, no relajando la policy general de la tabla (ver ejemplos: `increment_analysis_usage`, `is_community_photo`, `admin_metrics`). El historial de este repo ya mostró que "una policy más permisiva" rompe cosas de forma no obvia (ver [01-anti-patterns.md](./01-anti-patterns.md)).
 - **Toda tabla nueva con datos de usuario lleva RLS habilitado desde la migración que la crea**, no como un paso posterior.
 - **Las migraciones son incrementales y nunca se editan retroactivamente** — si algo de una migración vieja está mal, se corrige con una migración nueva (así se hizo con los fixes de RLS en `0005` y `0007`).
 
@@ -26,11 +26,11 @@
 
 ## Frontend / UI
 
-- **Antes de estilar algo nuevo, revisá si ya existe la clase semántica en `globals.css`** (`.btn-*`, `.card`, `.badge--*`, `.chip`, etc.) — ver [design-system/components-and-patterns.md](../design-system/components-and-patterns.md). Extender el sistema existente, no crear uno paralelo con utilities sueltas.
+- **Antes de estilar algo nuevo, revisá si ya existe la clase semántica en `globals.css`** (`.btn-*`, `.card`, `.badge--*`, `.chip`, etc.) — ver [design-system/02-components-and-patterns.md](../design-system/02-components-and-patterns.md). Extender el sistema existente, no crear uno paralelo con utilities sueltas.
 - **Diseñá para el canvas mobile fijo (`max-w-[430px]`).** No es un breakpoint entre varios, es el layout objetivo.
 - **Cada ruta principal nueva lleva su `loading.tsx` + skeleton.** Es el patrón ya establecido en `home`, `history`, `community`, `result`.
 
 ## Proceso
 
-- **Cambios en `src/lib/scoring/` o `src/lib/plans/` requieren agregar/actualizar un test en `tests/scoring.test.ts`** — es la única red de contención automatizada que existe sobre esa lógica hoy (ver [risks.md](../general-app-research/risks.md)).
-- **Features no triviales arrancan con una spec, no con código.** Ver [spec-driven-development.md](./spec-driven-development.md).
+- **Cambios en `src/lib/scoring/` o `src/lib/plans/` requieren agregar/actualizar un test en `tests/scoring.test.ts`** — es la única red de contención automatizada que existe sobre esa lógica hoy (ver [09-risks.md](../general-app-research/09-risks.md)).
+- **Features no triviales arrancan con una spec, no con código.** Ver [02-spec-driven-development.md](./02-spec-driven-development.md).

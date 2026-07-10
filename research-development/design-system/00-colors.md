@@ -29,7 +29,7 @@ Fuente única de verdad: variables CSS en `src/app/globals.css` (`:root`), expue
 | `--red` | `#e5484d` | Error, score bajo |
 | `--red-soft` | `#fbe7e8` | Fondo banner de error |
 
-Mapeo de score a color, vía `--color-score-high/medium/low` (ver [scoring-engine.md](../general-app-research/scoring-engine.md#bandas-de-score) para los umbrales 75/60):
+Mapeo de score a color, vía `--color-score-high/medium/low` (ver [06-scoring-engine.md](../general-app-research/06-scoring-engine.md#bandas-de-score) para los umbrales 75/60):
 - `>=75` → `--green`
 - `60-74` → `--amber`
 - `<60` → `--red`

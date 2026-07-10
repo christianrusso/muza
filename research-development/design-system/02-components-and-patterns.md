@@ -26,11 +26,11 @@ Componentes de dominio (fuera de `ui/`, en `src/components/analysis/`, `communit
 ## Otros patrones visuales reutilizables (definidos solo en CSS, sin wrapper de componente propio)
 
 - **`.ring`** — el anillo de score (conic-gradient controlado por variables inline `--c` color y `--p` porcentaje). Es el elemento visual central de la pantalla de resultado.
-- **`.badge--full/top/bottom/single`** — pills de tipo de análisis, usan los tokens de color de [colors.md](./colors.md#colores-por-tipo-de-análisis-tagsbadges).
+- **`.badge--full/top/bottom/single`** — pills de tipo de análisis, usan los tokens de color de [00-colors.md](./00-colors.md#colores-por-tipo-de-análisis-tagsbadges).
 - **`.occ` / `.occ.sel`** — tarjeta de selección de ocasión, con estado seleccionado (borde coral 2px + fondo `--coral-soft` + sombra coral).
 - **`.chip` / `.chip.active`** — filtros/selecciones tipo pill (variantes de ocasión).
 - **`.gcard` / `.gbadge` / `.gscore`** — tarjeta de grid del historial, con badge de tipo y score superpuestos sobre la foto.
-- **`.rec`** — item de recomendación (comentario en el propio CSS: "read-only, no select/simulate" — es decir, deliberadamente no interactivo hoy; si se implementa la feature de Simulación IA, ver [open-decisions.md](../general-app-research/open-decisions.md#feature-simulación-ia), este patrón probablemente necesite un estado interactivo nuevo).
+- **`.rec`** — item de recomendación (comentario en el propio CSS: "read-only, no select/simulate" — es decir, deliberadamente no interactivo hoy; si se implementa la feature de Simulación IA, ver [08-open-decisions.md](../general-app-research/08-open-decisions.md#feature-simulación-ia), este patrón probablemente necesite un estado interactivo nuevo).
 - **`.feed-tab` / `.react`** — tabs del feed de comunidad y botón de reacción (like/dislike), con estado `.active`/`.on` en coral.
 
 ## Micro-interacciones

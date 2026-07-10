@@ -42,7 +42,7 @@ sequenceDiagram
 Gestionado por `src/lib/supabase/middleware.ts` (`updateSession()`), invocado desde `src/proxy.ts` para todo lo que no sea `/admin`.
 
 - Rutas de auth: `/welcome, /register, /login, /forgot-password, /reset-password, /auth/callback`. Rutas públicas: `/legal, /landing.html`.
-- Si faltan credenciales de Supabase (dev local), se saltea todo el manejo de auth (ver [architecture.md](./architecture.md#modo-demo-como-capa-de-fallback-completa)).
+- Si faltan credenciales de Supabase (dev local), se saltea todo el manejo de auth (ver [02-architecture.md](./02-architecture.md#modo-demo-como-capa-de-fallback-completa)).
 - Usa `supabase.auth.getClaims()` en vez de `getUser()`: verifica el JWT localmente si el proyecto tiene signing keys asimétricas habilitadas, evitando un round-trip de red al validar sesión — decisión de performance explícita porque el edge corre en São Paulo y Supabase en US East (~170ms medidos). Cae a `getUser()` si las signing keys no están habilitadas.
 - Reglas de redirect:
   - Visitante sin sesión en `/` → rewrite (no redirect) a `/landing.html`, la URL sigue mostrando `/`.
@@ -95,10 +95,10 @@ Detalle paso a paso:
    - `invalid` → pantalla de error, no se genera score.
    - `partial` → foto parcial, se ofrece continuar igual (con categorías no visibles puntuadas neutro, 70).
    - `valid` → sigue a scoring.
-5. `analysis/[id]/result` — muestra `overall_score`, desglose de las 10 categorías, fortalezas/mejoras/recomendaciones, badge cualitativo, botón de compartir. Persistido en `analyses` + `analysis_categories` + `analysis_feedback` (ver [data-model.md](./data-model.md)).
+5. `analysis/[id]/result` — muestra `overall_score`, desglose de las 10 categorías, fortalezas/mejoras/recomendaciones, badge cualitativo, botón de compartir. Persistido en `analyses` + `analysis_categories` + `analysis_feedback` (ver [04-data-model.md](./04-data-model.md)).
 6. Opcionalmente el usuario publica el análisis a la comunidad (`community_posts`, `unique(analysis_id)` — un análisis solo puede tener un post).
 
-Detalle del cálculo de score y del prompt en [scoring-engine.md](./scoring-engine.md).
+Detalle del cálculo de score y del prompt en [06-scoring-engine.md](./06-scoring-engine.md).
 
 ## Flujo de comunidad
 
@@ -110,4 +110,4 @@ Detalle del cálculo de score y del prompt en [scoring-engine.md](./scoring-engi
 
 ## Flujo de gating (planes)
 
-`canCreateAnalysis({planTier, currentMonthCount})` chequea contra `PLAN_LIMITS[planTier].monthlyAnalyses` (hoy `null` para ambos planes → siempre `true`). `historyCutoffDate(planTier)` calcula la fecha de corte del historial visible (hoy `null` para ambos → sin corte). Ver por qué están en `null` en [open-decisions.md](./open-decisions.md).
+`canCreateAnalysis({planTier, currentMonthCount})` chequea contra `PLAN_LIMITS[planTier].monthlyAnalyses` (hoy `null` para ambos planes → siempre `true`). `historyCutoffDate(planTier)` calcula la fecha de corte del historial visible (hoy `null` para ambos → sin corte). Ver por qué están en `null` en [08-open-decisions.md](./08-open-decisions.md).

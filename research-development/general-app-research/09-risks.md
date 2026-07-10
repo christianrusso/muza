@@ -10,7 +10,7 @@ No existe `.github/workflows` ni pipeline equivalente. Nada corre lint/test/buil
 
 ## RLS: patrón ya probado frágil (visto en el historial)
 
-Dos migraciones (`0005`, `0007`) tuvieron que corregir bugs de seguridad/visibilidad introducidos por combinar RLS con vistas o subqueries en policies (ver detalle en [database.md](./database.md#historial-de-bugs-de-seguridadrls)). Riesgo concreto: **cualquier policy o vista nueva que necesite mostrar datos de otro usuario está en riesgo de repetir el mismo bug** si no se usa explícitamente `security definer` / `security_invoker=false` con intención. Antes de tocar RLS, revisar ese historial.
+Dos migraciones (`0005`, `0007`) tuvieron que corregir bugs de seguridad/visibilidad introducidos por combinar RLS con vistas o subqueries en policies (ver detalle en [05-database.md](./05-database.md#historial-de-bugs-de-seguridadrls)). Riesgo concreto: **cualquier policy o vista nueva que necesite mostrar datos de otro usuario está en riesgo de repetir el mismo bug** si no se usa explícitamente `security definer` / `security_invoker=false` con intención. Antes de tocar RLS, revisar ese historial.
 
 ## Funciones `security definer` — superficie sensible
 
@@ -18,7 +18,7 @@ Dos migraciones (`0005`, `0007`) tuvieron que corregir bugs de seguridad/visibil
 
 ## Variables de entorno no documentadas
 
-No hay `.env.example`. Onboarding de un nuevo dev (o de un futuro yo) requiere leer código para saber qué variables hacen falta: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, credenciales OpenAI, `NEXT_PUBLIC_POSTHOG_KEY`/`HOST`, `NEXT_PUBLIC_SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`. Riesgo de configuración incompleta en un ambiente nuevo (y en producción, ver el guard de `isDemoMode()` en [architecture.md](./architecture.md)).
+No hay `.env.example`. Onboarding de un nuevo dev (o de un futuro yo) requiere leer código para saber qué variables hacen falta: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, credenciales OpenAI, `NEXT_PUBLIC_POSTHOG_KEY`/`HOST`, `NEXT_PUBLIC_SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`. Riesgo de configuración incompleta en un ambiente nuevo (y en producción, ver el guard de `isDemoMode()` en [02-architecture.md](./02-architecture.md)).
 
 ## Assets pesados en el repo de código
 
@@ -26,7 +26,7 @@ No hay `.env.example`. Onboarding de un nuevo dev (o de un futuro yo) requiere l
 
 ## Admin: single point of failure de credenciales
 
-Un solo par `ADMIN_EMAIL`/`ADMIN_PASSWORD` en variables de entorno, sin rotación ni MFA. Si se filtran esas dos variables, hay acceso total al dashboard de métricas de negocio. Ver también [open-decisions.md](./open-decisions.md#panel-admin-single-admin-sin-roles).
+Un solo par `ADMIN_EMAIL`/`ADMIN_PASSWORD` en variables de entorno, sin rotación ni MFA. Si se filtran esas dos variables, hay acceso total al dashboard de métricas de negocio. Ver también [08-open-decisions.md](./08-open-decisions.md#panel-admin-single-admin-sin-roles).
 
 ## Dependencia de comportamiento de Next.js custom
 

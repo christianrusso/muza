@@ -73,4 +73,4 @@ Paso previo de validación de foto (`ValidationResultSchema`): `{ verdict: valid
 - Cambiar pesos/umbrales de negocio → `src/lib/scoring/categories.ts` (no requiere tocar el prompt).
 - Cambiar qué le pedimos a la IA o cómo redactamos las instrucciones → `src/lib/ai/prompts/scoring.prompt.ts`.
 - Cambiar la forma del output → `src/lib/ai/schema.ts` (impacta ambos lados, hay que mantenerlos sincronizados a mano — no hay generación automática de tipos desde el schema hacia el prompt ni viceversa).
-- Calibrar con más/mejores ejemplos → tabla `scoring_examples` + `scripts/eval/` (sistema propio de evaluación, ver [risks.md](./risks.md) para el estado de testing general).
+- Calibrar con más/mejores ejemplos → tabla `scoring_examples` + `scripts/eval/` (sistema propio de evaluación, ver [09-risks.md](./09-risks.md) para el estado de testing general).
