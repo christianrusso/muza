@@ -14,7 +14,7 @@ Patrón general: **selects abiertos a autenticados donde hace falta mostrar cont
 | `occasions` | público | — (solo seed por migración) |
 | `analyses` / `analysis_categories` / `analysis_feedback` | owner-only | owner-only |
 | `plan_usage` | owner-only | ninguno directo — solo vía RPC `increment_analysis_usage` |
-| `community_posts` | autenticados | insert requiere ser owner del `user_id` Y de la `analysis_id` referenciada; delete owner-only |
+| `community_posts` | autenticados | insert requiere ser owner del `user_id` Y de la `analysis_id` referenciada; delete owner-only | 
 | `post_reactions` / `post_comments` | autenticados | owner-only |
 | `follows` | autenticados | owner-only (solo el propio `follower_id`) |
 | `scoring_examples` | autenticados | ninguno (solo `service_role`) |
