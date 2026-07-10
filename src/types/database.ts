@@ -17,6 +17,7 @@ export interface Database {
           plan_tier: "free" | "pro";
           plan_started_at: string | null;
           created_at: string;
+          last_seen_activity_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string; full_name: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -264,6 +265,10 @@ export interface Database {
       increment_analysis_usage: {
         Args: { p_user_id: string };
         Returns: void;
+      };
+      unread_activity_count: {
+        Args: Record<string, never>;
+        Returns: number;
       };
     };
     Enums: Record<string, never>;

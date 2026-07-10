@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { loadCommunityFeed } from "@/lib/community/feed";
+import { unreadActivityCount } from "@/lib/community/activity";
 import { InfiniteFeed } from "@/components/community/InfiniteFeed";
 import { FeedSkeleton } from "@/components/loading/Skeletons";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -33,13 +34,25 @@ export default async function CommunityPage({
 }) {
   const { tab } = await searchParams;
   const activeTab = tab ?? "popular";
+  const activityBadge = await unreadActivityCount();
 
   return (
     <div className="flex min-h-full flex-col pt-[60px]">
-      <div className="flex items-center px-[22px] pb-3">
+      <div className="flex items-center justify-between px-[22px] pb-3">
         <span className="font-serif italic" style={{ fontSize: 34 }}>
           Comunidad
         </span>
+        <Link
+          href="/community/activity"
+          aria-label="Actividad"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full"
+          style={{ background: "var(--paper-2, rgba(20,18,16,.05))" }}
+        >
+          <MaterialIcon name="favorite" size={22} />
+          {activityBadge > 0 && (
+            <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-coral ring-2 ring-paper" />
+          )}
+        </Link>
       </div>
 
       <div className="flex gap-5 border-b border-line px-[22px]">

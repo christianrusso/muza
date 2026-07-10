@@ -18,6 +18,8 @@ async function loadProfileData() {
     const posts = Array.from(store.posts.values()).map((p) => ({
       id: p.id,
       photoUrl: store.analyses.get(p.analysisId)?.photoDataUrl ?? null,
+      likeCount: Array.from(p.reactions.values()).filter((r) => r === "like").length,
+      commentCount: p.comments.length,
     }));
     return {
       userId: DEMO_USER.id,
@@ -49,23 +51,25 @@ async function loadProfileData() {
   const scores = (analyses ?? []).map((a) => a.overall_score).filter((s): s is number => s !== null);
   const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
+  // community_feed_view trae en una sola query la foto y los contadores de
+  // likes/comentarios de cada post (ver src/lib/community/feed.ts).
   const { data: posts } = await supabase
-    .from("community_posts")
-    .select("id, created_at, analyses(photo_path)")
-    .eq("user_id", user!.id)
-    .order("created_at", { ascending: false });
+    .from("community_feed_view")
+    .select("post_id, photo_path, like_count, comment_count")
+    .eq("author_id", user!.id)
+    .order("posted_at", { ascending: false });
 
-  const postPaths = (posts ?? []).map(
-    (p) => (p as unknown as { analyses: { photo_path: string } | null }).analyses?.photo_path ?? null,
-  );
+  const postPaths = (posts ?? []).map((p) => p.photo_path ?? null);
   const photoUrls = await signedPhotoUrls(
     supabase,
     postPaths.filter((path): path is string => path !== null),
     "thumb",
   );
   const postsWithPhotoUrls = (posts ?? []).map((p, i) => ({
-    id: p.id,
+    id: p.post_id,
     photoUrl: postPaths[i] ? photoUrls.get(postPaths[i]!) ?? null : null,
+    likeCount: p.like_count,
+    commentCount: p.comment_count,
   }));
 
   return {
@@ -111,7 +115,11 @@ export default async function ProfilePage() {
       <span className="section-label">Tus publicaciones</span>
       <div className="grid grid-cols-3 gap-2">
         {postsWithPhotoUrls.map((p) => (
-          <div key={p.id} className="ph relative aspect-square overflow-hidden rounded-xl">
+          <Link
+            key={p.id}
+            href={`/community/post/${p.id}`}
+            className="ph relative aspect-square overflow-hidden rounded-xl"
+          >
             {p.photoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -122,7 +130,20 @@ export default async function ProfilePage() {
                 className="absolute inset-0 h-full w-full object-cover"
               />
             )}
-          </div>
+            <span
+              className="absolute inset-x-0 bottom-0 flex items-center gap-3 px-2 py-1.5 text-[11px] font-extrabold text-white"
+              style={{ background: "linear-gradient(to top, rgba(20,18,16,.72), rgba(20,18,16,0))" }}
+            >
+              <span className="flex items-center gap-1">
+                <MaterialIcon name="favorite" size={13} filled />
+                {p.likeCount}
+              </span>
+              <span className="flex items-center gap-1">
+                <MaterialIcon name="chat_bubble" size={13} filled />
+                {p.commentCount}
+              </span>
+            </span>
+          </Link>
         ))}
         {postsWithPhotoUrls.length === 0 && (
           <p className="col-span-3 py-4 text-center text-sm font-semibold text-muted">
