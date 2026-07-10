@@ -61,7 +61,7 @@ export default function RegisterPage() {
       return;
     }
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } },
@@ -71,13 +71,19 @@ export default function RegisterPage() {
       setError(signUpError.message);
       return;
     }
+    // PROVISORIO: registro sin validación de email para bajar la fricción. El
+    // interruptor real es el Dashboard de Supabase → Authentication → Email →
+    // "Confirm email" en OFF. Con eso desactivado, signUp devuelve sesión y el
+    // usuario entra directo. Para volver a exigir verificación, reactivá ese
+    // toggle: al no venir sesión caemos automáticamente al aviso de "revisá tu
+    // correo" de abajo (sin tocar este código).
+    if (data.session) {
+      router.push(safeNextPath(next));
+      return;
+    }
     await supabase.auth.signOut();
     setSubmitting(false);
     setSuccess(true);
-    // Con verificación de email activada en Supabase, la cuenta queda pendiente
-    // hasta confirmar el correo. NO redirigimos a /login: dejamos visible el
-    // aviso de "revisá tu correo" (si redirigíamos, el usuario no lo alcanzaba a
-    // leer y después el login fallaba con "Email not confirmed" sin contexto).
   }
 
   return (
