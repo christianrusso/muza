@@ -5,9 +5,24 @@ import { ScreenHead } from "@/components/navigation/TopBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { MarkActivitySeen } from "@/components/community/MarkActivitySeen";
 
+const BADGE = {
+  like: { icon: "favorite", bg: "var(--coral)" },
+  comment: { icon: "chat_bubble", bg: "var(--green)" },
+  follow: { icon: "person_add", bg: "var(--ink)" },
+} as const;
+
+const ACTION_TEXT = {
+  like: "le dio like a tu look",
+  comment: "comentó tu look",
+  follow: "empezó a seguirte",
+} as const;
+
 function ActivityRow({ item }: { item: ActivityItem }) {
+  // Los follows llevan al perfil del que te siguió; likes/comentarios al post.
+  const href = item.kind === "follow" ? `/community/user/${item.actorId}` : `/community/post/${item.postId}`;
+
   return (
-    <Link href={`/community/post/${item.postId}`} className="flex items-center gap-3">
+    <Link href={href} className="flex items-center gap-3">
       <div className="relative flex-none">
         {item.actorAvatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -17,17 +32,15 @@ function ActivityRow({ item }: { item: ActivityItem }) {
         )}
         <span
           className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
-          style={{ background: item.kind === "like" ? "var(--coral)" : "var(--green)" }}
+          style={{ background: BADGE[item.kind].bg }}
         >
-          <MaterialIcon name={item.kind === "like" ? "favorite" : "chat_bubble"} size={12} filled />
+          <MaterialIcon name={BADGE[item.kind].icon} size={12} filled />
         </span>
       </div>
 
       <div className="flex-1 leading-tight">
         <span className="text-[13.5px] font-extrabold">{item.actorName}</span>{" "}
-        <span className="text-[13.5px] font-semibold text-muted">
-          {item.kind === "like" ? "le dio like a tu look" : "comentó tu look"}
-        </span>
+        <span className="text-[13.5px] font-semibold text-muted">{ACTION_TEXT[item.kind]}</span>
         {item.kind === "comment" && item.commentBody && (
           <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold text-ink">“{item.commentBody}”</p>
         )}

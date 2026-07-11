@@ -13,6 +13,7 @@ export interface Database {
           id: string;
           full_name: string;
           avatar_url: string | null;
+          gender: "masculino" | "femenino" | "no_especifica" | null;
           notifications_enabled: boolean;
           plan_tier: "free" | "pro";
           plan_started_at: string | null;
@@ -234,9 +235,36 @@ export interface Database {
           following_id: string;
           created_at: string;
         };
-        Insert: Database["public"]["Tables"]["follows"]["Row"];
+        Insert: Partial<Database["public"]["Tables"]["follows"]["Row"]> & {
+          follower_id: string;
+          following_id: string;
+        };
         Update: Partial<Database["public"]["Tables"]["follows"]["Row"]>;
         Relationships: [];
+      };
+      post_votes: {
+        Row: {
+          id: string;
+          post_id: string;
+          user_id: string;
+          bucket: "low" | "mid" | "high";
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["post_votes"]["Row"]> & {
+          post_id: string;
+          user_id: string;
+          bucket: "low" | "mid" | "high";
+        };
+        Update: Partial<Database["public"]["Tables"]["post_votes"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "post_votes_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -248,6 +276,7 @@ export interface Database {
           author_id: string;
           author_name: string;
           author_avatar_url: string | null;
+          author_gender: "masculino" | "femenino" | "no_especifica" | null;
           analysis_id: string;
           photo_path: string;
           occasion_id: string;
@@ -257,6 +286,9 @@ export interface Database {
           like_count: number;
           dislike_count: number;
           comment_count: number;
+          low_votes: number;
+          mid_votes: number;
+          high_votes: number;
         };
         Relationships: [];
       };

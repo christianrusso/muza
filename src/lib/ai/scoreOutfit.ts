@@ -4,7 +4,7 @@ import { getOpenAIClient, VISION_MODEL } from "./client";
 import { buildScoringPrompt } from "./prompts/scoring.prompt";
 import { ScoringResultSchema, type ScoringResult } from "./schema";
 import type { FewShotExample } from "@/lib/scoring/knowledgeBase";
-import type { AnalysisType } from "@/types/domain";
+import type { AnalysisType, UserGender } from "@/types/domain";
 
 export class AIScoringError extends Error {}
 
@@ -51,6 +51,7 @@ export async function scoreOutfit({
   occasionVariant,
   occasionContext,
   analysisType,
+  userGender,
   examples = [],
 }: {
   photoUrl: string;
@@ -58,6 +59,7 @@ export async function scoreOutfit({
   occasionVariant?: string | null;
   occasionContext?: string | null;
   analysisType: AnalysisType;
+  userGender?: UserGender | null;
   examples?: FewShotExample[];
 }): Promise<ScoringResult> {
   const response = await getOpenAIClient().responses.parse({
@@ -66,7 +68,7 @@ export async function scoreOutfit({
     // no puede dar 82 una vez y 74 la siguiente.
     temperature: 0,
     input: [
-      { role: "system", content: buildScoringPrompt({ occasionLabel, occasionVariant, occasionContext, analysisType }) },
+      { role: "system", content: buildScoringPrompt({ occasionLabel, occasionVariant, occasionContext, analysisType, userGender }) },
       { role: "user", content: buildScoringUserContent(photoUrl, occasionLabel, examples) },
     ],
     text: { format: zodTextFormat(ScoringResultSchema, "scoring_result") },

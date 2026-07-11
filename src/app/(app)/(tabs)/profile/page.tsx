@@ -158,6 +158,11 @@ export default async function ProfilePage() {
           <span className="txt">Editar nombre</span>
           <MaterialIcon name="chevron_right" className="chev" />
         </Link>
+        <Link href="/profile/edit-gender" className="row">
+          <MaterialIcon name="wc" />
+          <span className="txt">Género</span>
+          <MaterialIcon name="chevron_right" className="chev" />
+        </Link>
         <Link href="/profile/settings" className="row">
           <MaterialIcon name="settings" />
           <span className="txt">Configuración</span>

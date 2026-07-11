@@ -4,14 +4,16 @@ import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { isDemoMode, DEMO_USER } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 
-// Un evento de actividad sobre un post propio: alguien (otro usuario) le dio like
-// o lo comentó. Alimenta la pantalla /community/activity.
+// Un evento de actividad: alguien (otro usuario) le dio like o comentó un post
+// propio, o empezó a seguir al usuario. Alimenta la pantalla /community/activity.
 export interface ActivityItem {
   id: string;
-  kind: "like" | "comment";
+  kind: "like" | "comment" | "follow";
+  actorId: string;
   actorName: string;
   actorAvatarUrl: string | null;
-  postId: string;
+  // null en los follows (no hay post asociado).
+  postId: string | null;
   postPhotoUrl: string | null;
   commentBody: string | null;
   createdAt: string;
@@ -36,6 +38,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
         items.push({
           id: `like-${post.id}-${actorId}`,
           kind: "like",
+          actorId: "",
           actorName: "Alguien",
           actorAvatarUrl: null,
           postId: post.id,
@@ -48,6 +51,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
         items.push({
           id: `comment-${comment.id}`,
           kind: "comment",
+          actorId: "",
           actorName: "Alguien",
           actorAvatarUrl: null,
           postId: post.id,
@@ -82,7 +86,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     ]),
   );
 
-  const [{ data: likes }, { data: comments }] = await Promise.all([
+  const [{ data: likes }, { data: comments }, { data: follows }] = await Promise.all([
     supabase
       .from("post_reactions")
       .select("id, post_id, user_id, created_at, profiles(full_name, avatar_url)")
@@ -98,7 +102,22 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
       .neq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(limit),
+    supabase
+      .from("follows")
+      .select("follower_id, created_at")
+      .eq("following_id", user.id)
+      .neq("follower_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(limit),
   ]);
+
+  // Los datos del que sigue: se traen aparte porque follows tiene dos FKs a
+  // profiles (follower/following) y el embed sería ambiguo.
+  const followerIds = (follows ?? []).map((f) => f.follower_id);
+  const { data: followActors } = followerIds.length
+    ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", followerIds)
+    : { data: [] };
+  const actorById = new Map((followActors ?? []).map((a) => [a.id, a]));
 
   // Firmar las fotos de los posts que aparecen en la actividad (una sola vez cada una).
   const involvedPaths = Array.from(
@@ -124,6 +143,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
   const likeItems: ActivityItem[] = (likes ?? []).map((r) => ({
     id: `like-${r.id}`,
     kind: "like",
+    actorId: r.user_id,
     actorName: actorName(r),
     actorAvatarUrl: actorAvatar(r),
     postId: r.post_id,
@@ -135,6 +155,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
   const commentItems: ActivityItem[] = (comments ?? []).map((c) => ({
     id: `comment-${c.id}`,
     kind: "comment",
+    actorId: c.user_id,
     actorName: actorName(c),
     actorAvatarUrl: actorAvatar(c),
     postId: c.post_id,
@@ -143,7 +164,19 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     createdAt: c.created_at,
   }));
 
-  return [...likeItems, ...commentItems]
+  const followItems: ActivityItem[] = (follows ?? []).map((f) => ({
+    id: `follow-${f.follower_id}`,
+    kind: "follow",
+    actorId: f.follower_id,
+    actorName: actorById.get(f.follower_id)?.full_name ?? "Usuario",
+    actorAvatarUrl: actorById.get(f.follower_id)?.avatar_url ?? null,
+    postId: null,
+    postPhotoUrl: null,
+    commentBody: null,
+    createdAt: f.created_at,
+  }));
+
+  return [...likeItems, ...commentItems, ...followItems]
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit);
 }

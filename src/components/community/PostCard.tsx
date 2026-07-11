@@ -9,7 +9,10 @@ import type { AnalysisType } from "@/types/domain";
 
 export interface PostCardData {
   id: string;
+  authorId: string;
   authorName: string;
+  authorAvatarUrl: string | null;
+  caption: string | null;
   occasionLabel: string;
   postedAt: string;
   analysisType: AnalysisType;
@@ -21,7 +24,7 @@ export interface PostCardData {
 }
 
 export function PostCard({ post }: { post: PostCardData }) {
-  const [reaction, setReaction] = useState(post.myReaction);
+  const [liked, setLiked] = useState(post.myReaction === "like");
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -40,31 +43,33 @@ export function PostCard({ post }: { post: PostCardData }) {
     }
   }
 
-  async function react(next: "like" | "dislike") {
-    const previous = reaction;
-    const turningOn = previous !== next;
-    setReaction(turningOn ? next : null);
-
-    if (next === "like") {
-      setLikeCount((c) => c + (turningOn ? 1 : -1));
-    } else if (previous === "like" && turningOn) {
-      // switching from like to dislike also removes the like
-      setLikeCount((c) => c - 1);
-    }
+  async function toggleLike() {
+    const next = !liked;
+    setLiked(next);
+    setLikeCount((c) => c + (next ? 1 : -1));
 
     await fetch(`/api/community/posts/${post.id}/like`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reaction: next }),
+      body: JSON.stringify({ reaction: "like" }),
     });
   }
 
   return (
     <div>
       <div className="mb-2.5 flex items-center gap-2.5">
-        <div className="ph h-10 w-10 rounded-full" />
+        <Link href={`/community/user/${post.authorId}`}>
+          {post.authorAvatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={post.authorAvatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+          ) : (
+            <div className="ph h-10 w-10 rounded-full" />
+          )}
+        </Link>
         <div className="flex flex-1 flex-col gap-px">
-          <span className="text-[13.5px] font-extrabold">{post.authorName}</span>
+          <Link href={`/community/user/${post.authorId}`} className="text-[13.5px] font-extrabold">
+            {post.authorName}
+          </Link>
           <span className="text-[11px] font-semibold text-faint">
             {post.occasionLabel} · {relativeShortDate(post.postedAt)}
           </span>
@@ -98,13 +103,12 @@ export function PostCard({ post }: { post: PostCardData }) {
         </span>
       </Link>
 
+      {post.caption && <p className="mt-2.5 text-sm font-semibold text-ink">{post.caption}</p>}
+
       <div className="mt-2.5 flex items-center gap-5">
-        <button type="button" className={`react ${reaction === "like" ? "on" : ""}`} onClick={() => react("like")}>
-          <MaterialIcon name="favorite" size={22} filled={reaction === "like"} />
+        <button type="button" className={`react ${liked ? "on" : ""}`} onClick={toggleLike}>
+          <MaterialIcon name="favorite" size={22} filled={liked} />
           <span>{likeCount}</span>
-        </button>
-        <button type="button" className={`react ${reaction === "dislike" ? "on" : ""}`} onClick={() => react("dislike")}>
-          <MaterialIcon name="thumb_down" size={22} filled={reaction === "dislike"} />
         </button>
         <Link href={`/community/post/${post.id}`} className="react">
           <MaterialIcon name="chat_bubble_outline" size={22} />

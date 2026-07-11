@@ -93,5 +93,21 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Onboarding obligatorio (género): mientras el usuario no lo completó, cae acá.
+  // El flag viaja en user_metadata dentro del JWT → lectura zero-DB desde los
+  // claims (misma optimización edge→Supabase que getClaims). Se setea con
+  // supabase.auth.updateUser({ data: { onboarded: true } }) al elegir el género,
+  // lo que refresca el token y libera el gate en la navegación siguiente.
+  // Excluimos /api (rompería las llamadas del scoring) y /onboarding (loop).
+  const onboarded = Boolean(
+    (user as { user_metadata?: { onboarded?: boolean } } | null)?.user_metadata?.onboarded,
+  );
+  if (user && !onboarded && pathname !== "/onboarding" && !pathname.startsWith("/api")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/onboarding";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   return supabaseResponse;
 }
