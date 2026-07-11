@@ -1,16 +1,18 @@
 import { SCORE_CATEGORIES } from "@/lib/scoring/categories";
-import type { AnalysisType } from "@/types/domain";
+import type { AnalysisType, UserGender } from "@/types/domain";
 
 export function buildScoringPrompt({
   occasionLabel,
   occasionVariant,
   occasionContext,
   analysisType,
+  userGender,
 }: {
   occasionLabel: string;
   occasionVariant?: string | null;
   occasionContext?: string | null;
   analysisType: AnalysisType;
+  userGender?: UserGender | null;
 }): string {
   const categoriesList = SCORE_CATEGORIES.map(
     (c) => `- "${c.key}" (${c.label}, peso ${Math.round(c.weight * 100)}%)`,
@@ -28,10 +30,19 @@ export function buildScoringPrompt({
     ? `\n- Contexto adicional que aclaró el usuario: "${occasionContext}". Tenelo muy en cuenta al evaluar la adecuación del outfit a la situación real.`
     : "";
 
+  // Género declarado por el usuario como CÓDIGO DE MODA (no como juicio del
+  // cuerpo): fija con qué expectativas de estilo se evalúa fit/proporciones/
+  // modernidad. "no_especifica" (o sin dato) no agrega línea → el modelo infiere
+  // de la foto, idéntico al comportamiento previo.
+  const genderLine =
+    userGender === "masculino" || userGender === "femenino"
+      ? `\n- La persona se viste según códigos de moda ${userGender === "masculino" ? "masculina" : "femenina"}: evaluá fit, proporciones, coherencia y modernidad con las expectativas de esa moda. Esto NO cambia la regla de no juzgar el cuerpo — es contexto de estilo, no una evaluación física.`
+      : "";
+
   return `Sos el motor de puntuación de outfits de LookLab. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones. NUNCA evalúes ni menciones el cuerpo, la apariencia física o cualquier atributo personal de quien aparece en la foto.
 
 Contexto de este análisis:
-- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}
+- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}${genderLine}
 - El tipo de análisis ya fue clasificado como: "${analysisType}" (completo=cuerpo entero, superior=solo parte de arriba, inferior=solo parte de abajo, individual=prenda suelta). Si alguna categoría no aplica por el tipo de análisis (ej. "calzado" en un análisis "superior" sin calzado visible), asignale un puntaje neutro (70) y aclaralo en la justificación en vez de inventar un dato no visible.
 
 Puntuá estas 10 categorías fijas, cada una de 0 a 100:

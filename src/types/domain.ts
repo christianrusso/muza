@@ -4,6 +4,16 @@ export type ValidityStatus = "pending" | "valid" | "partial" | "invalid";
 
 export type PlanTier = "free" | "pro";
 
+// Género del usuario para personalizar el scoring. "no_especifica" = el modelo
+// infiere de la foto (comportamiento previo, sin línea de género en el prompt).
+export type UserGender = "masculino" | "femenino" | "no_especifica";
+
+export const GENDER_OPTIONS: { value: UserGender; label: string; icon: string }[] = [
+  { value: "femenino", label: "Femenino", icon: "female" },
+  { value: "masculino", label: "Masculino", icon: "male" },
+  { value: "no_especifica", label: "Prefiero no decirlo", icon: "block" },
+];
+
 export type FeedbackKind = "fortaleza" | "aspecto_mejorar" | "recomendacion";
 
 export type CategoryKey =

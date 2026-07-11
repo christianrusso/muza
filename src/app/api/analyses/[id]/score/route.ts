@@ -89,6 +89,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   // hay ejemplos para la ocasión → el scoring se comporta igual que hoy.
   const examples = await getFewShotExamples(supabase, analysis.occasion_id as string);
 
+  // Género declarado por el usuario para personalizar el scoring (código de moda).
+  // Si es null (usuario viejo sin onboardear), el prompt no agrega línea de género.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("gender")
+    .eq("id", user.id)
+    .single();
+
   try {
     const result = await scoreOutfit({
       photoUrl: signed.signedUrl,
@@ -96,6 +104,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       occasionVariant: analysis.occasion_variant,
       occasionContext: analysis.occasion_context,
       analysisType: analysis.analysis_type as AnalysisType,
+      userGender: profile?.gender ?? null,
       examples,
     });
 

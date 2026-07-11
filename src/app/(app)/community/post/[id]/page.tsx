@@ -7,9 +7,12 @@ import { getDemoStore } from "@/lib/demoStore";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { PostCard, type PostCardData } from "@/components/community/PostCard";
 import { CommentForm } from "@/components/community/CommentForm";
+import { DeletePostButton } from "@/components/community/DeletePostButton";
 import type { OccasionId } from "@/types/domain";
 
-async function loadPost(id: string): Promise<{ post: PostCardData; comments: { id: string; body: string; author: string }[] } | null> {
+async function loadPost(
+  id: string,
+): Promise<{ post: PostCardData; comments: { id: string; body: string; author: string }[]; isMine: boolean } | null> {
   if (isDemoMode()) {
     const created = getDemoStore().posts.get(id);
     if (created) {
@@ -17,7 +20,10 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
       return {
         post: {
           id: created.id,
+          authorId: DEMO_USER.id,
           authorName: DEMO_USER.full_name,
+          authorAvatarUrl: null,
+          caption: created.caption,
           occasionLabel: occasionLabel(analysis?.occasionId ?? "other"),
           postedAt: created.createdAt,
           analysisType: analysis?.analysisType ?? "completo",
@@ -28,6 +34,7 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
           myReaction: created.reactions.get(DEMO_USER.id) ?? null,
         },
         comments: created.comments.map((c) => ({ id: c.id, body: c.body, author: DEMO_USER.full_name })),
+        isMine: true,
       };
     }
     const seeded = DEMO_COMMUNITY_POSTS.find((p) => p.post_id === id);
@@ -35,7 +42,10 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
     return {
       post: {
         id: seeded.post_id,
+        authorId: seeded.author_id,
         authorName: seeded.author_name,
+        authorAvatarUrl: seeded.author_avatar_url,
+        caption: seeded.caption,
         occasionLabel: occasionLabel(seeded.occasion_id),
         postedAt: seeded.posted_at,
         analysisType: seeded.analysis_type,
@@ -46,6 +56,7 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
         myReaction: null,
       },
       comments: [],
+      isMine: false,
     };
   }
 
@@ -75,7 +86,10 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
   return {
     post: {
       id: post.post_id,
+      authorId: post.author_id,
       authorName: post.author_name,
+      authorAvatarUrl: post.author_avatar_url,
+      caption: post.caption,
       occasionLabel: occasionLabel(post.occasion_id as OccasionId),
       postedAt: post.posted_at,
       analysisType: post.analysis_type ?? "completo",
@@ -91,6 +105,7 @@ async function loadPost(id: string): Promise<{ post: PostCardData; comments: { i
       author:
         (c as unknown as { profiles: { full_name: string } | null }).profiles?.full_name ?? "Usuario",
     })),
+    isMine: user?.id === post.author_id,
   };
 }
 
@@ -122,6 +137,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <CommentForm postId={id} />
+
+      {data.isMine && <DeletePostButton postId={id} />}
     </div>
   );
 }

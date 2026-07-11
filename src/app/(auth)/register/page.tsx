@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
+import { nextQuery, safeNextPath } from "@/lib/redirect";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -36,6 +37,14 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  // Destino post-login (deep link compartido). Ver welcome/page.tsx. Con verif.
+  // de email el registro termina en /login, así que solo propagamos next a esos
+  // links; el OAuth/redirect real lo resuelve la pantalla de login.
+  const [next, setNext] = useState<string | null>(null);
+  useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get("next"));
+  }, []);
+  const nextSuffix = nextQuery(next);
 
   const ruleResults = useMemo(() => RULES.map((r) => ({ ...r, ok: r.test(password) })), [password]);
   const allRulesOk = ruleResults.every((r) => r.ok);
@@ -48,11 +57,11 @@ export default function RegisterPage() {
     setSubmitting(true);
     setError(null);
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } },
@@ -62,18 +71,24 @@ export default function RegisterPage() {
       setError(signUpError.message);
       return;
     }
+    // PROVISORIO: registro sin validación de email para bajar la fricción. El
+    // interruptor real es el Dashboard de Supabase → Authentication → Email →
+    // "Confirm email" en OFF. Con eso desactivado, signUp devuelve sesión y el
+    // usuario entra directo. Para volver a exigir verificación, reactivá ese
+    // toggle: al no venir sesión caemos automáticamente al aviso de "revisá tu
+    // correo" de abajo (sin tocar este código).
+    if (data.session) {
+      router.push(safeNextPath(next));
+      return;
+    }
     await supabase.auth.signOut();
     setSubmitting(false);
     setSuccess(true);
-    // Con verificación de email activada en Supabase, la cuenta queda pendiente
-    // hasta confirmar el correo. NO redirigimos a /login: dejamos visible el
-    // aviso de "revisá tu correo" (si redirigíamos, el usuario no lo alcanzaba a
-    // leer y después el login fallaba con "Email not confirmed" sin contexto).
   }
 
   return (
     <div className="screen-body pad">
-      <ScreenHead title="Crear cuenta" backHref="/welcome" />
+      <ScreenHead title="Crear cuenta" backHref={`/welcome${nextSuffix}`} />
 
       <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4">
         <Field label="Nombre">
@@ -137,7 +152,7 @@ export default function RegisterPage() {
         )}
 
         {success ? (
-          <Link href="/login" className="mt-auto">
+          <Link href={`/login${nextSuffix}`} className="mt-auto">
             <Button type="button" className="w-full">
               Ir a iniciar sesión
             </Button>
@@ -149,7 +164,7 @@ export default function RegisterPage() {
         )}
         <p className="text-center text-sm font-semibold text-muted">
           ¿Ya tenés cuenta?{" "}
-          <Link href="/login" className="font-bold text-coral">
+          <Link href={`/login${nextSuffix}`} className="font-bold text-coral">
             Iniciar sesión
           </Link>
         </p>

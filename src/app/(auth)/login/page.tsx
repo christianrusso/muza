@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
+import { nextQuery, safeNextPath } from "@/lib/redirect";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
@@ -23,6 +24,12 @@ export default function LoginPage() {
   // Cuando el login falla por email sin confirmar, ofrecemos reenviar el correo.
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resend, setResend] = useState<"idle" | "sending" | "sent">("idle");
+  // Destino post-login (deep link compartido). Ver welcome/page.tsx.
+  const [next, setNext] = useState<string | null>(null);
+  useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get("next"));
+  }, []);
+  const nextSuffix = nextQuery(next);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +38,7 @@ export default function LoginPage() {
     setNeedsConfirm(false);
     setResend("idle");
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     const supabase = createClient();
@@ -43,7 +50,7 @@ export default function LoginPage() {
       return;
     }
     setSuccess(true);
-    setTimeout(() => router.push("/home"), 700);
+    setTimeout(() => router.push(safeNextPath(next)), 700);
   }
 
   async function resendConfirmation() {
@@ -61,7 +68,7 @@ export default function LoginPage() {
 
   async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     // Feedback inmediato: el redirect OAuth (Supabase → Google) tarda unos
@@ -74,7 +81,7 @@ export default function LoginPage() {
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback${nextSuffix}` },
       });
       if (oauthError) {
         setError(oauthError.message);
@@ -103,7 +110,7 @@ export default function LoginPage() {
 
       {/* Volver: sobre la foto, en blanco. */}
       <Link
-        href="/welcome"
+        href={`/welcome${nextSuffix}`}
         aria-label="Volver"
         className="relative z-10 mx-5 mt-5 flex h-10 w-10 items-center justify-center rounded-full text-white"
         style={{ background: "rgba(20,18,16,.4)", backdropFilter: "blur(4px)" }}
@@ -185,7 +192,7 @@ export default function LoginPage() {
 
         <p className="mt-auto text-center text-sm font-semibold text-muted">
           ¿No tenés cuenta?{" "}
-          <Link href="/register" className="font-bold text-coral">
+          <Link href={`/register${nextSuffix}`} className="font-bold text-coral">
             Registrate
           </Link>
         </p>

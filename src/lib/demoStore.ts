@@ -31,13 +31,22 @@ interface DemoCreatedPost {
 interface DemoStore {
   analyses: Map<string, DemoCreatedAnalysis>;
   posts: Map<string, DemoCreatedPost>;
+  // Voto del usuario demo por post (postId -> franja). Un solo usuario en demo.
+  votes: Map<string, "low" | "mid" | "high">;
+  // Ids de autores que el usuario demo sigue.
+  follows: Set<string>;
 }
 
 const globalForDemo = globalThis as unknown as { __muzaDemoStore?: DemoStore };
 
 export function getDemoStore(): DemoStore {
   if (!globalForDemo.__muzaDemoStore) {
-    globalForDemo.__muzaDemoStore = { analyses: new Map(), posts: new Map() };
+    globalForDemo.__muzaDemoStore = {
+      analyses: new Map(),
+      posts: new Map(),
+      votes: new Map(),
+      follows: new Set(),
+    };
   }
   return globalForDemo.__muzaDemoStore;
 }

@@ -76,14 +76,36 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!user && !isAuthRoute && !isPublicRoute) {
+    // Guardamos la ruta pedida en `next` para volver a ella después del login
+    // (deep links de posts compartidos, etc.). /home es el default, así que no
+    // ensuciamos la URL con ?next=/home.
+    const next = pathname + request.nextUrl.search;
     const url = request.nextUrl.clone();
     url.pathname = "/welcome";
+    url.search = "";
+    if (next !== "/home") url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/home";
+    return NextResponse.redirect(url);
+  }
+
+  // Onboarding obligatorio (género): mientras el usuario no lo completó, cae acá.
+  // El flag viaja en user_metadata dentro del JWT → lectura zero-DB desde los
+  // claims (misma optimización edge→Supabase que getClaims). Se setea con
+  // supabase.auth.updateUser({ data: { onboarded: true } }) al elegir el género,
+  // lo que refresca el token y libera el gate en la navegación siguiente.
+  // Excluimos /api (rompería las llamadas del scoring) y /onboarding (loop).
+  const onboarded = Boolean(
+    (user as { user_metadata?: { onboarded?: boolean } } | null)?.user_metadata?.onboarded,
+  );
+  if (user && !onboarded && pathname !== "/onboarding" && !pathname.startsWith("/api")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/onboarding";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 
