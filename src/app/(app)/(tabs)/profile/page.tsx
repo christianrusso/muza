@@ -28,6 +28,8 @@ async function loadProfileData() {
       planTier: DEMO_USER.plan_tier,
       average,
       analysesCount: scores.length,
+      followerCount: 0,
+      followingCount: store.follows.size,
       posts,
     };
   }
@@ -50,6 +52,11 @@ async function loadProfileData() {
     .eq("validity_status", "valid");
   const scores = (analyses ?? []).map((a) => a.overall_score).filter((s): s is number => s !== null);
   const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+
+  const [{ count: followerCount }, { count: followingCount }] = await Promise.all([
+    supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", user!.id),
+    supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", user!.id),
+  ]);
 
   // community_feed_view trae en una sola query la foto y los contadores de
   // likes/comentarios de cada post (ver src/lib/community/feed.ts).
@@ -79,12 +86,24 @@ async function loadProfileData() {
     planTier: profile?.plan_tier ?? "free",
     average,
     analysesCount: scores.length,
+    followerCount: followerCount ?? 0,
+    followingCount: followingCount ?? 0,
     posts: postsWithPhotoUrls,
   };
 }
 
 export default async function ProfilePage() {
-  const { userId, firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await timed("profile:data", loadProfileData);
+  const {
+    userId,
+    firstName,
+    avatarUrl,
+    planTier,
+    average,
+    analysesCount,
+    followerCount,
+    followingCount,
+    posts: postsWithPhotoUrls,
+  } = await timed("profile:data", loadProfileData);
 
   return (
     <div className="flex min-h-screen flex-col gap-4 px-[22px] pt-[60px]">
@@ -96,6 +115,18 @@ export default async function ProfilePage() {
           {planTier === "pro" ? "LookLab Pro" : "Plan Gratis"}
         </span>
       </div>
+
+      {/* Social: toca para ver tu perfil público tal como lo ven los demás. */}
+      <Link href={`/community/user/${userId}`} className="flex gap-3">
+        <div className="card flex-1 p-3.5 text-center">
+          <span className="block text-2xl font-extrabold">{followerCount}</span>
+          <span className="section-label">Seguidores</span>
+        </div>
+        <div className="card flex-1 p-3.5 text-center">
+          <span className="block text-2xl font-extrabold">{followingCount}</span>
+          <span className="section-label">Siguiendo</span>
+        </div>
+      </Link>
 
       <div className="flex gap-3">
         <div className="card flex-1 p-3.5 text-center">
