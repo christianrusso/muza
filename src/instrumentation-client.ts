@@ -11,13 +11,15 @@ const host = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
 
 if (key) {
   posthog.init(key, {
-    api_host: host,
+    api_host: "/ingest",
+    ui_host: host,
     // El App Router hace navegaciones "soft" que el autocapture de historial de
     // PostHog no siempre detecta; capturamos los pageviews a mano vía
     // onRouterTransitionStart (abajo) + el pageview inicial acá.
     capture_pageview: false,
     capture_pageleave: true, // necesario para tiempo-en-pantalla y bounce
-    defaults: "2025-05-24",
+    capture_exceptions: true,
+    defaults: "2026-01-30",
   });
 
   // Pageview de la carga inicial (onRouterTransitionStart solo cubre las

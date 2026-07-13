@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
@@ -12,6 +13,12 @@ export function SessionActions() {
   const [deleting, setDeleting] = useState(false);
 
   async function handleLogout() {
+    try {
+      posthog.capture("user_logged_out");
+      posthog.reset();
+    } catch {
+      // never break the flow for analytics
+    }
     if (!DEMO_MODE) {
       const supabase = createClient();
       await supabase.auth.signOut();

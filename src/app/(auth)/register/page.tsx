@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { nextQuery, safeNextPath } from "@/lib/redirect";
@@ -78,6 +79,13 @@ export default function RegisterPage() {
     // toggle: al no venir sesión caemos automáticamente al aviso de "revisá tu
     // correo" de abajo (sin tocar este código).
     if (data.session) {
+      try {
+        const userId = data.session.user.id;
+        posthog.identify(userId, { name: fullName });
+        posthog.capture("user_signed_up", { method: "email" });
+      } catch {
+        // never break the flow for analytics
+      }
       router.push(safeNextPath(next));
       return;
     }
