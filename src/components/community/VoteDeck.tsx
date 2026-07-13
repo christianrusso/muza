@@ -43,30 +43,12 @@ function GenderTag({ gender }: { gender: UserGender | null }) {
   );
 }
 
-function ScoreBadge({ score }: { score: number }) {
-  return (
-    <span
-      className="absolute bottom-3 left-3 flex h-[38px] items-center gap-2 rounded-full py-0 pl-1.5 pr-3"
-      style={{ background: "rgba(20,18,16,.72)", backdropFilter: "blur(4px)" }}
-    >
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--green)] text-[13px] font-extrabold text-white">
-        {score}
-      </span>
-      <span className="section-label text-white">Outfit Score</span>
-    </span>
-  );
-}
-
 // Foto del outfit: se muestra ENTERA (object-contain) sobre una copia borrosa de
-// sí misma (cover) como relleno. Antes usábamos object-cover y recortaba la prenda
-// (las fotos verticales perdían cabeza/pies). `fill` = ocupa el alto disponible
-// (estado "antes de votar"); sin fill = caja 4/5 acotada (estado revelado).
-function CardPhoto({ url, fill, children }: { url: string | null; fill?: boolean; children?: ReactNode }) {
+// sí misma (cover) como relleno, para no recortar la prenda. Ocupa el alto
+// disponible dentro de la carta.
+function CardPhoto({ url, children }: { url: string | null; children?: ReactNode }) {
   return (
-    <div
-      className={`relative overflow-hidden rounded-[18px] ${fill ? "min-h-0 flex-1" : ""}`}
-      style={{ background: "#14120e", ...(fill ? {} : { aspectRatio: "4 / 5", maxHeight: "48vh" }) }}
-    >
+    <div className="relative min-h-0 flex-1 overflow-hidden rounded-[18px]" style={{ background: "#14120e" }}>
       {url && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -136,7 +118,7 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
 
   const aiScore = card.overallScore;
 
-  // Cabecera compartida por ambos estados (antes de votar / revelado).
+  // Cabecera compartida por ambos estados.
   const header = (
     <div className="mb-3 flex items-center gap-2.5">
       <Link href={`/community/user/${card.authorId}`}>
@@ -158,21 +140,15 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
     </div>
   );
 
-  // ===== Antes de votar: la carta llena el alto disponible (sin hueco abajo) =====
+  // ===== Antes de votar: foto (sin nada tapándola) + pregunta debajo + botones =====
   if (!reveal) {
     return (
       <div className="flex flex-1 flex-col px-[22px] pb-4 pt-3">
         <div className="flex flex-1 flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
           {header}
-          <CardPhoto url={card.photoUrl} fill>
-            <span
-              className="absolute left-1/2 top-3 -translate-x-1/2 whitespace-nowrap rounded-full px-5 py-3 text-[15px] font-extrabold text-white"
-              style={{ background: "rgba(20,18,16,.72)", backdropFilter: "blur(4px)" }}
-            >
-              ¿Qué score le puso la IA?
-            </span>
-          </CardPhoto>
-          <div className="mt-3 flex gap-2.5">
+          <CardPhoto url={card.photoUrl} />
+          <p className="mt-3 text-center text-[15px] font-extrabold text-ink">¿Qué score le puso la IA?</p>
+          <div className="mt-2 flex gap-2.5">
             {VOTE_BUCKETS.map((b) => (
               <button
                 key={b.bucket}
@@ -191,21 +167,18 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
     );
   }
 
-  // ===== Revelado: contenido más alto, scrollea normalmente =====
+  // ===== Revelado: la foto se reemplaza por el resultado, en el mismo lugar =====
   const comScore = communityScore(reveal.tally) ?? aiScore;
   const correct = bucketForScore(aiScore) === reveal.bucket;
 
   return (
-    <div className="px-[22px] pb-6 pt-3">
-      <div className="rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
+    <div className="flex flex-1 flex-col px-[22px] pb-4 pt-3">
+      <div className="flex flex-1 flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
         {header}
-        <CardPhoto url={card.photoUrl}>
-          <ScoreBadge score={aiScore} />
-        </CardPhoto>
 
-        <div className="mt-4 flex flex-col items-center">
-          <ScoreRing score={aiScore} />
-          <p className="mt-3 text-center text-[15px] font-extrabold text-ink">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 py-1">
+          <ScoreRing score={aiScore} size={116} />
+          <p className="text-center text-[15px] font-extrabold text-ink">
             {correct ? (
               <>¡Acertaste! 🎯</>
             ) : (
@@ -216,7 +189,7 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
           </p>
 
           {/* IA vs Comunidad */}
-          <div className="mt-5 w-full">
+          <div className="w-full">
             <span className="section-label">IA vs. Comunidad</span>
             <div className="relative mt-2.5 h-2 rounded-full" style={{ background: "var(--line)" }}>
               <span
@@ -244,7 +217,7 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
 
           {/* Seguir al autor */}
           <div
-            className="mt-5 flex w-full items-center gap-3 rounded-2xl p-3"
+            className="flex w-full items-center gap-3 rounded-2xl p-3"
             style={{ background: "var(--paper-2, rgba(20,18,16,.05))" }}
           >
             <Link href={`/community/user/${card.authorId}`}>
@@ -255,15 +228,15 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
             </Link>
             <FollowButton userId={card.authorId} initialFollowing={card.amIFollowing} size="sm" />
           </div>
-
-          <button
-            type="button"
-            onClick={next}
-            className="mt-4 h-[54px] w-full rounded-2xl bg-coral text-base font-extrabold text-white"
-          >
-            Siguiente
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={next}
+          className="mt-3 h-[54px] w-full flex-none rounded-2xl bg-coral text-base font-extrabold text-white"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   );
