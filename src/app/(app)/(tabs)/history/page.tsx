@@ -8,7 +8,10 @@ import { relativeShortDate } from "@/lib/dates";
 import { scoreBandColorVar } from "@/lib/scoring/categories";
 import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { getPostRefsForUser } from "@/lib/community/posts";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
+import { PublishButton } from "@/components/community/PublishButton";
+import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { GridSkeleton } from "@/components/loading/Skeletons";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
@@ -89,7 +92,7 @@ const TYPE_FILTERS: { value: AnalysisType | "all"; label: string; dot?: string }
 ];
 
 async function HistoryGrid({ activeType }: { activeType: AnalysisType | "all" }) {
-  const withPhotoUrls = await loadHistoryData(activeType);
+  const [withPhotoUrls, postRefs] = await Promise.all([loadHistoryData(activeType), getPostRefsForUser()]);
 
   if (withPhotoUrls.length === 0) {
     return (
@@ -101,30 +104,51 @@ async function HistoryGrid({ activeType }: { activeType: AnalysisType | "all" })
 
   return (
     <div className="grid flex-1 content-start grid-cols-2 gap-[13px] px-[22px]">
-      {withPhotoUrls.map((a) => (
-        <Link key={a.id} href={`/analysis/${a.id}/result`}>
-          <div className="gcard ph">
-            {a.photoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={a.photoUrl}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover"
+      {withPhotoUrls.map((a) => {
+        const post = postRefs.get(a.id);
+        return (
+          <div key={a.id} className="flex flex-col">
+            <Link href={`/analysis/${a.id}/result`}>
+              <div className="gcard ph">
+                {a.photoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={a.photoUrl}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                )}
+                <AnalysisTypePill type={a.analysis_type as AnalysisType} className="gbadge" />
+                <span className="gscore" style={{ background: scoreBandColorVar(a.overall_score ?? 0) }}>
+                  {a.overall_score}
+                </span>
+              </div>
+              <div className="gmeta">
+                <span>{occasionLabel(a.occasion_id as OccasionId)}</span>
+                <span>{relativeShortDate(a.created_at)}</span>
+              </div>
+            </Link>
+            {post ? (
+              <Link
+                href={`/community/post/${post.postId}`}
+                className="mt-1.5 flex items-center justify-center gap-1.5 rounded-full border border-line py-1.5 text-[12px] font-bold text-muted"
+              >
+                <MaterialIcon name="forum" size={15} className="text-coral" />
+                {post.commentCount > 0 ? `${post.commentCount} coment.` : "Ver en comunidad"}
+              </Link>
+            ) : (
+              <PublishButton
+                analysisId={a.id}
+                label="Publicar"
+                variant="outline"
+                buttonStyle={{ width: "100%", height: 34, fontSize: 12, marginTop: 6 }}
               />
             )}
-            <AnalysisTypePill type={a.analysis_type as AnalysisType} className="gbadge" />
-            <span className="gscore" style={{ background: scoreBandColorVar(a.overall_score ?? 0) }}>
-              {a.overall_score}
-            </span>
           </div>
-          <div className="gmeta">
-            <span>{occasionLabel(a.occasion_id as OccasionId)}</span>
-            <span>{relativeShortDate(a.created_at)}</span>
-          </div>
-        </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }

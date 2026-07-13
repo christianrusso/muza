@@ -1,11 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { track } from "@/lib/analytics";
 
-export function PublishButton({ analysisId }: { analysisId: string }) {
+export function PublishButton({
+  analysisId,
+  label = "Publicar",
+  variant = "primary",
+  className,
+  buttonStyle = { width: 100, height: 40, fontSize: 13 },
+  goToPost = false,
+}: {
+  analysisId: string;
+  label?: string;
+  variant?: "primary" | "outline" | "ghost" | "light";
+  className?: string;
+  buttonStyle?: CSSProperties;
+  // Al terminar, ir al detalle del post recién creado (para ver/compartir sus
+  // comentarios) en vez de al feed general.
+  goToPost?: boolean;
+}) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
 
@@ -16,16 +32,28 @@ export function PublishButton({ analysisId }: { analysisId: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ analysisId }),
     });
-    setSubmitting(false);
     if (res.ok) {
       track("published", { analysis_id: analysisId });
-      router.push("/community");
+      if (goToPost) {
+        const data = (await res.json().catch(() => null)) as { id?: string } | null;
+        router.push(data?.id ? `/community/post/${data.id}` : "/community");
+      } else {
+        router.push("/community");
+      }
+    } else {
+      setSubmitting(false);
     }
   }
 
   return (
-    <Button style={{ width: 100, height: 40, fontSize: 13 }} onClick={handlePublish} disabled={submitting}>
-      {submitting ? "..." : "Publicar"}
+    <Button
+      variant={variant}
+      className={className}
+      style={buttonStyle}
+      onClick={handlePublish}
+      disabled={submitting}
+    >
+      {submitting ? "..." : label}
     </Button>
   );
 }

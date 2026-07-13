@@ -231,7 +231,10 @@ export function CameraCapture({
       )}
 
       {captured ? (
-        <div className="absolute inset-x-0 bottom-11 z-20 flex items-center justify-center gap-4 px-8">
+        <div
+          className="absolute inset-x-0 z-20 flex items-center justify-center gap-4 px-8"
+          style={{ bottom: "calc(2.75rem + env(safe-area-inset-bottom))" }}
+        >
           <button
             type="button"
             onClick={retake}
@@ -252,7 +255,10 @@ export function CameraCapture({
           </button>
         </div>
       ) : (
-        <div className="absolute inset-x-0 bottom-11 z-20 flex items-center justify-around px-8">
+        <div
+          className="absolute inset-x-0 z-20 flex items-center justify-around px-8"
+          style={{ bottom: "calc(2.75rem + env(safe-area-inset-bottom))" }}
+        >
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}

@@ -9,6 +9,8 @@ import { PhotoLightbox } from "@/components/analysis/PhotoLightbox";
 import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
 import { ScoreViewedTracker } from "@/components/analysis/ScoreViewedTracker";
+import { PublishButton } from "@/components/community/PublishButton";
+import { getPostForAnalysis } from "@/lib/community/posts";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
@@ -24,6 +26,10 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
       <ScoringInProgress analysisId={id} occasionId={analysis.occasionId} photoUrl={analysis.photoUrl} />
     );
   }
+
+  // ¿Este análisis ya está publicado en la comunidad? Decide entre ofrecer
+  // "Publicar" o el acceso a sus comentarios.
+  const communityPost = await getPostForAnalysis(id);
 
   const fortalezas = analysis.feedback.filter((f) => f.kind === "fortaleza");
   const aspectos = analysis.feedback.filter((f) => f.kind === "aspecto_mejorar");
@@ -98,6 +104,37 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             </span>
           )}
         </div>
+
+        {communityPost ? (
+          <Link
+            href={`/community/post/${communityPost.postId}`}
+            className="card mt-[18px] flex items-center gap-3 p-4"
+          >
+            <MaterialIcon name="forum" size={22} className="text-coral" />
+            <div className="flex flex-1 flex-col">
+              <span className="text-sm font-extrabold">Publicado en la comunidad</span>
+              <span className="text-xs font-semibold text-muted">
+                {communityPost.commentCount === 0
+                  ? "Todavía sin comentarios — mirá los votos"
+                  : `${communityPost.commentCount} ${communityPost.commentCount === 1 ? "comentario" : "comentarios"}`}
+              </span>
+            </div>
+            <MaterialIcon name="chevron_right" size={22} className="text-muted" />
+          </Link>
+        ) : (
+          <div className="card mt-[18px] flex items-center gap-3 p-4">
+            <div className="flex flex-1 flex-col">
+              <span className="text-sm font-extrabold">Compartilo con la comunidad</span>
+              <span className="text-xs font-semibold text-muted">Recibí votos y comentarios de otros</span>
+            </div>
+            <PublishButton
+              analysisId={id}
+              label="Publicar"
+              buttonStyle={{ height: 40, padding: "0 20px", fontSize: 13 }}
+              goToPost
+            />
+          </div>
+        )}
 
         <span className="section-label mb-3.5 mt-[26px] block px-1">Desglose por categoría</span>
         <CategoryBreakdownList categories={analysis.categories} />
