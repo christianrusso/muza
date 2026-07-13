@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canCreateAnalysis } from "@/lib/plans/gating";
 import { isDemoMode } from "@/lib/demo";
 import { createDemoAnalysis } from "@/lib/demoStore";
+import { getPostHogClient } from "@/lib/posthog-server";
 import type { OccasionId } from "@/types/domain";
 
 const CreateAnalysisSchema = z.object({
@@ -91,6 +92,18 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+
+  const ph = getPostHogClient();
+  ph.capture({
+    distinctId: user.id,
+    event: "analysis_created",
+    properties: {
+      occasion_id: body.data.occasionId,
+      occasion_variant: body.data.occasionVariant ?? null,
+      plan_tier: profile?.plan_tier ?? "free",
+    },
+  });
+  await ph.shutdown();
 
   return NextResponse.json({ id: analysis.id });
 }

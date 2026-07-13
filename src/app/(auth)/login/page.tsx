@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { nextQuery, safeNextPath } from "@/lib/redirect";
@@ -42,12 +43,20 @@ export default function LoginPage() {
       return;
     }
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) {
       setSubmitting(false);
       setError(signInError.message);
       setNeedsConfirm(signInError.message === "Email not confirmed");
       return;
+    }
+    try {
+      if (signInData.user) {
+        posthog.identify(signInData.user.id);
+        posthog.capture("user_logged_in", { method: "email" });
+      }
+    } catch {
+      // never break the flow for analytics
     }
     setSuccess(true);
     setTimeout(() => router.push(safeNextPath(next)), 700);
@@ -86,6 +95,12 @@ export default function LoginPage() {
       if (oauthError) {
         setError(oauthError.message);
         setOauthLoading(false);
+      } else {
+        try {
+          posthog.capture("user_logged_in", { method: provider });
+        } catch {
+          // never break the flow for analytics
+        }
       }
     } catch {
       setError("No pudimos conectar con Google. Reintentá.");

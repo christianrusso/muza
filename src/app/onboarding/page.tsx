@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { GENDER_OPTIONS, type UserGender } from "@/types/domain";
@@ -44,6 +45,11 @@ export default function OnboardingPage() {
         // en la navegación siguiente (ver src/lib/supabase/middleware.ts).
         await supabase.auth.updateUser({ data: { onboarded: true } });
       }
+    }
+    try {
+      posthog.capture("onboarding_completed", { gender });
+    } catch {
+      // never break the flow for analytics
     }
     router.push("/home");
     router.refresh();

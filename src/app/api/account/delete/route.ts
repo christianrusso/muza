@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isDemoMode } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export async function POST() {
   if (isDemoMode()) {
@@ -33,6 +34,10 @@ export async function POST() {
   if (error) {
     return NextResponse.json({ error: { code: "DELETE_FAILED", message: error.message } }, { status: 500 });
   }
+
+  const ph = getPostHogClient();
+  ph.capture({ distinctId: user.id, event: "account_deleted" });
+  await ph.shutdown();
 
   return NextResponse.json({ ok: true });
 }
