@@ -86,7 +86,6 @@ const TYPE_FILTERS: { value: AnalysisType | "all"; label: string; dot?: string }
   { value: "completo", label: "Completo", dot: "var(--violet)" },
   { value: "superior", label: "Superior", dot: "var(--green)" },
   { value: "inferior", label: "Inferior", dot: "var(--amber-ink)" },
-  { value: "individual", label: "Individual", dot: "var(--pink)" },
 ];
 
 async function HistoryGrid({ activeType }: { activeType: AnalysisType | "all" }) {
@@ -139,7 +138,7 @@ export default async function HistoryPage({
   const activeType = (type ?? "all") as AnalysisType | "all";
 
   return (
-    <div className="flex min-h-screen flex-col pt-[60px]">
+    <div className="flex min-h-full flex-col pt-[60px]">
       <div className="flex items-center px-[22px] pb-3.5">
         <span className="font-serif italic" style={{ fontSize: 34 }}>
           Historial

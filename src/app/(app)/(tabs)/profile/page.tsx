@@ -87,7 +87,7 @@ export default async function ProfilePage() {
   const { userId, firstName, avatarUrl, planTier, average, analysesCount, posts: postsWithPhotoUrls } = await timed("profile:data", loadProfileData);
 
   return (
-    <div className="flex min-h-screen flex-col gap-4 px-[22px] pt-[60px]">
+    <div className="flex min-h-full flex-col gap-4 px-[22px] pt-[60px]">
       <div className="flex flex-col items-center">
         <AvatarUploader userId={userId} avatarUrl={avatarUrl} />
         <span className="font-serif italic mt-3 text-[26px]">{firstName}</span>
