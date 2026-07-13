@@ -33,6 +33,9 @@ export async function loadFollowList(userId: string, type: FollowListType): Prom
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Privacidad: solo podés ver TUS propias listas, no las de otros usuarios.
+  if (!user || user.id !== userId) return null;
+
   const { data: owner } = await supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle();
   if (!owner) return null;
 
