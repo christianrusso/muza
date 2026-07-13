@@ -1,24 +1,13 @@
-"use client";
-
-import { useState } from "react";
 import { categoryLabel, scoreBandColorVar } from "@/lib/scoring/categories";
 import type { AnalysisCategoryRow } from "@/types/domain";
 
 export function CategoryBreakdownList({ categories }: { categories: AnalysisCategoryRow[] }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-
   return (
     <div className="flex flex-col gap-[15px]">
       {categories.map((cat) => {
         const color = scoreBandColorVar(cat.score);
-        const canExpand = Boolean(cat.justification);
-        const isOpen = expanded === cat.categoryKey;
         return (
-          <div
-            key={cat.categoryKey}
-            onClick={() => canExpand && setExpanded(isOpen ? null : cat.categoryKey)}
-            className={canExpand ? "cursor-pointer" : undefined}
-          >
+          <div key={cat.categoryKey}>
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-[13px] font-bold">{categoryLabel(cat.categoryKey)}</span>
               <span className="text-[13px] font-extrabold" style={{ color }}>
@@ -28,7 +17,7 @@ export function CategoryBreakdownList({ categories }: { categories: AnalysisCate
             <div className="bar">
               <i style={{ width: `${cat.score}%`, background: color }} />
             </div>
-            {canExpand && isOpen && (
+            {cat.justification && (
               <p className="just mt-1.5 text-xs font-semibold leading-[1.45] text-muted">
                 {cat.justification}
               </p>

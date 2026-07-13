@@ -6,6 +6,8 @@ import { relativeShortDate } from "@/lib/dates";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { ScoreRing } from "@/components/community/ScoreRing";
 import { FollowButton } from "@/components/community/FollowButton";
+import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import type { UserGender } from "@/types/domain";
 import {
   VOTE_BUCKETS,
   bucketLabel,
@@ -22,6 +24,23 @@ function Avatar({ url, size = 40 }: { url: string | null; size?: number }) {
     return <img src={url} alt="" className="rounded-full object-cover" style={{ width: size, height: size }} />;
   }
   return <div className="ph rounded-full" style={{ width: size, height: size }} />;
+}
+
+function GenderTag({ gender }: { gender: UserGender | null }) {
+  if (!gender || gender === "no_especifica") return null;
+  const isM = gender === "masculino";
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[11px] font-extrabold"
+      style={{
+        background: isM ? "rgba(37,99,235,.1)" : "var(--pink-soft)",
+        color: isM ? "#2563eb" : "var(--pink)",
+      }}
+    >
+      <MaterialIcon name={isM ? "male" : "female"} size={13} />
+      {isM ? "Hombre" : "Mujer"}
+    </span>
+  );
 }
 
 function ScoreBadge({ score }: { score: number }) {
@@ -90,26 +109,38 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   const correct = reveal ? bucketForScore(aiScore) === reveal.bucket : false;
 
   return (
-    <div className="px-[22px] pt-4 pb-28">
+    <div className="px-[22px] pt-3 pb-6">
       <div className="rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
         {/* Cabecera de la carta */}
-        <div className="mb-2.5 flex items-center gap-2.5">
+        <div className="mb-3 flex items-center gap-2.5">
           <Link href={`/community/user/${card.authorId}`}>
             <Avatar url={card.authorAvatarUrl} />
           </Link>
-          <div className="flex flex-1 flex-col gap-px">
+          <div className="flex flex-1 flex-col gap-1">
             <Link href={`/community/user/${card.authorId}`} className="text-[13.5px] font-extrabold">
               {card.authorName}
             </Link>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <GenderTag gender={card.authorGender} />
+              <span className="text-[11px] font-semibold text-faint">{card.occasionLabel}</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <AnalysisTypePill
+              type={card.analysisType}
+              style={{ height: 28, fontSize: 12.5, padding: "0 12px" }}
+            />
             <span className="text-[11px] font-semibold text-faint">
-              {card.occasionLabel} · {relativeShortDate(card.postedAt)}
+              {relativeShortDate(card.postedAt)}
             </span>
           </div>
-          <AnalysisTypePill type={card.analysisType} />
         </div>
 
         {/* Foto: score oculto antes de votar, revelado después */}
-        <div className="ph relative block overflow-hidden rounded-[18px]" style={{ aspectRatio: "4/5" }}>
+        <div
+          className="ph relative block overflow-hidden rounded-[18px]"
+          style={{ aspectRatio: "4 / 5", maxHeight: "44vh" }}
+        >
           {card.photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img

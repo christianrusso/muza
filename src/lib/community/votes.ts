@@ -4,7 +4,7 @@ import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_COMMUNITY_POSTS, DEMO_USER } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
-import type { AnalysisType, OccasionId } from "@/types/domain";
+import type { AnalysisType, OccasionId, UserGender } from "@/types/domain";
 
 // Una carta del modo "Votá". El score de la IA viaja al cliente pero se muestra
 // recién en el reveal (después de votar).
@@ -13,6 +13,7 @@ export interface VoteCardData {
   authorId: string;
   authorName: string;
   authorAvatarUrl: string | null;
+  authorGender: UserGender | null;
   occasionLabel: string;
   postedAt: string;
   analysisType: AnalysisType;
@@ -45,6 +46,7 @@ export async function loadVoteQueue(limit = VOTE_QUEUE_SIZE): Promise<VoteCardDa
         authorId: p.author_id,
         authorName: p.author_name,
         authorAvatarUrl: p.author_avatar_url,
+        authorGender: (p.author_gender as UserGender | undefined) ?? null,
         occasionLabel: occasionLabel(p.occasion_id as OccasionId),
         postedAt: p.posted_at,
         analysisType: p.analysis_type,
@@ -96,6 +98,7 @@ export async function loadVoteQueue(limit = VOTE_QUEUE_SIZE): Promise<VoteCardDa
     authorId: p.author_id,
     authorName: p.author_name,
     authorAvatarUrl: p.author_avatar_url,
+    authorGender: (p.author_gender as UserGender | null) ?? null,
     occasionLabel: occasionLabel(p.occasion_id as OccasionId),
     postedAt: p.posted_at,
     analysisType: p.analysis_type ?? "completo",

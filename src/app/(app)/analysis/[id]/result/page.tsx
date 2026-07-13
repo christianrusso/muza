@@ -5,6 +5,7 @@ import { occasionFullLabel } from "@/lib/occasions";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
+import { PhotoLightbox } from "@/components/analysis/PhotoLightbox";
 import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
@@ -67,6 +68,12 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           <AnalysisTypePill type={analysis.analysisType} style={{ height: 32, background: "rgba(247,245,240,.92)" }} />
           <ShareButton />
         </div>
+
+        {analysis.photoUrl && (
+          <div className="absolute left-1/2 top-[102px] -translate-x-1/2">
+            <PhotoLightbox url={analysis.photoUrl} />
+          </div>
+        )}
       </div>
 
       <div className="relative px-[22px]" style={{ marginTop: -70 }}>
