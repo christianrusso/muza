@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { translateAuthError } from "@/lib/supabase/authErrors";
+import { track } from "@/lib/analytics";
 
 const RULES = [
   { key: "length", label: "Mínimo 8 caracteres", test: (v: string) => v.length >= 8 },
@@ -71,6 +72,8 @@ export default function RegisterPage() {
       setError(signUpError.message);
       return;
     }
+    // La cuenta se creó (con o sin sesión inmediata según la verif. de email).
+    track("signed_up", { method: "password" });
     // PROVISORIO: registro sin validación de email para bajar la fricción. El
     // interruptor real es el Dashboard de Supabase → Authentication → Email →
     // "Confirm email" en OFF. Con eso desactivado, signUp devuelve sesión y el

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { GENDER_OPTIONS, type UserGender } from "@/types/domain";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
@@ -45,6 +46,7 @@ export default function OnboardingPage() {
         await supabase.auth.updateUser({ data: { onboarded: true } });
       }
     }
+    track("onboarding_completed", { gender });
     router.push("/home");
     router.refresh();
   }

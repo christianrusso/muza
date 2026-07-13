@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { instrumentSerif, manrope } from "@/lib/fonts";
+import { AnalyticsIdentify } from "@/components/analytics/AnalyticsIdentify";
 import "./globals.css";
 
 // metadataBase resuelve las URLs absolutas de los previews (OG/Twitter). Sin
@@ -60,7 +61,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-paper text-ink">{children}</body>
+      <body className="min-h-full flex flex-col bg-paper text-ink">
+        <AnalyticsIdentify />
+        {children}
+      </body>
     </html>
   );
 }

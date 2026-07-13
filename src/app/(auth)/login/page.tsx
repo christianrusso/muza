@@ -12,6 +12,7 @@ import { Banner } from "@/components/ui/Banner";
 import { Spinner } from "@/components/ui/Spinner";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { translateAuthError } from "@/lib/supabase/authErrors";
+import { track } from "@/lib/analytics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function LoginPage() {
       setNeedsConfirm(signInError.message === "Email not confirmed");
       return;
     }
+    track("logged_in", { method: "password" });
     setSuccess(true);
     setTimeout(() => router.push(safeNextPath(next)), 700);
   }
