@@ -52,3 +52,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Fotos de seed de comunidad (no versionar)
+seed-fotos/**/*.jpg
+seed-fotos/**/*.jpeg
+seed-fotos/**/*.png
+seed-fotos/**/*.webp
