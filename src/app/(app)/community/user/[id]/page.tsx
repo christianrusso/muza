@@ -32,8 +32,12 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         <span className="text-lg font-extrabold text-ink">{profile.name}</span>
 
         <div className="flex items-center gap-8">
-          <Stat value={profile.followerCount} label="Seguidores" />
-          <Stat value={profile.followingCount} label="Siguiendo" />
+          <Link href={`/community/user/${id}/follows?tab=seguidores`}>
+            <Stat value={profile.followerCount} label="Seguidores" />
+          </Link>
+          <Link href={`/community/user/${id}/follows?tab=siguiendo`}>
+            <Stat value={profile.followingCount} label="Siguiendo" />
+          </Link>
           <Stat value={profile.posts.length} label="Looks" />
         </div>
 

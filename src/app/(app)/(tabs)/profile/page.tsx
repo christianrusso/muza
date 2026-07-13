@@ -116,17 +116,17 @@ export default async function ProfilePage() {
         </span>
       </div>
 
-      {/* Social: toca para ver tu perfil público tal como lo ven los demás. */}
-      <Link href={`/community/user/${userId}`} className="flex gap-3">
-        <div className="card flex-1 p-3.5 text-center">
+      {/* Cada contador abre su lista (seguidores / a quién seguís). */}
+      <div className="flex gap-3">
+        <Link href={`/community/user/${userId}/follows?tab=seguidores`} className="card flex-1 p-3.5 text-center">
           <span className="block text-2xl font-extrabold">{followerCount}</span>
           <span className="section-label">Seguidores</span>
-        </div>
-        <div className="card flex-1 p-3.5 text-center">
+        </Link>
+        <Link href={`/community/user/${userId}/follows?tab=siguiendo`} className="card flex-1 p-3.5 text-center">
           <span className="block text-2xl font-extrabold">{followingCount}</span>
           <span className="section-label">Siguiendo</span>
-        </div>
-      </Link>
+        </Link>
+      </div>
 
       <div className="flex gap-3">
         <div className="card flex-1 p-3.5 text-center">
