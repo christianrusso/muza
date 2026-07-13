@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { track } from "@/lib/analytics";
 
 function ValidatingContent() {
   const router = useRouter();
@@ -17,6 +18,12 @@ function ValidatingContent() {
     async function run() {
       const validateRes = await fetch(`/api/analyses/${params.id}/validate`, { method: "POST" });
       const validation = await validateRes.json();
+
+      track("validation", {
+        occasion_id: occasion,
+        verdict: !validateRes.ok ? "invalid" : validation.verdict,
+        analysis_type: validation.analysisType ?? null,
+      });
 
       if (!validateRes.ok || validation.verdict === "invalid") {
         router.replace(`/analysis/${params.id}/invalid?occasion=${occasion}`);

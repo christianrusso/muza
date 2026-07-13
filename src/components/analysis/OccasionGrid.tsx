@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { OCCASIONS, occasionVariantGroups } from "@/lib/occasions";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { Button } from "@/components/ui/Button";
+import { track } from "@/lib/analytics";
 import type { OccasionId } from "@/types/domain";
 
 export function OccasionGrid() {
@@ -43,6 +44,13 @@ export function OccasionGrid() {
     if (variant) qs.set("variant", variant);
     const ctx = context.trim();
     if (ctx) qs.set("context", ctx);
+
+    track("occasion_selected", {
+      occasion_id: selected,
+      variant: variant || null,
+      has_free_context: Boolean(ctx),
+    });
+
     router.push(`/analysis/new/capture?${qs.toString()}`);
   }
 

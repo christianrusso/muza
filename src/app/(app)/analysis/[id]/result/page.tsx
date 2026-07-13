@@ -8,6 +8,7 @@ import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownLi
 import { PhotoLightbox } from "@/components/analysis/PhotoLightbox";
 import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
+import { ScoreViewedTracker } from "@/components/analysis/ScoreViewedTracker";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
@@ -34,6 +35,12 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
+      <ScoreViewedTracker
+        analysisId={id}
+        occasionId={analysis.occasionId}
+        analysisType={analysis.analysisType}
+        overallScore={analysis.overallScore}
+      />
       <div className="flex-1 overflow-y-auto pb-[100px]">
       <div className="ph relative overflow-hidden" style={{ height: 266 }}>
         {analysis.photoUrl && (

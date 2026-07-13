@@ -7,6 +7,7 @@ import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { ScoreRing } from "@/components/community/ScoreRing";
 import { FollowButton } from "@/components/community/FollowButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { track } from "@/lib/analytics";
 import type { UserGender } from "@/types/domain";
 import {
   VOTE_BUCKETS,
@@ -102,6 +103,11 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
       });
       const data = (await res.json()) as { tally: VoteTally };
       setReveal({ bucket, tally: data.tally });
+      track("voted", {
+        post_id: card.postId,
+        bucket,
+        correct: bucketForScore(aiScore) === bucket,
+      });
     } catch {
       const tally: VoteTally = { low: 0, mid: 0, high: 0 };
       tally[bucket] = 1;

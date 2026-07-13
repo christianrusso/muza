@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 
 // Botón seguir/dejar de seguir. Optimista: cambia al instante y revierte si el
 // POST falla. "Seguir" = pill coral; "Siguiendo ✓" = outline coral.
@@ -26,6 +27,9 @@ export function FollowButton({
       if (!res.ok) throw new Error("follow failed");
       const data = (await res.json()) as { following: boolean };
       setFollowing(data.following);
+      if (data.following) {
+        track("followed", { target_user_id: userId });
+      }
     } catch {
       setFollowing(!next); // revertir
     } finally {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { track } from "@/lib/analytics";
 
 // Botón de compartir del header del resultado (arriba a la derecha, sobre la
 // foto). Reemplaza la barra flotante `.bottom-cta` que quedaba encima del
@@ -15,11 +16,13 @@ export function ShareButton() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: "LookLab — Mi Outfit Score", url });
+        track("shared", { method: "native_share" });
       } catch {
         // el usuario canceló el share sheet — nada que hacer
       }
     } else {
       await navigator.clipboard.writeText(url);
+      track("shared", { method: "copy_link" });
       setToast("Enlace copiado");
       setTimeout(() => setToast(null), 2000);
     }

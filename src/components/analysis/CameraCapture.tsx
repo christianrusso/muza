@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image/compress";
 import { occasionFullLabel } from "@/lib/occasions";
+import { track } from "@/lib/analytics";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { OccasionId } from "@/types/domain";
 
@@ -26,7 +27,7 @@ export function CameraCapture({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Foto capturada a la espera de confirmación ("Usar esta" / "Repetir").
-  const [captured, setCaptured] = useState<{ blob: Blob; url: string } | null>(null);
+  const [captured, setCaptured] = useState<{ blob: Blob; url: string; source: "camera" | "gallery" } | null>(null);
 
   useEffect(() => {
     let stream: MediaStream | null = null;
@@ -90,6 +91,7 @@ export function CameraCapture({
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");
+        track("photo", { occasion_id: occasionId, source: captured?.source ?? "camera" });
         router.push(`/analysis/${body.id}/validating?occasion=${occasionId}`);
         return;
       }
@@ -114,6 +116,7 @@ export function CameraCapture({
       const body = await res.json();
       if (!res.ok) throw new Error(body.error?.message ?? "No se pudo crear el análisis.");
 
+      track("photo", { occasion_id: occasionId, source: captured?.source ?? "camera" });
       router.push(`/analysis/${body.id}/validating?occasion=${occasionId}`);
     } catch (err) {
       setUploading(false);
@@ -121,9 +124,9 @@ export function CameraCapture({
     }
   }
 
-  function previewBlob(blob: Blob) {
+  function previewBlob(blob: Blob, source: "camera" | "gallery") {
     setError(null);
-    setCaptured({ blob, url: URL.createObjectURL(blob) });
+    setCaptured({ blob, url: URL.createObjectURL(blob), source });
   }
 
   function handleShutter() {
@@ -138,12 +141,12 @@ export function CameraCapture({
     const ctx = canvas.getContext("2d");
     ctx?.drawImage(video, 0, 0);
     // Congela la foto y espera confirmación en vez de avanzar directo.
-    canvas.toBlob((blob) => blob && previewBlob(blob), "image/jpeg", 0.9);
+    canvas.toBlob((blob) => blob && previewBlob(blob, "camera"), "image/jpeg", 0.9);
   }
 
   function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) previewBlob(file);
+    if (file) previewBlob(file, "gallery");
   }
 
   function retake() {

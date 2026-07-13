@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { track } from "@/lib/analytics";
 
 export function PublishButton({ analysisId }: { analysisId: string }) {
   const router = useRouter();
@@ -16,7 +17,10 @@ export function PublishButton({ analysisId }: { analysisId: string }) {
       body: JSON.stringify({ analysisId }),
     });
     setSubmitting(false);
-    if (res.ok) router.push("/community");
+    if (res.ok) {
+      track("published", { analysis_id: analysisId });
+      router.push("/community");
+    }
   }
 
   return (
