@@ -11,7 +11,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "eval:ai": "tsx scripts/eval/run.ts",
     "eval:serve": "tsx scripts/eval/serve.ts",
-    "eval:import": "tsx scripts/eval/import-to-supabase.ts"
+    "eval:import": "tsx scripts/eval/import-to-supabase.ts",
+    "seed:community": "tsx scripts/seed-community.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
