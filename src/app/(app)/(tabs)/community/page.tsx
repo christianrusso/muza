@@ -87,10 +87,14 @@ export default async function CommunityPage({
         {activeTab === "vota" ? <VoteTab /> : <FollowingFeed />}
       </Suspense>
 
-      <Link href="/community/publish" className="fab">
-        <MaterialIcon name="add_a_photo" />
-        Publicar
-      </Link>
+      {/* En "Votá" la carta llena el alto y el FAB taparía los botones de voto;
+          se muestra solo en el feed "Siguiendo". */}
+      {activeTab !== "vota" && (
+        <Link href="/community/publish" className="fab">
+          <MaterialIcon name="add_a_photo" />
+          Publicar
+        </Link>
+      )}
     </div>
   );
 }
