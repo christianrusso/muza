@@ -17,6 +17,9 @@ if (key) {
     // onRouterTransitionStart (abajo) + el pageview inicial acá.
     capture_pageview: false,
     capture_pageleave: true, // necesario para tiempo-en-pantalla y bounce
+    // LookLab sube fotos de personas: no grabamos session replay para no
+    // capturar caras ni contenido sensible. Solo métricas de eventos.
+    disable_session_recording: true,
     defaults: "2025-05-24",
   });
 
