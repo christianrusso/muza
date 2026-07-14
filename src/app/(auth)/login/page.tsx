@@ -52,7 +52,12 @@ export default function LoginPage() {
     }
     track("logged_in", { method: "password" });
     setSuccess(true);
-    setTimeout(() => router.push(safeNextPath(next)), 700);
+    // Navegación DURA, no soft. signInWithPassword acaba de escribir la cookie de
+    // sesión; un router.push (soft-nav) corre antes de que el middleware del edge
+    // la lea y rebota a /welcome o deja la pantalla en blanco. Antes se tapaba con
+    // un setTimeout(700) — frágil: en un celu lento no alcanzaba. location.assign
+    // fuerza un request HTTP nuevo que ya lleva la cookie, sin adivinar tiempos.
+    window.location.assign(safeNextPath(next));
   }
 
   async function resendConfirmation() {

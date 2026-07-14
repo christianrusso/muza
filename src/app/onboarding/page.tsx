@@ -53,8 +53,13 @@ export default function OnboardingPage() {
       }
     }
     track("onboarding_completed", { gender });
-    router.push("/home");
-    router.refresh();
+    // Navegación DURA, no soft. El soft-nav de router.push (más router.refresh)
+    // dejaba /home colgado en blanco: competían el fetch del RSC de /home y el
+    // refetch del segmento actual, y encima el middleware del edge no siempre veía
+    // la cookie con el JWT recién refrescado en ese mismo request. Un refresh
+    // manual sí andaba porque manda un request HTTP nuevo con el token nuevo:
+    // window.location.assign replica exactamente eso.
+    window.location.assign("/home");
   }
 
   if (!ready) return null;
