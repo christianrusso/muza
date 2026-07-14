@@ -41,9 +41,15 @@ export default function OnboardingPage() {
       } = await supabase.auth.getUser();
       if (user) {
         await supabase.from("profiles").update({ gender }).eq("id", user.id);
-        // Refresca el JWT con onboarded=true → el gate del middleware deja pasar
-        // en la navegación siguiente (ver src/lib/supabase/middleware.ts).
+        // updateUser persiste onboarded=true en user_metadata (server + sesión
+        // local) pero NO emite un access_token nuevo: el JWT en la cookie sigue
+        // teniendo los claims viejos. El gate del middleware lee esos claims con
+        // getClaims() y, sin el refresh de abajo, rebotaría al usuario a
+        // /onboarding en la navegación siguiente (quedaba trabado hasta reabrir
+        // la app). refreshSession() mina un JWT nuevo con onboarded=true y lo
+        // escribe en la cookie antes de navegar (ver src/lib/supabase/middleware.ts).
         await supabase.auth.updateUser({ data: { onboarded: true } });
+        await supabase.auth.refreshSession();
       }
     }
     track("onboarding_completed", { gender });
