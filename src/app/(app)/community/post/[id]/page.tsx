@@ -1,22 +1,40 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_USER, DEMO_COMMUNITY_POSTS } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { PostCard, type PostCardData } from "@/components/community/PostCard";
+import { PostVotePanel } from "@/components/community/PostVotePanel";
 import { CommentForm } from "@/components/community/CommentForm";
 import { DeletePostButton } from "@/components/community/DeletePostButton";
+import type { VoteBucket, VoteTally } from "@/lib/community/constants";
 import type { OccasionId } from "@/types/domain";
 
-async function loadPost(
-  id: string,
-): Promise<{ post: PostCardData; comments: { id: string; body: string; author: string }[]; isMine: boolean } | null> {
+interface PostDetail {
+  post: PostCardData;
+  comments: { id: string; body: string; author: string }[];
+  isMine: boolean;
+  isAuthed: boolean;
+  aiScore: number;
+  myBucket: VoteBucket | null;
+  tally: VoteTally;
+}
+
+async function loadPost(id: string): Promise<PostDetail | null> {
   if (isDemoMode()) {
-    const created = getDemoStore().posts.get(id);
+    const store = getDemoStore();
+    const myBucket = (store.votes.get(id) as VoteBucket | undefined) ?? null;
+    const tally: VoteTally = { low: 0, mid: 0, high: 0 };
+    if (myBucket) tally[myBucket] = 1;
+
+    const created = store.posts.get(id);
     if (created) {
-      const analysis = getDemoStore().analyses.get(created.analysisId);
+      const analysis = store.analyses.get(created.analysisId);
+      const aiScore = analysis?.overallScore ?? 0;
       return {
         post: {
           id: created.id,
@@ -28,13 +46,18 @@ async function loadPost(
           postedAt: created.createdAt,
           analysisType: analysis?.analysisType ?? "completo",
           photoUrl: analysis?.photoDataUrl ?? null,
-          overallScore: analysis?.overallScore ?? 0,
+          overallScore: aiScore,
+          scoreRevealed: true,
           likeCount: Array.from(created.reactions.values()).filter((r) => r === "like").length,
           commentCount: created.comments.length,
           myReaction: created.reactions.get(DEMO_USER.id) ?? null,
         },
         comments: created.comments.map((c) => ({ id: c.id, body: c.body, author: DEMO_USER.full_name })),
         isMine: true,
+        isAuthed: true,
+        aiScore,
+        myBucket,
+        tally,
       };
     }
     const seeded = DEMO_COMMUNITY_POSTS.find((p) => p.post_id === id);
@@ -51,12 +74,17 @@ async function loadPost(
         analysisType: seeded.analysis_type,
         photoUrl: null,
         overallScore: seeded.overall_score,
+        scoreRevealed: Boolean(myBucket),
         likeCount: seeded.like_count,
         commentCount: seeded.comment_count,
         myReaction: null,
       },
       comments: [],
       isMine: false,
+      isAuthed: true,
+      aiScore: seeded.overall_score,
+      myBucket,
+      tally,
     };
   }
 
@@ -65,23 +93,36 @@ async function loadPost(
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: post } = await supabase.from("community_feed_view").select("*").eq("post_id", id).single();
+  // Lectura pública (post, foto, comentarios) con el cliente admin: las políticas
+  // RLS de comunidad son "to authenticated", así que un visitante sin sesión no
+  // podría leer nada. El community_feed_view es contenido público (posts ya
+  // publicados), por eso es seguro exponerlo acá para abrir los links compartidos.
+  const admin = createAdminClient();
+
+  const { data: post } = await admin.from("community_feed_view").select("*").eq("post_id", id).single();
   if (!post) return null;
 
-  const photoUrl = await signedPhotoUrl(supabase, post.photo_path, "full");
+  const photoUrl = await signedPhotoUrl(admin, post.photo_path, "full");
 
-  const { data: myReaction } = await supabase
-    .from("post_reactions")
-    .select("reaction")
-    .eq("post_id", id)
-    .eq("user_id", user!.id)
-    .maybeSingle();
-
-  const { data: comments } = await supabase
+  const { data: comments } = await admin
     .from("post_comments")
     .select("id, body, created_at, user_id, profiles(full_name)")
     .eq("post_id", id)
     .order("created_at", { ascending: true });
+
+  // Reacción y voto propios solo si hay sesión (con el cliente del usuario, RLS).
+  const [{ data: myReaction }, { data: myVote }] = user
+    ? await Promise.all([
+        supabase.from("post_reactions").select("reaction").eq("post_id", id).eq("user_id", user.id).maybeSingle(),
+        supabase.from("post_votes").select("bucket").eq("post_id", id).eq("user_id", user.id).maybeSingle(),
+      ])
+    : [{ data: null }, { data: null }];
+
+  const aiScore = post.overall_score ?? 0;
+  const isMine = user?.id === post.author_id;
+  const myBucket = (myVote?.bucket ?? null) as VoteBucket | null;
+  // El score se revela si es tu post o si ya lo votaste.
+  const scoreRevealed = isMine || myBucket !== null;
 
   return {
     post: {
@@ -94,7 +135,8 @@ async function loadPost(
       postedAt: post.posted_at,
       analysisType: post.analysis_type ?? "completo",
       photoUrl,
-      overallScore: post.overall_score ?? 0,
+      overallScore: aiScore,
+      scoreRevealed,
       likeCount: post.like_count,
       commentCount: post.comment_count,
       myReaction: (myReaction?.reaction ?? null) as "like" | "dislike" | null,
@@ -102,10 +144,17 @@ async function loadPost(
     comments: (comments ?? []).map((c) => ({
       id: c.id,
       body: c.body,
-      author:
-        (c as unknown as { profiles: { full_name: string } | null }).profiles?.full_name ?? "Usuario",
+      author: (c as unknown as { profiles: { full_name: string } | null }).profiles?.full_name ?? "Usuario",
     })),
-    isMine: user?.id === post.author_id,
+    isMine,
+    isAuthed: Boolean(user),
+    aiScore,
+    myBucket,
+    tally: {
+      low: post.low_votes ?? 0,
+      mid: post.mid_votes ?? 0,
+      high: post.high_votes ?? 0,
+    },
   };
 }
 
@@ -118,7 +167,18 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     <div className="screen-body pad">
       <ScreenHead title="Publicación" backHref="/community" />
 
-      <PostCard post={data.post} />
+      {/* En el detalle el score no va sobre la foto: lo revela el panel de abajo. */}
+      <PostCard post={data.post} showScoreBadge={false} canInteract={data.isAuthed} />
+
+      <PostVotePanel
+        postId={id}
+        aiScore={data.aiScore}
+        isAuthed={data.isAuthed}
+        isOwner={data.isMine}
+        initialBucket={data.myBucket}
+        initialTally={data.tally}
+        initialRevealed={data.post.scoreRevealed}
+      />
 
       <div className="mt-6 flex flex-col gap-4">
         <span className="text-[15px] font-extrabold">Comentarios</span>
@@ -136,7 +196,17 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         )}
       </div>
 
-      <CommentForm postId={id} />
+      {/* Comentar requiere sesión; al visitante anónimo lo invitamos a registrarse. */}
+      {data.isAuthed ? (
+        <CommentForm postId={id} />
+      ) : (
+        <Link
+          href={`/welcome?next=${encodeURIComponent(`/community/post/${id}`)}`}
+          className="mt-6 flex h-12 items-center justify-center rounded-full bg-coral text-sm font-extrabold text-white"
+        >
+          Registrate para comentar y votar
+        </Link>
+      )}
 
       {data.isMine && <DeletePostButton postId={id} />}
     </div>

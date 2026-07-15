@@ -15,7 +15,9 @@ const AUTH_ROUTES = [
 // poder verse antes de registrarse y como URL pública (stores/footer).
 // /landing.html es la landing de marketing servida en la raíz a visitantes
 // sin sesión (ver rewrite de "/" más abajo).
-const PUBLIC_ROUTES = ["/legal", "/landing.html"];
+// /community/post/<id> es público para que los links compartidos se puedan
+// abrir sin login (read-only: sin votar/comentar/like hasta registrarse).
+const PUBLIC_ROUTES = ["/legal", "/landing.html", "/community/post"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

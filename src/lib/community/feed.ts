@@ -19,6 +19,7 @@ function toCard(row: {
   analysis_type: AnalysisType | null;
   photoUrl: string | null;
   overall_score: number | null;
+  score_revealed: boolean;
   like_count: number;
   comment_count: number;
   myReaction: "like" | "dislike" | null;
@@ -34,6 +35,7 @@ function toCard(row: {
     analysisType: row.analysis_type ?? "completo",
     photoUrl: row.photoUrl,
     overallScore: row.overall_score ?? 0,
+    scoreRevealed: row.score_revealed,
     likeCount: row.like_count,
     commentCount: row.comment_count,
     myReaction: row.myReaction,
@@ -69,6 +71,7 @@ export async function loadCommunityFeed(
         analysis_type: analysis?.analysisType ?? "completo",
         photoUrl: analysis?.photoDataUrl ?? null,
         overall_score: analysis?.overallScore ?? 0,
+        score_revealed: true, // posts propios: siempre visible
         like_count: Array.from(p.reactions.values()).filter((r) => r === "like").length,
         comment_count: p.comments.length,
         myReaction: p.reactions.get(DEMO_USER.id) ?? null,
@@ -86,6 +89,7 @@ export async function loadCommunityFeed(
         analysis_type: p.analysis_type,
         photoUrl: null,
         overall_score: p.overall_score,
+        score_revealed: getDemoStore().votes.has(p.post_id),
         like_count: p.like_count,
         comment_count: p.comment_count,
         myReaction: null,
@@ -119,11 +123,15 @@ export async function loadCommunityFeed(
   const rows = posts ?? [];
 
   const postIds = rows.map((p) => p.post_id);
-  const { data: myReactions } =
+  const [{ data: myReactions }, { data: myVotes }] =
     postIds.length > 0
-      ? await supabase.from("post_reactions").select("post_id, reaction").eq("user_id", user.id).in("post_id", postIds)
-      : { data: [] };
+      ? await Promise.all([
+          supabase.from("post_reactions").select("post_id, reaction").eq("user_id", user.id).in("post_id", postIds),
+          supabase.from("post_votes").select("post_id").eq("user_id", user.id).in("post_id", postIds),
+        ])
+      : [{ data: [] }, { data: [] }];
   const myReactionByPost = new Map((myReactions ?? []).map((r) => [r.post_id, r.reaction]));
+  const votedPostIds = new Set((myVotes ?? []).map((v) => v.post_id));
 
   const photoUrls = await signedPhotoUrls(supabase, rows.map((p) => p.photo_path), "feed");
 
@@ -139,6 +147,8 @@ export async function loadCommunityFeed(
       analysis_type: p.analysis_type,
       photoUrl: photoUrls.get(p.photo_path) ?? null,
       overall_score: p.overall_score,
+      // Visible si es tu propio post o si ya lo votaste.
+      score_revealed: p.author_id === user.id || votedPostIds.has(p.post_id),
       like_count: p.like_count,
       comment_count: p.comment_count,
       myReaction: (myReactionByPost.get(p.post_id) ?? null) as "like" | "dislike" | null,

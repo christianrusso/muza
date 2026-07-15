@@ -8,6 +8,8 @@ export interface ProfilePost {
   postId: string;
   photoUrl: string | null;
   overallScore: number;
+  // Score visible solo si el que mira es el dueño o ya votó ese post.
+  scoreRevealed: boolean;
 }
 
 export interface UserProfile {
@@ -36,7 +38,12 @@ export async function loadUserProfile(userId: string): Promise<UserProfile | nul
       followingCount: 18,
       isMe,
       amIFollowing: store.follows.has(userId),
-      posts: seeded.map((p) => ({ postId: p.post_id, photoUrl: null, overallScore: p.overall_score })),
+      posts: seeded.map((p) => ({
+        postId: p.post_id,
+        photoUrl: null,
+        overallScore: p.overall_score,
+        scoreRevealed: isMe || store.votes.has(p.post_id),
+      })),
     };
   }
 
@@ -72,6 +79,21 @@ export async function loadUserProfile(userId: string): Promise<UserProfile | nul
     ]);
 
   const rows = posts ?? [];
+  const isMe = user?.id === userId;
+
+  // ¿Cuáles de estos posts votó el que mira? Si es su propio perfil, todos van
+  // revelados sin consultar. Si mira a otro, solo se revelan los que ya votó.
+  const postIds = rows.map((p) => p.post_id);
+  let votedPostIds = new Set<string>();
+  if (user && !isMe && postIds.length > 0) {
+    const { data: myVotes } = await supabase
+      .from("post_votes")
+      .select("post_id")
+      .eq("user_id", user.id)
+      .in("post_id", postIds);
+    votedPostIds = new Set((myVotes ?? []).map((v) => v.post_id));
+  }
+
   const photoUrls = await signedPhotoUrls(supabase, rows.map((p) => p.photo_path), "thumb");
 
   return {
@@ -80,12 +102,13 @@ export async function loadUserProfile(userId: string): Promise<UserProfile | nul
     avatarUrl: profile.avatar_url,
     followerCount: followerCount ?? 0,
     followingCount: followingCount ?? 0,
-    isMe: user?.id === userId,
+    isMe,
     amIFollowing: Boolean(mine),
     posts: rows.map((p) => ({
       postId: p.post_id,
       photoUrl: photoUrls.get(p.photo_path) ?? null,
       overallScore: p.overall_score ?? 0,
+      scoreRevealed: isMe || votedPostIds.has(p.post_id),
     })),
   };
 }

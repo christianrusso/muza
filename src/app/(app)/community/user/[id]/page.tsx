@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { loadUserProfile } from "@/lib/community/profile";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { FollowButton } from "@/components/community/FollowButton";
+import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
@@ -70,8 +71,12 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
               )}
-              <span className="absolute bottom-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--green)] text-[12px] font-extrabold text-white ring-2 ring-white/40">
-                {p.overallScore}
+              <span
+                className={`absolute bottom-2 left-2 flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-extrabold text-white ring-2 ring-white/40 ${
+                  p.scoreRevealed ? "bg-[var(--green)]" : "bg-black/55 backdrop-blur-sm"
+                }`}
+              >
+                {p.scoreRevealed ? p.overallScore : <MaterialIcon name="lock" size={14} />}
               </span>
             </Link>
           ))}

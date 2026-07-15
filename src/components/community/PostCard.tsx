@@ -18,12 +18,26 @@ export interface PostCardData {
   analysisType: AnalysisType;
   photoUrl: string | null;
   overallScore: number;
+  // El score solo se muestra si el que mira ya votó este post (o es su dueño).
+  // Si es false, el badge sale con candado ("Votá para ver").
+  scoreRevealed: boolean;
   likeCount: number;
   commentCount: number;
   myReaction: "like" | "dislike" | null;
 }
 
-export function PostCard({ post }: { post: PostCardData }) {
+export function PostCard({
+  post,
+  // El detalle del post no muestra el badge sobre la foto: ahí el score lo maneja
+  // el panel de votación (PostVotePanel). El feed sí lo muestra.
+  showScoreBadge = true,
+  // Visitante sin sesión (link compartido): read-only, el like manda a registrarse.
+  canInteract = true,
+}: {
+  post: PostCardData;
+  showScoreBadge?: boolean;
+  canInteract?: boolean;
+}) {
   const [liked, setLiked] = useState(post.myReaction === "like");
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [toast, setToast] = useState<string | null>(null);
@@ -44,6 +58,11 @@ export function PostCard({ post }: { post: PostCardData }) {
   }
 
   async function toggleLike() {
+    // Sin sesión: no likeamos, lo mandamos a registrarse y que vuelva acá.
+    if (!canInteract) {
+      window.location.assign(`/welcome?next=${encodeURIComponent(`/community/post/${post.id}`)}`);
+      return;
+    }
     const next = !liked;
     setLiked(next);
     setLikeCount((c) => c + (next ? 1 : -1));
@@ -92,15 +111,28 @@ export function PostCard({ post }: { post: PostCardData }) {
             className="absolute inset-0 h-full w-full object-cover"
           />
         )}
-        <span
-          className="absolute bottom-3 left-3 flex h-[38px] items-center gap-2 rounded-full py-0 pl-1.5 pr-3"
-          style={{ background: "rgba(20,18,16,.72)", backdropFilter: "blur(4px)" }}
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--green)] text-[13px] font-extrabold text-white">
-            {post.overallScore}
+        {showScoreBadge && (
+          <span
+            className="absolute bottom-3 left-3 flex h-[38px] items-center gap-2 rounded-full py-0 pl-1.5 pr-3"
+            style={{ background: "rgba(20,18,16,.72)", backdropFilter: "blur(4px)" }}
+          >
+            {post.scoreRevealed ? (
+              <>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--green)] text-[13px] font-extrabold text-white">
+                  {post.overallScore}
+                </span>
+                <span className="section-label text-white">Outfit Score</span>
+              </>
+            ) : (
+              <>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white">
+                  <MaterialIcon name="lock" size={15} />
+                </span>
+                <span className="section-label text-white">Votá para ver</span>
+              </>
+            )}
           </span>
-          <span className="section-label text-white">Outfit Score</span>
-        </span>
+        )}
       </Link>
 
       {post.caption && <p className="mt-2.5 text-sm font-semibold text-ink">{post.caption}</p>}
