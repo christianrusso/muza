@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ScoreRing } from "@/components/community/ScoreRing";
-import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { track } from "@/lib/analytics";
 import {
   VOTE_BUCKETS,
@@ -16,9 +15,11 @@ import {
 /**
  * Panel del detalle de un post: revela el Outfit Score recién después de votar.
  * Sustituye al badge sobre la foto (que en el detalle sale con candado). Cubre
- * tres casos: sin sesión (CTA a registrarse), logueado sin votar (botones de
- * voto) y ya revelado —por voto propio o por ser el dueño— (score + IA vs
- * comunidad). Misma lógica que el VoteDeck, para un post suelto.
+ * tres casos:
+ *   - Sin sesión (link compartido): mostramos el score directo como anzuelo +
+ *     CTA a registrarse. El visitante ve la vidriera; no juega todavía.
+ *   - Logueado sin votar: botones de voto (oculto hasta votar).
+ *   - Ya revelado (voto propio o dueño): score + IA vs comunidad.
  */
 export function PostVotePanel({
   postId,
@@ -67,53 +68,12 @@ export function PostVotePanel({
     }
   }
 
-  // ===== Sin sesión: read-only, invitamos a registrarse =====
-  if (!isAuthed) {
-    return (
-      <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-line bg-white p-5 text-center">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-paper text-muted">
-          <MaterialIcon name="lock" size={22} />
-        </span>
-        <p className="text-[15px] font-extrabold text-ink">Votá para ver el Outfit Score</p>
-        <p className="text-sm font-semibold text-muted">Adiviná qué le puso la IA y sumate a la comunidad.</p>
-        <a
-          href={`/welcome?next=${encodeURIComponent(`/community/post/${postId}`)}`}
-          className="mt-1 inline-flex h-11 items-center rounded-full bg-coral px-6 text-sm font-extrabold text-white"
-        >
-          Registrate para votar
-        </a>
-      </div>
-    );
-  }
-
-  // ===== Logueado sin votar: botones de voto (no aplica al dueño) =====
-  if (!revealed) {
-    return (
-      <div className="mt-4 rounded-2xl border border-line bg-white p-4">
-        <p className="text-center text-[15px] font-extrabold text-ink">¿Qué score le puso la IA?</p>
-        <div className="mt-3 flex gap-2.5">
-          {VOTE_BUCKETS.map((b) => (
-            <button
-              key={b.bucket}
-              type="button"
-              disabled={voting}
-              onClick={() => vote(b.bucket)}
-              className="flex flex-1 flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
-            >
-              <span className="text-[15px] font-extrabold text-ink">{b.label}</span>
-              <span className="mt-0.5 text-[11px] font-semibold text-faint">{b.range}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ===== Revelado: score + IA vs Comunidad =====
   const comScore = communityScore(tally) ?? aiScore;
   const correct = bucket ? bucketForScore(aiScore) === bucket : null;
 
-  return (
+  // Vista con el score revelado. La reusan el anónimo (anzuelo) y el logueado que
+  // ya votó o es dueño. El renglón "tu voto" solo sale si el que mira votó.
+  const revealedView = (
     <div className="mt-4 flex flex-col items-center gap-3.5 rounded-2xl border border-line bg-white p-4">
       <ScoreRing score={aiScore} size={116} />
       {bucket && (
@@ -152,11 +112,50 @@ export function PostVotePanel({
               <span className="h-2 w-2 rounded-full bg-ink" /> Tu voto <b className="text-ink">{bucketLabel(bucket)}</b>
             </span>
           )}
-          {isOwner && !bucket && (
-            <span className="flex items-center gap-1.5 text-faint">Es tu look</span>
-          )}
+          {isOwner && !bucket && <span className="flex items-center gap-1.5 text-faint">Es tu look</span>}
         </div>
       </div>
     </div>
   );
+
+  // ===== Sin sesión: score visible (anzuelo) + CTA a registrarse =====
+  if (!isAuthed) {
+    return (
+      <>
+        {revealedView}
+        <a
+          href={`/welcome?next=${encodeURIComponent(`/community/post/${postId}`)}`}
+          className="mt-3 flex h-12 items-center justify-center rounded-full bg-coral text-sm font-extrabold text-white"
+        >
+          Registrate para votar y sumarte
+        </a>
+      </>
+    );
+  }
+
+  // ===== Logueado sin votar: botones de voto =====
+  if (!revealed) {
+    return (
+      <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+        <p className="text-center text-[15px] font-extrabold text-ink">¿Qué score le puso la IA?</p>
+        <div className="mt-3 flex gap-2.5">
+          {VOTE_BUCKETS.map((b) => (
+            <button
+              key={b.bucket}
+              type="button"
+              disabled={voting}
+              onClick={() => vote(b.bucket)}
+              className="flex flex-1 flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
+            >
+              <span className="text-[15px] font-extrabold text-ink">{b.label}</span>
+              <span className="mt-0.5 text-[11px] font-semibold text-faint">{b.range}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ===== Logueado, ya revelado (votó o es dueño) =====
+  return revealedView;
 }

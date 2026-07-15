@@ -121,8 +121,10 @@ async function loadPost(id: string): Promise<PostDetail | null> {
   const aiScore = post.overall_score ?? 0;
   const isMine = user?.id === post.author_id;
   const myBucket = (myVote?.bucket ?? null) as VoteBucket | null;
-  // El score se revela si es tu post o si ya lo votaste.
-  const scoreRevealed = isMine || myBucket !== null;
+  // El score se revela si es tu post, si ya lo votaste, o si el que mira NO tiene
+  // sesión: a un visitante anónimo (link compartido) le mostramos el score como
+  // anzuelo. El logueado sigue jugando (oculto hasta votar).
+  const scoreRevealed = isMine || myBucket !== null || !user;
 
   return {
     post: {
