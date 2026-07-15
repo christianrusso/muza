@@ -79,7 +79,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             <MaterialIcon name="chevron_left" size={22} />
           </Link>
           <AnalysisTypePill type={analysis.analysisType} style={{ height: 32, background: "rgba(247,245,240,.92)" }} />
-          <ShareButton />
+          <ShareButton analysisId={id} postId={communityPost?.postId ?? null} />
         </div>
 
         {analysis.photoUrl && (
