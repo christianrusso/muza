@@ -1,73 +1,61 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { track } from "@/lib/analytics";
 
-// Botón de compartir del header del resultado (arriba a la derecha, sobre la
-// foto). Comparte el POST PÚBLICO de comunidad (/community/post/<id>), no la URL
-// privada del resultado (/analysis/<id>/result, que exige login y dejaba el link
-// compartido inservible). Si el look todavía no está publicado, lo publica al
-// vuelo para generar el enlace público y refresca la pantalla para que la tarjeta
-// "Compartilo con la comunidad" pase a "Publicado".
-export function ShareButton({ analysisId, postId }: { analysisId: string; postId: string | null }) {
-  const router = useRouter();
+// Botón de compartir del header del resultado. Comparte la TARJETA del score como
+// imagen (PNG generado en /api/analyses/<id>/share-card): en mobile abre el share
+// sheet nativo con la imagen adjunta, así se puede mandar directo a WhatsApp o a
+// una historia de Instagram. En desktop (sin Web Share de archivos) descarga la
+// imagen para guardarla y postearla a mano.
+export function ShareButton({ analysisId }: { analysisId: string }) {
   const [toast, setToast] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
-  // Guardamos el id publicado para no re-publicar (ni duplicar) si toca compartir
-  // de nuevo en la misma pantalla.
-  const [publishedId, setPublishedId] = useState<string | null>(postId);
+  const [busy, setBusy] = useState(false);
 
   function flash(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(null), 2000);
+    setTimeout(() => setToast(null), 2200);
   }
 
   async function handleShare() {
-    if (sharing) return;
-    setSharing(true);
+    if (busy) return;
+    setBusy(true);
     try {
-      let id = publishedId;
-      let justPublished = false;
-
-      // Sin post público todavía: publicamos para tener un enlace compartible.
-      if (!id) {
-        const res = await fetch("/api/community/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ analysisId }),
-        });
-        const data = (await res.json().catch(() => null)) as { id?: string } | null;
-        if (!res.ok || !data?.id) {
-          flash("No se pudo generar el enlace");
-          return;
-        }
-        id = data.id;
-        setPublishedId(id);
-        justPublished = true;
-        track("published", { analysis_id: analysisId });
+      const res = await fetch(`/api/analyses/${analysisId}/share-card`);
+      if (!res.ok) {
+        flash("No se pudo generar la imagen");
+        return;
       }
+      const blob = await res.blob();
+      const file = new File([blob], "looklab-score.png", { type: "image/png" });
 
-      const url = `${window.location.origin}/community/post/${id}`;
-      if (typeof navigator !== "undefined" && navigator.share) {
+      // Web Share API nivel 2 (mobile): compartir la imagen como archivo adjunto.
+      if (typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ title: "LookLab — Mi Outfit Score", url });
+          await navigator.share({ files: [file], title: "LookLab — Mi Outfit Score" });
           track("shared", { method: "native_share" });
         } catch {
           // el usuario canceló el share sheet — nada que hacer
         }
-      } else {
-        await navigator.clipboard.writeText(url);
-        track("shared", { method: "copy_link" });
-        flash("Enlace copiado");
+        return;
       }
 
-      // Recién publicado: refrescamos para que la pantalla refleje el estado
-      // "Publicado" y no se pueda publicar de nuevo desde la tarjeta de abajo.
-      if (justPublished) router.refresh();
+      // Fallback (desktop / sin Web Share de archivos): descargar la imagen.
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "looklab-score.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      track("shared", { method: "download" });
+      flash("Imagen descargada");
+    } catch {
+      flash("No se pudo generar la imagen");
     } finally {
-      setSharing(false);
+      setBusy(false);
     }
   }
 
@@ -76,7 +64,7 @@ export function ShareButton({ analysisId, postId }: { analysisId: string; postId
       <button
         type="button"
         onClick={handleShare}
-        disabled={sharing}
+        disabled={busy}
         aria-label="Compartir"
         className="flex h-[38px] w-[38px] items-center justify-center rounded-full disabled:opacity-60"
         style={{ background: "rgba(247,245,240,.9)" }}

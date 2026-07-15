@@ -42,6 +42,14 @@ export function scoreBandColorVar(score: number): string {
   return band === "high" ? "var(--green)" : band === "medium" ? "var(--amber)" : "var(--red)";
 }
 
+// Igual que scoreBandColorVar pero con el hex real. Necesario para la tarjeta
+// compartible (ImageResponse/Satori NO resuelve variables CSS de la página).
+// Hex alineados con globals.css: --green #2fa36b, --amber #f5a524, --red #e5484d.
+export function scoreBandHex(score: number): string {
+  const band = scoreBand(score);
+  return band === "high" ? "#2fa36b" : band === "medium" ? "#f5a524" : "#e5484d";
+}
+
 // La adecuación a la ocasión actúa como TECHO del score final, no solo como un
 // término más del promedio ponderado. Motivo: con la ponderación sola (ocasión
 // pesa 20%), un outfit muy inadecuado para la ocasión igual quedaba en ~60
