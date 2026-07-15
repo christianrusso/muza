@@ -1,7 +1,9 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import sharp from "sharp";
 import { getHydratedAnalysis } from "@/lib/analyses";
+import { createClient } from "@/lib/supabase/server";
 import { occasionFullLabel } from "@/lib/occasions";
 import { scoreBandHex } from "@/lib/scoring/categories";
 
@@ -10,13 +12,47 @@ import { scoreBandHex } from "@/lib/scoring/categories";
 // crecimiento (compartí tu score). Dos formatos desde la misma ruta: feed
 // 1080×1080 (default) y ?format=story 1080×1920 (Instagram Stories).
 //
-// runtime nodejs: necesitamos fs para leer fuentes y el logo. Satori (motor de
-// ImageResponse) NO soporta conic-gradient (por eso el anillo va como SVG) ni
-// variables CSS (por eso los hex reales vía scoreBandHex).
+// runtime nodejs: necesitamos fs (fuentes/logo) y sharp (re-encode de la foto).
+// Satori (motor de ImageResponse) tiene dos limitaciones que resolvemos acá:
+//   - No decodifica JPEG progresivo ni WebP (así vienen las fotos de Supabase):
+//     re-encodeamos a JPEG baseline con sharp antes de pasarla.
+//   - No maneja object-fit con width/height en % → la foto va con dimensiones en
+//     PÍXELES explícitas. Tampoco soporta conic-gradient (anillo como SVG) ni
+//     variables CSS (hex reales vía scoreBandHex) ni filter:blur.
 export const runtime = "nodejs";
 
 const PAPER = "#f7f5f0";
 const INK = "#1a1712";
+
+// Bytes de la foto → JPEG baseline (data URI) que Satori sí decodifica.
+async function loadPhotoDataUri(photoPath?: string, photoUrl?: string): Promise<string | null> {
+  let input: Buffer | null = null;
+  if (photoPath) {
+    // Foto del usuario (es su propio análisis): signed URL original (sin transform,
+    // que serviría WebP). RLS de dueño permite leerla con su propio cliente.
+    const supabase = await createClient();
+    const { data: signed } = await supabase.storage.from("outfit-photos").createSignedUrl(photoPath, 300);
+    if (signed?.signedUrl) {
+      const res = await fetch(signed.signedUrl);
+      if (res.ok) input = Buffer.from(await res.arrayBuffer());
+    }
+  } else if (photoUrl?.startsWith("data:")) {
+    // Modo demo: la foto ya viene como data URL.
+    const b64 = photoUrl.split(",")[1];
+    if (b64) input = Buffer.from(b64, "base64");
+  }
+  if (!input) return null;
+  try {
+    const out = await sharp(input)
+      .rotate() // respeta orientación EXIF
+      .resize(1080, 1400, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ progressive: false, quality: 85 })
+      .toBuffer();
+    return `data:image/jpeg;base64,${out.toString("base64")}`;
+  } catch {
+    return null; // foto ilegible → tarjeta sin foto (fondo ink)
+  }
+}
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -27,10 +63,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return new Response("Análisis no encontrado o sin puntuar.", { status: 404 });
   }
 
-  const [manrope, instrumentSerif, logo] = await Promise.all([
+  const [manrope, instrumentSerif, logo, photoDataUri] = await Promise.all([
     readFile(join(process.cwd(), "assets/fonts/Manrope-Bold.woff")),
     readFile(join(process.cwd(), "assets/fonts/InstrumentSerif-Italic.woff")),
     readFile(join(process.cwd(), "assets/logo-isotype.png")),
+    loadPhotoDataUri(analysis.photoPath, analysis.photoUrl),
   ]);
   const logoDataUri = `data:image/png;base64,${logo.toString("base64")}`;
 
@@ -59,18 +96,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", backgroundColor: INK, fontFamily: "Manrope" }}>
-        {/* ===== Foto del look (nítida): contain sobre una copia borrosa de relleno ===== */}
-        <div style={{ position: "relative", display: "flex", width: "100%", height: photoH, overflow: "hidden" }}>
-          {analysis.photoUrl ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={analysis.photoUrl} width={width} height={photoH} alt="" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(30px)", transform: "scale(1.2)" }} />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={analysis.photoUrl} width={width} height={photoH} alt="" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-            </>
+        {/* ===== Foto del look (contain, dimensiones en px) sobre fondo ink ===== */}
+        <div style={{ position: "relative", display: "flex", width: width, height: photoH, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+          {photoDataUri ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoDataUri} width={width} height={photoH} alt="" style={{ width: width, height: photoH, objectFit: "contain" }} />
           ) : null}
           {/* gradiente sutil arriba para que se lea la marca */}
-          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 200, background: "linear-gradient(180deg, rgba(20,18,16,0.5), rgba(20,18,16,0))" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, width: width, height: 200, background: "linear-gradient(180deg, rgba(20,18,16,0.55), rgba(20,18,16,0))" }} />
           {/* marca arriba a la izquierda: isotipo + wordmark */}
           <div style={{ position: "absolute", top: 44, left: 48, display: "flex", alignItems: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
