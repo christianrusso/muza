@@ -126,11 +126,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             <div style={{ display: "flex", flexDirection: "column", marginLeft: 32, maxWidth: 560 }}>
               <div style={{ display: "flex", fontSize: 22, letterSpacing: 4, color: "rgba(247,245,240,0.55)" }}>OUTFIT SCORE</div>
               <div style={{ display: "flex", marginTop: 8, fontFamily: "Instrument Serif", fontStyle: "italic", fontSize: isStory ? 50 : 44, color: PAPER, lineHeight: 1.1 }}>{occasionAndStyle}</div>
-              {analysis.qualitativeBadge ? (
-                <div style={{ display: "flex", marginTop: 18, alignSelf: "flex-start", padding: "9px 24px", borderRadius: 999, backgroundColor: "rgba(47,163,107,0.20)", color: "#9fe1cb", fontSize: 26, fontWeight: 700 }}>
-                  {analysis.qualitativeBadge}
-                </div>
-              ) : null}
             </div>
           </div>
 
