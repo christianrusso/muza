@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { Spinner } from "@/components/ui/Spinner";
 import { track } from "@/lib/analytics";
 
 // Botón de compartir del header del resultado. Comparte la TARJETA del score como
@@ -33,7 +34,7 @@ export function ShareButton({ analysisId }: { analysisId: string }) {
       // Web Share API nivel 2 (mobile): compartir la imagen como archivo adjunto.
       if (typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "LookLab — Mi Outfit Score" });
+          await navigator.share({ files: [file], title: "LookLab.io — Mi Outfit Score" });
           track("shared", { method: "native_share" });
         } catch {
           // el usuario canceló el share sheet — nada que hacer
@@ -66,10 +67,10 @@ export function ShareButton({ analysisId }: { analysisId: string }) {
         onClick={handleShare}
         disabled={busy}
         aria-label="Compartir"
-        className="flex h-[38px] w-[38px] items-center justify-center rounded-full disabled:opacity-60"
+        className="flex h-[38px] w-[38px] items-center justify-center rounded-full disabled:opacity-90"
         style={{ background: "rgba(247,245,240,.9)" }}
       >
-        <MaterialIcon name="ios_share" size={20} />
+        {busy ? <Spinner size={18} /> : <MaterialIcon name="ios_share" size={20} />}
       </button>
       {toast && (
         <div
