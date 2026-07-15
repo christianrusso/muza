@@ -3,10 +3,18 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { getOpenAIClient, VISION_MODEL } from "./client";
 import { buildValidationPrompt } from "./prompts/validation.prompt";
 import { ValidationResultSchema, type ValidationResult } from "./schema";
+import { assertAiBudget } from "./budgetGuard";
+import { logAiUsage } from "./usageLog";
 
 export class AIValidationError extends Error {}
 
-export async function validateOutfitImage(photoUrl: string): Promise<ValidationResult> {
+export async function validateOutfitImage(
+  photoUrl: string,
+  userId?: string | null,
+): Promise<ValidationResult> {
+  // Circuit breaker: corta antes de gastar si ya se pasó el tope diario/mensual.
+  await assertAiBudget();
+
   const response = await getOpenAIClient().responses.parse({
     model: VISION_MODEL,
     // temperature 0: la validación debe ser determinística (la misma foto no puede
@@ -24,6 +32,8 @@ export async function validateOutfitImage(photoUrl: string): Promise<ValidationR
     ],
     text: { format: zodTextFormat(ValidationResultSchema, "validation_result") },
   });
+
+  await logAiUsage("validate", response.usage, userId);
 
   const parsed = response.output_parsed;
   if (!parsed) {

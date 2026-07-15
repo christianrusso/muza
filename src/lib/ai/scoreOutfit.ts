@@ -4,6 +4,8 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { getOpenAIClient, VISION_MODEL } from "./client";
 import { buildScoringPrompt } from "./prompts/scoring.prompt";
 import { ScoringResultSchema, type ScoringResult } from "./schema";
+import { assertAiBudget } from "./budgetGuard";
+import { logAiUsage } from "./usageLog";
 import type { FewShotExample } from "@/lib/scoring/knowledgeBase";
 import type { AnalysisType, UserGender } from "@/types/domain";
 
@@ -78,6 +80,7 @@ export async function scoreOutfit({
   analysisType,
   userGender,
   examples = [],
+  userId,
 }: {
   photoUrl: string;
   occasionLabel: string;
@@ -86,7 +89,11 @@ export async function scoreOutfit({
   analysisType: AnalysisType;
   userGender?: UserGender | null;
   examples?: FewShotExample[];
+  userId?: string | null;
 }): Promise<ScoringResult> {
+  // Circuit breaker: corta antes de gastar si ya se pasó el tope diario/mensual.
+  await assertAiBudget();
+
   let lastErr: unknown;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -107,6 +114,10 @@ export async function scoreOutfit({
         // controlar el presupuesto total y el backoff.
         { timeout: TIMEOUT_MS, maxRetries: 0 },
       );
+
+      // Registramos el gasto de cada respuesta recibida (ya se facturó, aunque el
+      // parse venga vacío y reintentemos).
+      await logAiUsage("score", response.usage, userId);
 
       const parsed = response.output_parsed;
       if (!parsed) {

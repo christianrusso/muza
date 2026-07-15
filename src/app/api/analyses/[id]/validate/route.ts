@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { validateOutfitImage, AIValidationError } from "@/lib/ai/validateImage";
+import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { isDemoMode, buildStubValidationResult } from "@/lib/demo";
 import { getDemoCreatedAnalysis, updateDemoAnalysisValidation } from "@/lib/demoStore";
 
@@ -52,7 +53,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   try {
-    const result = await validateOutfitImage(signed.signedUrl);
+    const result = await validateOutfitImage(signed.signedUrl, user.id);
 
     await supabase
       .from("analyses")
@@ -64,6 +65,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json(result);
   } catch (err) {
+    if (err instanceof AIBudgetExceededError) {
+      return NextResponse.json(
+        { error: { code: "AI_BUDGET_EXCEEDED", message: "El servicio está saturado por hoy. Probá más tarde." } },
+        { status: 503 },
+      );
+    }
     const message = err instanceof AIValidationError ? err.message : "Error validando la imagen.";
     return NextResponse.json({ error: { code: "AI_VALIDATION_FAILED", message } }, { status: 502 });
   }

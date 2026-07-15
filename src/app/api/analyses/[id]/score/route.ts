@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreOutfit, AIScoringError } from "@/lib/ai/scoreOutfit";
+import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { getFewShotExamples } from "@/lib/scoring/knowledgeBase";
 import { computeOverallScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import { occasionLabel } from "@/lib/occasions";
@@ -106,6 +107,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       analysisType: analysis.analysis_type as AnalysisType,
       userGender: profile?.gender ?? null,
       examples,
+      userId: user.id,
     });
 
     const overallScore = computeOverallScore(result.categories, result.analysisType);
@@ -152,6 +154,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json({ id, overallScore, aiRawResponse: result });
   } catch (err) {
+    // Tope de gasto alcanzado: no es una falla de la IA, es un corte a propósito.
+    if (err instanceof AIBudgetExceededError) {
+      return NextResponse.json(
+        { error: { code: "AI_BUDGET_EXCEEDED", message: "El servicio está saturado por hoy. Probá más tarde." } },
+        { status: 503 },
+      );
+    }
     const message = err instanceof AIScoringError ? err.message : "Error puntuando el outfit.";
     return NextResponse.json({ error: { code: "AI_SCORING_FAILED", message } }, { status: 502 });
   }
