@@ -6,8 +6,23 @@ import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { GENDER_OPTIONS, type UserGender } from "@/types/domain";
 import { track } from "@/lib/analytics";
+import { safeNextPath } from "@/lib/redirect";
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+
+/**
+ * A dónde va el usuario al terminar. El onboarding se interpone entre el registro
+ * y lo que la persona venía a hacer (un post compartido, el look que estaba por
+ * puntuar, la comunidad que venía mirando de invitada), así que el middleware le
+ * pasa ese destino en `next` y acá lo reenviamos. Sin esto todos terminan en
+ * /home y se pierde la intención que los trajo.
+ *
+ * Se lee de window en el momento de usarlo (no en un estado) para que no dependa
+ * de que un efecto haya corrido antes.
+ */
+function destination(): string {
+  return safeNextPath(new URLSearchParams(window.location.search).get("next"));
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -16,7 +31,7 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
 
   // Idempotencia: si el usuario ya eligió género (llegó acá por error o refresh),
-  // no lo trabamos — lo mandamos derecho al home.
+  // no lo trabamos — lo mandamos derecho a donde iba.
   useEffect(() => {
     if (DEMO_MODE) return;
     const supabase = createClient();
@@ -24,7 +39,7 @@ export default function OnboardingPage() {
       if (!user) return;
       const { data } = await supabase.from("profiles").select("gender").eq("id", user.id).single();
       if (data?.gender) {
-        router.replace("/home");
+        router.replace(destination());
         return;
       }
       setReady(true);
@@ -59,7 +74,7 @@ export default function OnboardingPage() {
     // la cookie con el JWT recién refrescado en ese mismo request. Un refresh
     // manual sí andaba porque manda un request HTTP nuevo con el token nuevo:
     // window.location.assign replica exactamente eso.
-    window.location.assign("/home");
+    window.location.assign(destination());
   }
 
   if (!ready) return null;

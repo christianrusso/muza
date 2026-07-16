@@ -45,17 +45,14 @@ function toCard(row: {
 /**
  * Carga una página del feed "Siguiendo": los posts de los perfiles que el usuario
  * sigue, del más nuevo al más viejo. Devuelve como máximo `limit` posteos
- * empezando en `offset` (scroll infinito). El modo "Votá" no pasa por acá — usa
- * loadVoteQueue() en votes.ts.
+ * empezando en `offset` (scroll infinito). Requiere sesión: sin ella no hay a
+ * quién seguir. El modo "Votá" no pasa por acá — usa loadVoteQueue() en votes.ts.
  */
 export async function loadCommunityFeed(
   activeTab: string,
   offset = 0,
   limit = FEED_PAGE_SIZE,
 ): Promise<PostCardData[]> {
-  // Normalizamos por robustez, aunque hoy solo "siguiendo" llega hasta acá.
-  normalizeTab(activeTab);
-
   if (isDemoMode()) {
     const store = getDemoStore();
     const created = Array.from(store.posts.values()).map((p) => {
@@ -100,6 +97,9 @@ export async function loadCommunityFeed(
       .slice(offset, offset + limit);
   }
 
+  // Normalizamos por robustez, aunque hoy solo "siguiendo" llega hasta acá.
+  normalizeTab(activeTab);
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -121,15 +121,13 @@ export async function loadCommunityFeed(
     .order("posted_at", { ascending: false })
     .range(offset, offset + limit - 1);
   const rows = posts ?? [];
+  if (rows.length === 0) return [];
 
   const postIds = rows.map((p) => p.post_id);
-  const [{ data: myReactions }, { data: myVotes }] =
-    postIds.length > 0
-      ? await Promise.all([
-          supabase.from("post_reactions").select("post_id, reaction").eq("user_id", user.id).in("post_id", postIds),
-          supabase.from("post_votes").select("post_id").eq("user_id", user.id).in("post_id", postIds),
-        ])
-      : [{ data: [] }, { data: [] }];
+  const [{ data: myReactions }, { data: myVotes }] = await Promise.all([
+    supabase.from("post_reactions").select("post_id, reaction").eq("user_id", user.id).in("post_id", postIds),
+    supabase.from("post_votes").select("post_id").eq("user_id", user.id).in("post_id", postIds),
+  ]);
   const myReactionByPost = new Map((myReactions ?? []).map((r) => [r.post_id, r.reaction]));
   const votedPostIds = new Set((myVotes ?? []).map((v) => v.post_id));
 

@@ -11,6 +11,7 @@ import { PostCard, type PostCardData } from "@/components/community/PostCard";
 import { PostVotePanel } from "@/components/community/PostVotePanel";
 import { CommentForm } from "@/components/community/CommentForm";
 import { DeletePostButton } from "@/components/community/DeletePostButton";
+import { GuestGateProvider } from "@/components/community/GuestGate";
 import type { VoteBucket, VoteTally } from "@/lib/community/constants";
 import type { OccasionId } from "@/types/domain";
 
@@ -104,11 +105,15 @@ async function loadPost(id: string): Promise<PostDetail | null> {
 
   const photoUrl = await signedPhotoUrl(admin, post.photo_path, "full");
 
-  const { data: comments } = await admin
-    .from("post_comments")
-    .select("id, body, created_at, user_id, profiles(full_name)")
-    .eq("post_id", id)
-    .order("created_at", { ascending: true });
+  // Los comentarios son solo para usuarios: al invitado ni se los traemos (ver
+  // el render de abajo, que le muestra el conteo y el CTA).
+  const { data: comments } = user
+    ? await admin
+        .from("post_comments")
+        .select("id, body, created_at, user_id, profiles(full_name)")
+        .eq("post_id", id)
+        .order("created_at", { ascending: true })
+    : { data: [] };
 
   // Reacción y voto propios solo si hay sesión (con el cliente del usuario, RLS).
   const [{ data: myReaction }, { data: myVote }] = user
@@ -166,51 +171,65 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   if (!data) notFound();
 
   return (
-    <div className="screen-body pad">
-      <ScreenHead title="Publicación" backHref="/community" />
+    <GuestGateProvider isAuthed={data.isAuthed}>
+      <div className="screen-body pad">
+        <ScreenHead title="Publicación" backHref="/community" />
 
-      {/* En el detalle el score no va sobre la foto: lo revela el panel de abajo. */}
-      <PostCard post={data.post} showScoreBadge={false} canInteract={data.isAuthed} />
+        {/* En el detalle el score no va sobre la foto: lo revela el panel de abajo. */}
+        <PostCard post={data.post} showScoreBadge={false} />
 
       <PostVotePanel
-        postId={id}
-        aiScore={data.aiScore}
-        isAuthed={data.isAuthed}
-        isOwner={data.isMine}
-        initialBucket={data.myBucket}
-        initialTally={data.tally}
-        initialRevealed={data.post.scoreRevealed}
-      />
+          postId={id}
+          aiScore={data.aiScore}
+          isAuthed={data.isAuthed}
+          isOwner={data.isMine}
+          initialBucket={data.myBucket}
+          initialTally={data.tally}
+          initialRevealed={data.post.scoreRevealed}
+        />
 
-      <div className="mt-6 flex flex-col gap-4">
-        <span className="text-[15px] font-extrabold">Comentarios</span>
-        {data.comments.map((c) => (
-          <div key={c.id} className="flex gap-2.5">
-            <div className="ph h-8 w-8 flex-none rounded-full" />
-            <div>
-              <span className="block text-[13px] font-extrabold">{c.author}</span>
-              <span className="text-[13px] font-semibold text-ink">{c.body}</span>
+        {/* Los comentarios son solo para usuarios: al invitado no le mostramos ni
+            el contenido ni el formulario, sino cuántos hay y el CTA. */}
+        {data.isAuthed ? (
+          <>
+            <div className="mt-6 flex flex-col gap-4">
+              <span className="text-[15px] font-extrabold">Comentarios</span>
+              {data.comments.map((c) => (
+                <div key={c.id} className="flex gap-2.5">
+                  <div className="ph h-8 w-8 flex-none rounded-full" />
+                  <div>
+                    <span className="block text-[13px] font-extrabold">{c.author}</span>
+                    <span className="text-[13px] font-semibold text-ink">{c.body}</span>
+                  </div>
+                </div>
+              ))}
+              {data.comments.length === 0 && (
+                <p className="text-sm font-semibold text-muted">Sé el primero en comentar.</p>
+              )}
             </div>
+            <CommentForm postId={id} />
+          </>
+        ) : (
+          <div className="mt-6 flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-white p-5 text-center">
+            <span className="text-[15px] font-extrabold text-ink">
+              {data.post.commentCount === 1
+                ? "Hay 1 comentario"
+                : `Hay ${data.post.commentCount} comentarios`}
+            </span>
+            <span className="text-sm font-semibold text-muted">
+              Registrate para leerlos y sumar el tuyo.
+            </span>
+            <Link
+              href={`/welcome?next=${encodeURIComponent(`/community/post/${id}`)}`}
+              className="mt-3 flex h-12 w-full items-center justify-center rounded-full bg-coral text-sm font-extrabold text-white"
+            >
+              Crear cuenta gratis
+            </Link>
           </div>
-        ))}
-        {data.comments.length === 0 && (
-          <p className="text-sm font-semibold text-muted">Sé el primero en comentar.</p>
         )}
+
+        {data.isMine && <DeletePostButton postId={id} />}
       </div>
-
-      {/* Comentar requiere sesión; al visitante anónimo lo invitamos a registrarse. */}
-      {data.isAuthed ? (
-        <CommentForm postId={id} />
-      ) : (
-        <Link
-          href={`/welcome?next=${encodeURIComponent(`/community/post/${id}`)}`}
-          className="mt-6 flex h-12 items-center justify-center rounded-full bg-coral text-sm font-extrabold text-white"
-        >
-          Registrate para comentar y votar
-        </Link>
-      )}
-
-      {data.isMine && <DeletePostButton postId={id} />}
-    </div>
+    </GuestGateProvider>
   );
 }

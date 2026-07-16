@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGuestGate } from "@/components/community/GuestGate";
 import { track } from "@/lib/analytics";
 
 // Botón seguir/dejar de seguir. Optimista: cambia al instante y revierte si el
@@ -14,11 +15,14 @@ export function FollowButton({
   initialFollowing: boolean;
   size?: "md" | "sm";
 }) {
+  const { requireAuth } = useGuestGate();
   const [following, setFollowing] = useState(initialFollowing);
   const [pending, setPending] = useState(false);
 
   async function toggle() {
     if (pending) return;
+    // Invitado: el muro en vez del follow.
+    if (!requireAuth("follow")) return;
     const next = !following;
     setFollowing(next);
     setPending(true);

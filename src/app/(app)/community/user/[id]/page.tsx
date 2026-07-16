@@ -14,13 +14,16 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
+// Ruta privada (ver isPublicPath en lib/supabase/middleware.ts): un invitado no
+// llega hasta acá — los links a perfiles le abren el muro antes (ver AuthorLink).
 export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const profile = await loadUserProfile(id);
   if (!profile) notFound();
 
   return (
-    <div className="screen-body pad">
+    <>
+      <div className="screen-body pad">
       <ScreenHead title={profile.name} backHref="/community" />
 
       <div className="mt-2 flex flex-col items-center gap-3">
@@ -79,9 +82,10 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 {p.scoreRevealed ? p.overallScore : <MaterialIcon name="lock" size={14} />}
               </span>
             </Link>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

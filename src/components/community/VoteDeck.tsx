@@ -6,6 +6,8 @@ import { relativeShortDate } from "@/lib/dates";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { ScoreRing } from "@/components/community/ScoreRing";
 import { FollowButton } from "@/components/community/FollowButton";
+import { useGuestGate } from "@/components/community/GuestGate";
+import { AuthorLink } from "@/components/community/AuthorLink";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { track } from "@/lib/analytics";
 import type { UserGender } from "@/types/domain";
@@ -71,6 +73,7 @@ function CardPhoto({ url, children }: { url: string | null; children?: ReactNode
 }
 
 export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
+  const { requireAuth } = useGuestGate();
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState<{ bucket: VoteBucket; tally: VoteTally } | null>(null);
   const [voting, setVoting] = useState(false);
@@ -94,6 +97,9 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
 
   async function vote(bucket: VoteBucket) {
     if (voting || reveal) return;
+    // Invitado: el muro en vez del voto. Sin voto no hay reveal, así que el score
+    // y el resultado de la comunidad le siguen quedando tapados.
+    if (!requireAuth("vote")) return;
     setVoting(true);
     try {
       const res = await fetch(`/api/community/posts/${card.postId}/vote`, {
@@ -127,13 +133,13 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   // Cabecera compartida por ambos estados.
   const header = (
     <div className="mb-3 flex items-center gap-2.5">
-      <Link href={`/community/user/${card.authorId}`}>
+      <AuthorLink userId={card.authorId}>
         <Avatar url={card.authorAvatarUrl} />
-      </Link>
-      <div className="flex flex-1 flex-col gap-1">
-        <Link href={`/community/user/${card.authorId}`} className="text-[13.5px] font-extrabold">
+      </AuthorLink>
+      <div className="flex flex-1 flex-col items-start gap-1">
+        <AuthorLink userId={card.authorId} className="text-[13.5px] font-extrabold">
           {card.authorName}
-        </Link>
+        </AuthorLink>
         <div className="flex flex-wrap items-center gap-1.5">
           <GenderTag gender={card.authorGender} />
           <span className="text-[11px] font-semibold text-faint">{card.occasionLabel}</span>
@@ -226,12 +232,12 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
             className="flex w-full items-center gap-3 rounded-2xl p-3"
             style={{ background: "var(--paper-2, rgba(20,18,16,.05))" }}
           >
-            <Link href={`/community/user/${card.authorId}`}>
+            <AuthorLink userId={card.authorId}>
               <Avatar url={card.authorAvatarUrl} />
-            </Link>
-            <Link href={`/community/user/${card.authorId}`} className="flex-1 text-sm font-extrabold text-ink">
+            </AuthorLink>
+            <AuthorLink userId={card.authorId} className="flex-1 text-left text-sm font-extrabold text-ink">
               {card.authorName}
-            </Link>
+            </AuthorLink>
             <FollowButton userId={card.authorId} initialFollowing={card.amIFollowing} size="sm" />
           </div>
         </div>

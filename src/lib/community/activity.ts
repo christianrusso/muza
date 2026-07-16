@@ -188,6 +188,12 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
 export async function unreadActivityCount(): Promise<number> {
   if (isDemoMode()) return 0;
   const supabase = await createClient();
+  // Un invitado no tiene actividad propia: cortamos antes de la RPC en vez de
+  // dejarla fallar contra RLS y caer en el 0 del catch de abajo.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return 0;
   const { data, error } = await supabase.rpc("unread_activity_count");
   if (error || typeof data !== "number") return 0;
   return data;
