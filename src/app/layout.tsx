@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { instrumentSerif, manrope } from "@/lib/fonts";
 import { AnalyticsIdentify } from "@/components/analytics/AnalyticsIdentify";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import "./globals.css";
 
 // metadataBase resuelve las URLs absolutas de los previews (OG/Twitter). Sin
@@ -34,6 +35,13 @@ export const metadata: Metadata = {
     title,
     description,
   },
+  // Verificación de dominio en Meta Business Manager (Brand safety > Domains),
+  // requerida para medición agregada de eventos del Meta Pixel bajo iOS.
+  verification: {
+    other: {
+      "facebook-domain-verification": "pk1zf6srnvxggp793bxhk4h5ta5ftl",
+    },
+  },
 };
 
 // Origen de Supabase para adelantar el handshake TLS: el login OAuth y toda
@@ -63,6 +71,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AnalyticsIdentify />
+        <MetaPixel />
         {children}
       </body>
     </html>

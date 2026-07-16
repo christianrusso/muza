@@ -74,6 +74,19 @@ export default function RegisterPage() {
     }
     // La cuenta se creó (con o sin sesión inmediata según la verif. de email).
     track("signed_up", { method: "password" });
+    // Meta Ads: mismo eventId en el pixel del navegador y en Conversions API
+    // (server-side) para que Meta dedupe los dos envíos del mismo registro.
+    const metaEventId = crypto.randomUUID();
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "CompleteRegistration", {}, { eventID: metaEventId });
+    }
+    fetch("/api/analytics/complete-registration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, eventId: metaEventId }),
+    }).catch(() => {
+      // no-op: nunca romper el flujo de registro por un fallo de tracking
+    });
     // PROVISORIO: registro sin validación de email para bajar la fricción. El
     // interruptor real es el Dashboard de Supabase → Authentication → Email →
     // "Confirm email" en OFF. Con eso desactivado, signUp devuelve sesión y el
