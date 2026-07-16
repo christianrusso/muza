@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, verifyAdminToken } from "@/lib/admin/auth";
+import { AdminNav } from "./AdminNav";
 import { LogoutButton } from "./LogoutButton";
 
 // Defensa en profundidad: el proxy ya gatea /admin, pero validamos también acá
@@ -24,7 +25,10 @@ export default async function AdminDashboardLayout({
             </span>
             <span className="font-serif text-xl text-ink">Panel</span>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-4">
+            <AdminNav />
+            <LogoutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>

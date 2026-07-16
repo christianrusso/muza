@@ -35,6 +35,8 @@
   --color-line-strong: var(--line-strong);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
   --color-score-high: var(--green);
   --color-score-medium: var(--amber);
   --color-score-low: var(--red);

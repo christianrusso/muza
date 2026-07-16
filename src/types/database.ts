@@ -19,6 +19,7 @@ export interface Database {
           plan_started_at: string | null;
           created_at: string;
           last_seen_activity_at: string;
+          blocked_at: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string; full_name: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
