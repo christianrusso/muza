@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import Link from "next/link";
 import { getAdminUsers, type AdminUser } from "@/lib/admin/users";
 import { BlockButton } from "./BlockButton";
 
@@ -32,9 +33,13 @@ function UserRow({ u }: { u: AdminUser }) {
         <div className="flex items-center gap-2">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 truncate text-sm font-medium text-ink">
-              <span className="truncate" title={u.full_name}>
+              <Link
+                href={`/admin/users/${u.id}`}
+                className="truncate underline decoration-line-strong underline-offset-2 hover:decoration-ink"
+                title={`Ver detalle y fotos de ${u.full_name}`}
+              >
                 {u.full_name}
-              </span>
+              </Link>
               {u.blocked_at && (
                 <span
                   className="shrink-0 rounded bg-red px-1.5 py-0.5 text-[10px] font-semibold uppercase text-white"
@@ -153,9 +158,9 @@ export default async function AdminUsersPage({
             Buscar
           </button>
           {q && (
-            <a href="/admin/users" className="text-xs text-faint underline hover:text-muted">
+            <Link href="/admin/users" className="text-xs text-faint underline hover:text-muted">
               Limpiar
-            </a>
+            </Link>
           )}
         </form>
         <p className="text-xs text-faint">

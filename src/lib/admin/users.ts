@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { signedPhotoUrls } from "@/lib/supabase/photos";
 
 // Forma de cada fila que devuelve public.admin_users_list().
 export type AdminUser = {
@@ -37,6 +38,70 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
   }
   return (data ?? []) as unknown as AdminUser[];
 }
+
+// ---------------------------------------------------------------------------
+// Detalle de un usuario (ficha + sus fotos)
+// ---------------------------------------------------------------------------
+
+export type AdminUserAnalysis = {
+  id: string;
+  photo_path: string;
+  analysis_type: "completo" | "superior" | "inferior" | "individual" | null;
+  validity_status: "pending" | "valid" | "partial" | "invalid";
+  overall_score: number | null;
+  created_at: string;
+  occasion: string;
+  post_id: string | null;
+  caption: string | null;
+  post_likes: number;
+  // Firmadas acá, no en la DB: la RPC solo devuelve photo_path.
+  thumbUrl: string | null;
+  fullUrl: string | null;
+};
+
+export type AdminUserDetail = {
+  user: AdminUser;
+  analyses: AdminUserAnalysis[];
+};
+
+const DETAIL_PHOTO_LIMIT = 60;
+
+export async function getAdminUserDetail(userId: string): Promise<AdminUserDetail | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("admin_user_detail" as never, {
+    p_user_id: userId,
+    p_limit: DETAIL_PHOTO_LIMIT,
+  } as never);
+  if (error) {
+    throw new Error(`admin_user_detail falló: ${error.message}`);
+  }
+
+  const detail = data as unknown as {
+    user: AdminUser | null;
+    analyses: Omit<AdminUserAnalysis, "thumbUrl" | "fullUrl">[];
+  };
+  if (!detail?.user) return null;
+
+  // Las fotos están en un bucket privado; el cliente service-role puede firmar
+  // las de cualquier usuario. `thumb` para la grilla y `full` para el visor, en
+  // paralelo (cada firma es un round-trip a Storage).
+  const paths = detail.analyses.map((a) => a.photo_path);
+  const [thumbs, fulls] = await Promise.all([
+    signedPhotoUrls(admin, paths, "thumb"),
+    signedPhotoUrls(admin, paths, "full"),
+  ]);
+
+  return {
+    user: detail.user,
+    analyses: detail.analyses.map((a) => ({
+      ...a,
+      thumbUrl: thumbs.get(a.photo_path) ?? null,
+      fullUrl: fulls.get(a.photo_path) ?? null,
+    })),
+  };
+}
+
+export const ADMIN_DETAIL_PHOTO_LIMIT = DETAIL_PHOTO_LIMIT;
 
 // Bloqueo en dos capas — ver el comentario de 0019_admin_users.sql:
 //   - banned_until en auth: le corta el login y el refresh del token.
