@@ -11,13 +11,36 @@ const AUTH_ROUTES = [
   "/auth/callback",
 ];
 
-// Rutas públicas: accesibles con o sin sesión, sin redirigir. Legales debe
-// poder verse antes de registrarse y como URL pública (stores/footer).
-// /landing.html es la landing de marketing servida en la raíz a visitantes
-// sin sesión (ver rewrite de "/" más abajo).
-// /community/post/<id> es público para que los links compartidos se puedan
-// abrir sin login (read-only: sin votar/comentar/like hasta registrarse).
-const PUBLIC_ROUTES = ["/legal", "/landing.html", "/community/post"];
+/**
+ * Rutas públicas: accesibles con o sin sesión, sin redirigir. El invitado puede
+ * VER lo que está acá; cualquier acción se la corta el muro de registro del
+ * lado del cliente (ver components/community/GuestGate).
+ *
+ * Se evalúa con reglas explícitas en vez de una lista de prefijos porque dentro
+ * de /community conviven rutas públicas y privadas, y un startsWith("/community")
+ * abriría /community/publish y /community/activity sin querer.
+ */
+function isPublicPath(pathname: string): boolean {
+  // Legales: visible antes de registrarse y como URL pública (stores/footer).
+  if (pathname === "/legal") return true;
+  // Landing de marketing servida en la raíz a visitantes sin sesión (ver rewrite
+  // de "/" más abajo).
+  if (pathname === "/landing.html") return true;
+  // Post compartido: para que los links se abran sin login.
+  if (pathname.startsWith("/community/post/")) return true;
+  // Feed "Descubrí". Exacto a propósito: /community/publish y /community/activity
+  // siguen siendo privadas.
+  if (pathname === "/community") return true;
+  // Home: el invitado puede verla (sale con los estados vacíos y la propuesta de
+  // valor). El muro salta recién al tocar "nuevo análisis" — /analysis/new sigue
+  // privada porque ahí arranca el flujo que termina en una llamada paga a la IA.
+  if (pathname === "/home") return true;
+  // Ojo: /community/user/<id> NO es pública. El perfil muestra el portfolio de
+  // looks con sus scores, así que dejar entrar a un invitado le permitiría
+  // saltearse el juego del deck ("adiviná el score") sin votar. Los links a
+  // perfiles le abren el muro antes de navegar (ver components/community/AuthorLink).
+  return false;
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -68,7 +91,7 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+  const isPublicRoute = isPublicPath(pathname);
 
   // Visitante sin sesión en la raíz: mostramos la landing de marketing (servida
   // como estático desde /public/landing.html) manteniendo la URL en "/". Los
@@ -108,6 +131,13 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding";
     url.search = "";
+    // El onboarding se mete ENTRE el registro y el destino que el usuario venía
+    // buscando, así que hay que pasarle el `next` en vez de descartarlo: sin
+    // esto, todo el que se registra desde un muro o un link compartido termina
+    // en /home y pierde la acción que lo trajo. /onboarding lo reenvía al
+    // terminar (ver onboarding/page.tsx).
+    const intended = pathname + request.nextUrl.search;
+    if (intended !== "/home") url.searchParams.set("next", intended);
     return NextResponse.redirect(url);
   }
 

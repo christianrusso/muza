@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { nextQuery, safeNextPath } from "@/lib/redirect";
+import { AuthBackground } from "@/components/brand/AuthBackground";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
@@ -103,9 +104,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-dvh flex-col">
       {/* Foto de fondo full-bleed que funde hacia el papel donde vive el form. */}
-      <div className="ph-dark absolute inset-x-0 top-0 h-[42vh] max-h-[360px] min-h-[220px] overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/login-bg.webp" alt="" className="h-full w-full object-cover" />
+      <AuthBackground className="absolute inset-x-0 top-0 h-[42vh] max-h-[360px] min-h-[220px]">
         <div
           className="absolute inset-0"
           style={{
@@ -113,7 +112,7 @@ export default function LoginPage() {
               "linear-gradient(to bottom, rgba(20,18,16,.28) 0%, rgba(20,18,16,0) 38%, rgba(247,245,240,0) 62%, var(--paper) 100%)",
           }}
         />
-      </div>
+      </AuthBackground>
 
       {/* Volver: sobre la foto, en blanco. */}
       <Link

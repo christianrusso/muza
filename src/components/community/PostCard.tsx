@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { relativeShortDate } from "@/lib/dates";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
+import { useGuestGate } from "@/components/community/GuestGate";
+import { AuthorLink } from "@/components/community/AuthorLink";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { AnalysisType } from "@/types/domain";
 
@@ -31,13 +33,11 @@ export function PostCard({
   // El detalle del post no muestra el badge sobre la foto: ahí el score lo maneja
   // el panel de votación (PostVotePanel). El feed sí lo muestra.
   showScoreBadge = true,
-  // Visitante sin sesión (link compartido): read-only, el like manda a registrarse.
-  canInteract = true,
 }: {
   post: PostCardData;
   showScoreBadge?: boolean;
-  canInteract?: boolean;
 }) {
+  const { requireAuth } = useGuestGate();
   const [liked, setLiked] = useState(post.myReaction === "like");
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [toast, setToast] = useState<string | null>(null);
@@ -58,11 +58,8 @@ export function PostCard({
   }
 
   async function toggleLike() {
-    // Sin sesión: no likeamos, lo mandamos a registrarse y que vuelva acá.
-    if (!canInteract) {
-      window.location.assign(`/welcome?next=${encodeURIComponent(`/community/post/${post.id}`)}`);
-      return;
-    }
+    // Invitado: en vez de likear, le abrimos el muro sin sacarlo de la pantalla.
+    if (!requireAuth("like")) return;
     const next = !liked;
     setLiked(next);
     setLikeCount((c) => c + (next ? 1 : -1));
@@ -77,18 +74,18 @@ export function PostCard({
   return (
     <div>
       <div className="mb-2.5 flex items-center gap-2.5">
-        <Link href={`/community/user/${post.authorId}`}>
+        <AuthorLink userId={post.authorId}>
           {post.authorAvatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={post.authorAvatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
           ) : (
             <div className="ph h-10 w-10 rounded-full" />
           )}
-        </Link>
-        <div className="flex flex-1 flex-col gap-px">
-          <Link href={`/community/user/${post.authorId}`} className="text-[13.5px] font-extrabold">
+        </AuthorLink>
+        <div className="flex flex-1 flex-col items-start gap-px">
+          <AuthorLink userId={post.authorId} className="text-[13.5px] font-extrabold">
             {post.authorName}
-          </Link>
+          </AuthorLink>
           <span className="text-[11px] font-semibold text-faint">
             {post.occasionLabel} · {relativeShortDate(post.postedAt)}
           </span>

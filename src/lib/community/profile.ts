@@ -107,8 +107,11 @@ export async function loadUserProfile(userId: string): Promise<UserProfile | nul
     posts: rows.map((p) => ({
       postId: p.post_id,
       photoUrl: photoUrls.get(p.photo_path) ?? null,
-      overallScore: p.overall_score ?? 0,
+      // Score visible solo si es tu propio look o si ya lo votaste. Un invitado
+      // no votó nada, así que los ve todos con candado: si acá se los reveláramos
+      // podría saltearse el juego del deck entrando por el perfil del autor.
       scoreRevealed: isMe || votedPostIds.has(p.post_id),
+      overallScore: p.overall_score ?? 0,
     })),
   };
 }

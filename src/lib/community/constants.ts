@@ -8,7 +8,15 @@ export const FEED_PAGE_SIZE = 10;
 // retiran; se normaliza cualquier valor desconocido a "votá".
 export type CommunityTab = "vota" | "siguiendo";
 
-export function normalizeTab(tab: string | undefined): CommunityTab {
+/**
+ * Tab efectiva a partir del query param.
+ *
+ * "Siguiendo" no existe sin sesión (no hay a quién seguir), así que un invitado
+ * cae siempre en "Votá": ve el deck pero no puede votar — cualquier toque le
+ * abre el muro (ver VoteDeck y CommunityTabs).
+ */
+export function normalizeTab(tab: string | undefined, isAuthed = true): CommunityTab {
+  if (!isAuthed) return "vota";
   return tab === "siguiendo" ? "siguiendo" : "vota";
 }
 

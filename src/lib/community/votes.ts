@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_COMMUNITY_POSTS, DEMO_USER } from "@/lib/demo";
@@ -60,24 +61,39 @@ export async function loadVoteQueue(limit = VOTE_QUEUE_SIZE): Promise<VoteCardDa
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return [];
 
-  const [{ data: myVotes }, { data: following }, { data: me }] = await Promise.all([
-    supabase.from("post_votes").select("post_id").eq("user_id", user.id),
-    supabase.from("follows").select("following_id").eq("follower_id", user.id),
-    supabase.from("profiles").select("gender").eq("id", user.id).maybeSingle(),
-  ]);
+  // Sin sesión leemos con el cliente admin: las policies de comunidad son
+  // "to authenticated" (0003/0017) y un invitado no leería ni una fila. Lo que
+  // sale de acá es community_feed_view — posts ya publicados, o sea contenido
+  // público. El invitado VE el deck pero no juega: el muro salta al tocar un
+  // voto (ver VoteDeck) y, como el score solo se revela votando, sigue tapado.
+  const db = user ? supabase : createAdminClient();
 
-  const votedPostIds = new Set((myVotes ?? []).map((v) => v.post_id));
-  const followingIds = new Set((following ?? []).map((f) => f.following_id));
-  const myGender = me?.gender ?? null;
+  // Un invitado no tiene votos previos, ni follows, ni género declarado: las tres
+  // consultas son sobre datos propios, así que solo van si hay sesión.
+  let votedPostIds = new Set<string>();
+  let followingIds = new Set<string>();
+  let myGender: UserGender | null = null;
 
-  const { data: candidates } = await supabase
+  if (user) {
+    const [{ data: myVotes }, { data: following }, { data: me }] = await Promise.all([
+      supabase.from("post_votes").select("post_id").eq("user_id", user.id),
+      supabase.from("follows").select("following_id").eq("follower_id", user.id),
+      supabase.from("profiles").select("gender").eq("id", user.id).maybeSingle(),
+    ]);
+    votedPostIds = new Set((myVotes ?? []).map((v) => v.post_id));
+    followingIds = new Set((following ?? []).map((f) => f.following_id));
+    myGender = (me?.gender ?? null) as UserGender | null;
+  }
+
+  let candidatesQuery = db
     .from("community_feed_view")
     .select("*")
-    .neq("author_id", user.id)
     .order("posted_at", { ascending: false })
     .limit(CANDIDATE_FETCH);
+  // Los looks propios no se votan. Un invitado no tiene.
+  if (user) candidatesQuery = candidatesQuery.neq("author_id", user.id);
+  const { data: candidates } = await candidatesQuery;
 
   const fresh = (candidates ?? []).filter((p) => !votedPostIds.has(p.post_id));
 
@@ -91,7 +107,7 @@ export async function loadVoteQueue(limit = VOTE_QUEUE_SIZE): Promise<VoteCardDa
   });
 
   const queue = fresh.slice(0, limit);
-  const photoUrls = await signedPhotoUrls(supabase, queue.map((p) => p.photo_path), "feed");
+  const photoUrls = await signedPhotoUrls(db, queue.map((p) => p.photo_path), "feed");
 
   return queue.map((p) => ({
     postId: p.post_id,

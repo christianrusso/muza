@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
 import { nextQuery, safeNextPath } from "@/lib/redirect";
+import { AuthBackground } from "@/components/brand/AuthBackground";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -50,10 +51,7 @@ export default function WelcomePage() {
 
   return (
     <div className="relative flex min-h-dvh flex-col">
-      <div className="ph-dark absolute inset-0 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/login-bg.webp" alt="" className="h-full w-full object-cover" />
-      </div>
+      <AuthBackground className="absolute inset-0" />
       <div
         className="absolute inset-0"
         style={{
@@ -98,6 +96,13 @@ export default function WelcomePage() {
         )}
         <Link href={`/register${nextSuffix}`} className="mt-3 w-full">
           <Button variant="primary">Continuar con email</Button>
+        </Link>
+
+        {/* Puerta al modo invitado: sin esto /community es público pero no hay
+            forma de llegar salvo tipeando la URL a mano. Cae en el feed Descubrí
+            y cualquier acción le pide registrarse (ver components/community/GuestGate). */}
+        <Link href="/community" className="mt-3 w-full">
+          <Button variant="primary">Entrá como invitado</Button>
         </Link>
 
         <p className="mt-5 text-sm font-semibold text-white/85">

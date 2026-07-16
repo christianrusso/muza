@@ -398,6 +398,26 @@ button {
 .tab.active .lbl {
   font-weight: 700;
 }
+/* Botón central: el acceso permanente a "nuevo análisis", la acción principal de
+   la app. Se eleva por encima de la barra; el anillo de color papel del
+   box-shadow es lo que lo recorta contra ella y le da el aire. */
+.tab-center {
+  position: relative;
+  top: -20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: none;
+  padding: 0;
+  border-radius: 999px;
+  /* El Logo trae su capa exterior translúcida (pensada para ir sobre foto): sin
+     un fondo sólido detrás, sobre la barra clara se ve gris en vez de negro. */
+  background: var(--ink-deep);
+  box-shadow:
+    0 0 0 5px var(--paper),
+    0 12px 26px -8px rgba(20, 18, 16, 0.45);
+}
 
 /* ===== list rows ===== */
 .list-card {
