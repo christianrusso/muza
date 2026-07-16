@@ -74,16 +74,20 @@ export default function RegisterPage() {
     }
     // La cuenta se creó (con o sin sesión inmediata según la verif. de email).
     track("signed_up", { method: "password" });
-    // Meta Ads: mismo eventId en el pixel del navegador y en Conversions API
-    // (server-side) para que Meta dedupe los dos envíos del mismo registro.
+    // Meta + TikTok Ads: mismo eventId en el pixel del navegador y en la API
+    // server-side de cada plataforma, para que cada una dedupe su propio par.
     const metaEventId = crypto.randomUUID();
+    const tiktokEventId = crypto.randomUUID();
     if (typeof window !== "undefined" && window.fbq) {
       window.fbq("track", "CompleteRegistration", {}, { eventID: metaEventId });
+    }
+    if (typeof window !== "undefined" && window.ttq) {
+      window.ttq.track("CompleteRegistration", {}, { event_id: tiktokEventId });
     }
     fetch("/api/analytics/complete-registration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, eventId: metaEventId }),
+      body: JSON.stringify({ email, metaEventId, tiktokEventId }),
     }).catch(() => {
       // no-op: nunca romper el flujo de registro por un fallo de tracking
     });

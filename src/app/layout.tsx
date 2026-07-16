@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { instrumentSerif, manrope } from "@/lib/fonts";
 import { AnalyticsIdentify } from "@/components/analytics/AnalyticsIdentify";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { TikTokPixel } from "@/components/analytics/TikTokPixel";
 import "./globals.css";
 
 // metadataBase resuelve las URLs absolutas de los previews (OG/Twitter). Sin
@@ -72,6 +73,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AnalyticsIdentify />
         <MetaPixel />
+        <TikTokPixel />
         {children}
       </body>
     </html>

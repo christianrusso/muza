@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath } from "@/lib/redirect";
 import { sendMetaCapiEvent } from "@/lib/metaConversionsApi";
+import { sendTikTokEvent } from "@/lib/tiktokEventsApi";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -35,23 +36,31 @@ export async function GET(request: Request) {
         }
       }
 
-      // Meta Ads (CompleteRegistration): el callback de OAuth se pisa para
-      // login Y para el primer registro por Google (Supabase no distingue
-      // ambos casos explícitamente). Heurística: si created_at y
+      // Meta + TikTok Ads (CompleteRegistration): el callback de OAuth se pisa
+      // para login Y para el primer registro por Google (Supabase no
+      // distingue ambos casos explícitamente). Heurística: si created_at y
       // last_sign_in_at están a pocos segundos de distancia, es la primera
       // vez que este usuario inicia sesión → recién se creó la cuenta. Solo
-      // CAPI acá (no hay fbq de navegador posible en un redirect del server).
+      // server-side acá (no hay pixel de navegador posible en un redirect).
       if (user.created_at && user.last_sign_in_at) {
         const createdAt = new Date(user.created_at).getTime();
         const lastSignInAt = new Date(user.last_sign_in_at).getTime();
         const isFirstSignIn = Math.abs(lastSignInAt - createdAt) < 10_000;
         if (isFirstSignIn) {
-          await sendMetaCapiEvent({
-            eventName: "CompleteRegistration",
-            eventId: crypto.randomUUID(),
-            eventSourceUrl: `${origin}/auth/callback`,
-            email: user.email,
-          });
+          await Promise.all([
+            sendMetaCapiEvent({
+              eventName: "CompleteRegistration",
+              eventId: crypto.randomUUID(),
+              eventSourceUrl: `${origin}/auth/callback`,
+              email: user.email,
+            }),
+            sendTikTokEvent({
+              eventName: "CompleteRegistration",
+              eventId: crypto.randomUUID(),
+              eventSourceUrl: `${origin}/auth/callback`,
+              email: user.email,
+            }),
+          ]);
         }
       }
     }
