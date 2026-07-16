@@ -5,12 +5,19 @@ import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { TikTokPixel } from "@/components/analytics/TikTokPixel";
 import "./globals.css";
 
-// metadataBase resuelve las URLs absolutas de los previews (OG/Twitter). Sin
-// dominio propio todavía: usa NEXT_PUBLIC_SITE_URL si está, si no la URL que
-// inyecta Vercel, y en local cae a localhost. Cambiar cuando haya dominio final.
+// metadataBase resuelve las URLs absolutas de los previews (OG/Twitter) y es
+// la base que Meta/TikTok esperan para el dominio verificado. Dominio de
+// producción confirmado: looklab.io (ver guía de campañas, sección 2.1).
+// Prioridad: NEXT_PUBLIC_SITE_URL (por si hace falta pisarlo) → looklab.io en
+// producción → URL de preview que inyecta Vercel → localhost en dev.
+const PRODUCTION_DOMAIN = "https://looklab.io";
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  (process.env.VERCEL_ENV === "production"
+    ? PRODUCTION_DOMAIN
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
 const title = "LookLab — Tu outfit, evaluado";
 const description = "Analizá tu outfit con IA: puntaje, recomendaciones y comunidad.";
