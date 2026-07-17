@@ -1,9 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
-import { identify, resetAnalytics, trackGuestConversion } from "@/lib/analytics";
+import { claimSignupOnce, identify, resetAnalytics, track, trackGuestConversion } from "@/lib/analytics";
+import { trackCompleteRegistration } from "@/lib/completeRegistration";
+import { isOAuthSignup } from "@/lib/signup";
+
+function handleAuthenticatedUser(user: User) {
+  identify(user.id);
+  // Después de identify, para que los eventos queden en la persona real.
+  if (isOAuthSignup(user) && claimSignupOnce(user.id)) {
+    track("signed_up", { method: "oauth" });
+    // Mismo evento de campaña que emite el formulario de password. El alta por
+    // Google se consuma en el callback, así que ese es el origen que reportamos.
+    trackCompleteRegistration({ email: user.email, sourcePath: "/auth/callback" });
+  }
+  trackGuestConversion();
+}
 
 // Asocia la persona de PostHog con el usuario real de Supabase en un solo lugar,
 // cubriendo todos los caminos (login por email, OAuth que vuelve por el callback
@@ -17,19 +32,16 @@ export function AnalyticsIdentify() {
     // Identifica la sesión ya presente al cargar (incluye el retorno de OAuth).
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      identify(user.id);
-      // Después de identify, para que el evento quede en la persona real.
-      trackGuestConversion();
+      handleAuthenticatedUser(user);
     });
 
     // Login/logout posteriores dentro de la misma pestaña.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        identify(session.user.id);
-        // Si venía de un muro del modo invitado, esta es la conversión. La marca
-        // se consume, así que solo puede emitirse una vez por más que este
-        // callback y el getUser de arriba se pisen.
-        trackGuestConversion();
+        // Tanto signed_up como guest_converted se consumen con una marca, así
+        // que solo se emiten una vez por más que este callback y el getUser de
+        // arriba se pisen.
+        handleAuthenticatedUser(session.user);
       } else if (event === "SIGNED_OUT") {
         resetAnalytics();
       }
