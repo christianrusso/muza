@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 // Fondos de las pantallas de auth (welcome / login). Se sortea uno en cada carga
 // para que la puerta de entrada no se vea siempre igual. Para sumar otro, basta
-// con dejar el archivo en public/ y agregarlo a esta lista.
+// con dejar el archivo en public/ y agregarlo a esta lista: conviene WebP, que
+// es la primera imagen que ve alguien que llega de un anuncio (login-bg2.jpg
+// pesa el doble que la .webp por ser JPEG).
 const BACKGROUNDS = ["/login-bg.webp", "/login-bg2.jpg"];
 
 /**
