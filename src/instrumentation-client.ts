@@ -17,9 +17,25 @@ if (key) {
     // onRouterTransitionStart (abajo) + el pageview inicial acá.
     capture_pageview: false,
     capture_pageleave: true, // necesario para tiempo-en-pantalla y bounce
-    // LookLab sube fotos de personas: no grabamos session replay para no
-    // capturar caras ni contenido sensible. Solo métricas de eventos.
-    disable_session_recording: true,
+    // Session replay CON enmascarado. LookLab muestra fotos de personas, así que
+    // grabamos la navegación (dónde tocan, dónde se traban) pero NUNCA la cara ni
+    // el outfit ni los datos de los formularios:
+    //   - maskAllInputs: tapa todos los campos (email, contraseña).
+    //   - maskTextSelector "*": tapa todo el texto.
+    //   - blockSelector: tapa como recuadro las imágenes. Cubre los <img> (fotos
+    //     de outfits, avatares) Y los divs con background-image inline (el avatar
+    //     de Home y del editor de perfil no son <img>, son background: url()). El
+    //     segundo selector es a prueba de futuro: cualquier avatar nuevo por
+    //     background-image queda tapado solo, sin marcarlo a mano. No matchea los
+    //     gradientes (usan `background:`, no `background-image`).
+    // Si algún día se prende sin enmascarar, hay que actualizar /legal antes:
+    // hoy la política no menciona analítica ni grabación.
+    disable_session_recording: false,
+    session_recording: {
+      maskAllInputs: true,
+      maskTextSelector: "*",
+      blockSelector: "img, [style*='background-image']",
+    },
     defaults: "2025-05-24",
   });
 
