@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 import { sendMetaCapiEvent } from "@/lib/metaConversionsApi";
 import { sendTikTokEvent } from "@/lib/tiktokEventsApi";
+import { safeSourcePath } from "@/lib/signup";
 
-// Llamado desde el cliente justo después de un registro por email/contraseña
-// exitoso (ver (auth)/register/page.tsx). Server-side porque Conversions API
-// (Meta) y Events API (TikTok) necesitan correr en el servidor; los pixels de
-// navegador (fbq/ttq) se disparan en paralelo con los mismos eventId para que
-// cada plataforma dedupe su propio par cliente/servidor.
+// Llamado desde el cliente justo después de un alta exitosa, tanto por
+// email/contraseña como por OAuth (ver lib/completeRegistration.ts). Server-side
+// porque Conversions API (Meta) y Events API (TikTok) necesitan correr en el
+// servidor; los pixels de navegador (fbq/ttq) se disparan en paralelo con los
+// mismos eventId para que cada plataforma dedupe su propio par cliente/servidor.
+
 export async function POST(request: Request) {
   try {
-    const { email, metaEventId, tiktokEventId } = (await request.json()) as {
+    const { email, metaEventId, tiktokEventId, sourcePath } = (await request.json()) as {
       email?: string;
       metaEventId?: string;
       tiktokEventId?: string;
+      sourcePath?: string;
     };
 
     if (!metaEventId && !tiktokEventId) {
@@ -20,6 +23,7 @@ export async function POST(request: Request) {
     }
 
     const { origin } = new URL(request.url);
+    const eventSourceUrl = `${origin}${safeSourcePath(sourcePath)}`;
     const clientIp =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       request.headers.get("x-real-ip") ??
@@ -31,7 +35,7 @@ export async function POST(request: Request) {
         ? sendMetaCapiEvent({
             eventName: "CompleteRegistration",
             eventId: metaEventId,
-            eventSourceUrl: `${origin}/register`,
+            eventSourceUrl,
             email,
             clientIp,
             userAgent,
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
         ? sendTikTokEvent({
             eventName: "CompleteRegistration",
             eventId: tiktokEventId,
-            eventSourceUrl: `${origin}/register`,
+            eventSourceUrl,
             email,
             clientIp,
             userAgent,

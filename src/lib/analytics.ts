@@ -79,6 +79,30 @@ export function trackGuestConversion() {
   }
 }
 
+// ===== Altas por OAuth =====
+// El registro por contraseña emite sus eventos desde el propio formulario, pero
+// el de Google vuelve por el callback sin pasar por ahí. AnalyticsIdentify lo
+// detecta y usa esta marca, que evita duplicar si el usuario recarga o si
+// getUser y onAuthStateChange se pisan.
+const SIGNUP_TRACKED_KEY = "looklab:signed_up";
+
+/**
+ * ¿Es la primera vez que vemos el alta de este usuario? Devuelve true una sola
+ * vez por usuario: quien la reciba es el responsable de emitir los eventos.
+ */
+export function claimSignupOnce(userId: string): boolean {
+  try {
+    const key = `${SIGNUP_TRACKED_KEY}:${userId}`;
+    if (localStorage.getItem(key)) return false;
+    localStorage.setItem(key, "1");
+    return true;
+  } catch {
+    // Safari en privado puede tirar en localStorage. Preferimos emitir igual y
+    // arriesgar un duplicado antes que perder el alta.
+    return true;
+  }
+}
+
 /**
  * Asocia la persona anónima de PostHog con el usuario real (Supabase user id).
  * Cose la sesión previa al login con la identificada y habilita retención
