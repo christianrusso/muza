@@ -33,7 +33,11 @@ if (key) {
 export function onRouterTransitionStart(url: string) {
   if (!key) return;
   try {
-    posthog.capture("$pageview", { $current_url: window.location.origin + url });
+    // Next pasa `url` como URL absoluta, así que concatenar el origin la
+    // duplicaba ("https://looklab.iohttps://looklab.io/home"). new URL la
+    // resuelve bien venga absoluta o relativa, y rompe todo análisis por URL si
+    // no se hace así.
+    posthog.capture("$pageview", { $current_url: new URL(url, window.location.origin).href });
   } catch {
     // Nunca romper la navegación por un fallo de tracking.
   }

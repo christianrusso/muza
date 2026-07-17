@@ -9,7 +9,14 @@ import { trackCompleteRegistration } from "@/lib/completeRegistration";
 import { isOAuthSignup } from "@/lib/signup";
 
 function handleAuthenticatedUser(user: User) {
-  identify(user.id);
+  // El email y el nombre van como propiedades de persona para que la lista de
+  // People de PostHog sea legible: sin esto cada persona aparece solo con su
+  // UUID de Supabase y hay que cruzarla a mano contra la base. Se usan las
+  // claves $email/$name que PostHog reconoce como estándar.
+  identify(user.id, {
+    $email: user.email,
+    $name: user.user_metadata?.full_name ?? user.email?.split("@")[0],
+  });
   // Después de identify, para que los eventos queden en la persona real.
   if (isOAuthSignup(user) && claimSignupOnce(user.id)) {
     track("signed_up", { method: "oauth" });
