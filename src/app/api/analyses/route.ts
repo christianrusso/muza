@@ -10,7 +10,9 @@ import type { OccasionId } from "@/types/domain";
 const CreateAnalysisSchema = z.object({
   occasionId: z.string(),
   occasionVariant: z.string().nullable().optional(),
-  occasionContext: z.string().trim().max(200).nullable().optional(),
+  // 250 = el mismo tope que el textarea de OccasionGrid. Si la API aceptara menos,
+  // el análisis fallaría recién al crearse, con la foto ya sacada.
+  occasionContext: z.string().trim().max(250).nullable().optional(),
   photoPath: z.string().optional(),
   photoDataUrl: z.string().optional(),
 });

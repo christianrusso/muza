@@ -21,12 +21,27 @@ function ValidatingContent() {
 
       track("validation", {
         occasion_id: occasion,
-        verdict: !validateRes.ok ? "invalid" : validation.verdict,
+        verdict: !validateRes.ok ? "error" : validation.verdict,
         analysis_type: validation.analysisType ?? null,
+        // Con esto se puede ver en PostHog QUÉ se rechaza, no solo cuánto.
+        invalid_reason: validateRes.ok ? (validation.invalidReason ?? null) : null,
+        error_code: !validateRes.ok ? (validation.error?.code ?? "UNKNOWN") : null,
       });
 
-      if (!validateRes.ok || validation.verdict === "invalid") {
-        router.replace(`/analysis/${params.id}/invalid?occasion=${occasion}`);
+      // Un fallo del servicio NO es una foto inválida. Mandarlo a la misma
+      // pantalla le dice a alguien con una foto impecable que mejore la luz.
+      if (!validateRes.ok) {
+        router.replace(
+          `/analysis/${params.id}/invalid?occasion=${occasion}&reason=service_error`,
+        );
+        return;
+      }
+
+      if (validation.verdict === "invalid") {
+        router.replace(
+          `/analysis/${params.id}/invalid?occasion=${occasion}` +
+            `&reason=${validation.invalidReason ?? "unknown"}`,
+        );
         return;
       }
 

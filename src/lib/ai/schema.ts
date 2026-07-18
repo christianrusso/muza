@@ -4,11 +4,32 @@ import type { CategoryKey } from "@/types/domain";
 
 export const AnalysisTypeSchema = z.enum(["completo", "superior", "inferior", "individual"]);
 
+/**
+ * Por qué se rechazó una foto. Es un enum y no el texto libre de `issues`
+ * porque la pantalla de rechazo ramifica sobre esto: si dependiera de lo que
+ * el modelo redacte en cada corrida, un sinónimo bastaría para romper la
+ * clasificación y volver al mensaje genérico.
+ *
+ * - not_outfit: el sujeto no es vestimenta (comida, mascota, paisaje, objeto,
+ *   captura de pantalla, meme).
+ * - no_clothing_visible: hay una persona pero no hay ropa que analizar.
+ * - occluded: hay ropa, pero tapada o fuera de cuadro.
+ * - photo_quality: la ropa está, el problema es la foto (luz, foco, resolución).
+ */
+export const InvalidReasonSchema = z.enum([
+  "not_outfit",
+  "no_clothing_visible",
+  "occluded",
+  "photo_quality",
+]);
+export type InvalidReason = z.infer<typeof InvalidReasonSchema>;
+
 export const ValidationResultSchema = z.object({
   verdict: z.enum(["valid", "partial", "invalid"]),
   analysisType: AnalysisTypeSchema.nullable(),
   issues: z.array(z.string()),
   partialReason: z.string().nullable(),
+  invalidReason: InvalidReasonSchema.nullable(),
 });
 export type ValidationResult = z.infer<typeof ValidationResultSchema>;
 
