@@ -19,6 +19,11 @@
 -- arranca vacío: es el escalón nuevo y nadie pudo haberlo votado.
 -- ============================================================================
 
+-- Todo en una transacción: si algo falla a mitad (ej. la vista se dropea pero no
+-- se puede recrear), Postgres deshace TODO y la base queda como estaba. Sin esto,
+-- un error en el medio dejaría la comunidad rota.
+begin;
+
 -- 1) Sacar el check viejo para poder reescribir los valores.
 alter table public.post_votes drop constraint if exists post_votes_bucket_check;
 
@@ -69,3 +74,10 @@ join public.analyses a on a.id = cp.analysis_id;
 -- para que cualquier autenticado vea los posts publicados sin relajar el RLS de
 -- analyses.
 alter view public.community_feed_view set (security_invoker = false);
+
+commit;
+
+-- Verificación (correr aparte, después del commit):
+--   select bucket, count(*) from public.post_votes group by bucket order by 2 desc;
+-- Tiene que devolver mejorar / bien / muy_bueno, sumando los mismos ~4.409 votos
+-- de antes. 'impecable' arranca en cero: es el escalón nuevo.
