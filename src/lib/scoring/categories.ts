@@ -25,9 +25,47 @@ export function categoryLabel(key: CategoryKey): string {
   return SCORE_CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
 
-// Score-band thresholds observed in the design (Historial/Resultado mockups):
-// >=75 green, 60-74 amber, <60 red.
-export const SCORE_BAND_THRESHOLDS = { high: 75, medium: 60 } as const;
+// Estiramiento de la escala. GPT-4o visión amontona TODO lo decente entre ~65 y
+// ~90 (medido: 8 outfits casual distintos → rango de 8 puntos, y 7 fotos de una
+// misma usuaria → todas 75-79). El modelo SÍ ordena bien (un outfit mejor queda
+// arriba, verificado en 3 corridas y en 2 modelos), pero comprime el número en
+// una banda donde no se percibe. Ni un prompt calibrado ni un modelo más nuevo
+// lo arreglan (gpt-4.1 comprime aún más). La única salida es re-expandir la banda.
+//
+// Esta curva monótona por tramos mapea la zona densa a un rango más ancho,
+// preservando el orden (dos outfits nunca cambian de posición). Se aplica a cada
+// categoría y al score general por igual, así todo queda en la misma escala y las
+// bandas de color de abajo valen para ambos. Es cosmético a propósito: no inventa
+// señal, hace visible la que el modelo ya da.
+//
+// Calibrada contra DATOS REALES de producción: dos usuarios distintos con fotos
+// casual dieron todos 73-80 (rango de 6-7 puntos). Ahí es donde hay que estirar
+// fuerte, no en 80-90. La pendiente máxima (~2x) está en 68-80 por eso. Verificado:
+// esos 73-80 se abren a ~55-70 (rango 15) sin romper el ranking ni la zona alta.
+const SPREAD_ANCHORS: [number, number][] = [
+  [0, 0],
+  [55, 30],
+  [68, 45],
+  [80, 70],
+  [90, 88],
+  [100, 100],
+];
+
+export function spreadScore(raw: number): number {
+  const x = Math.max(0, Math.min(100, raw));
+  for (let i = 0; i < SPREAD_ANCHORS.length - 1; i++) {
+    const [x0, y0] = SPREAD_ANCHORS[i];
+    const [x1, y1] = SPREAD_ANCHORS[i + 1];
+    if (x >= x0 && x <= x1) return Math.round(y0 + ((x - x0) / (x1 - x0)) * (y1 - y0));
+  }
+  return Math.round(x);
+}
+
+// Bandas de color, recalibradas para la escala YA estirada (ver spreadScore).
+// Antes eran high>=75/medium>=60 sobre la escala inflada; al bajar el baseline,
+// bajan con él para que un outfit bueno (estirado ~68-85) siga en verde y solo
+// lo plano-o-flojo caiga en ámbar. >=65 verde, 45-64 ámbar, <45 rojo.
+export const SCORE_BAND_THRESHOLDS = { high: 65, medium: 45 } as const;
 
 export type ScoreBand = "high" | "medium" | "low";
 
