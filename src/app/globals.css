@@ -12,6 +12,8 @@
   --muted: #6b655a;
   --faint: #9a9488;
   --green: #2fa36b;
+  /* Cuarto escalón del semáforo, entre ámbar y verde ("Muy bueno"). */
+  --lime: #8faf3e;
   --amber: #f5a524;
   --red: #e5484d;
   --violet: #5b4fd6;

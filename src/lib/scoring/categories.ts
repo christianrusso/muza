@@ -61,31 +61,59 @@ export function spreadScore(raw: number): number {
   return Math.round(x);
 }
 
-// Bandas de color, recalibradas para la escala YA estirada (ver spreadScore).
-// Antes eran high>=75/medium>=60 sobre la escala inflada; al bajar el baseline,
-// bajan con él para que un outfit bueno (estirado ~68-85) siga en verde y solo
-// lo plano-o-flojo caiga en ámbar. >=65 verde, 45-64 ámbar, <45 rojo.
-export const SCORE_BAND_THRESHOLDS = { high: 65, medium: 45 } as const;
+// ===== Los 4 niveles de la escala =====
+// FUENTE ÚNICA DE VERDAD. El mismo corte y las mismas palabras se usan en el aro
+// del resultado, en el historial, en la tarjeta que se comparte y en los botones
+// de voto de la comunidad. Antes había tres escalas distintas conviviendo (la
+// landing decía 0-59/60-79/80-100, la app cortaba el verde en 75 y los votos en
+// 25/75), así que el mismo número significaba cosas distintas según dónde lo
+// leyeras. Si algún día se mueve un corte, se mueve acá y en ningún otro lado.
+//
+// Los cortes 45 y 65 vienen de la calibración de spreadScore contra datos reales;
+// el de 80 agrega el escalón aspiracional (pocos outfits lo alcanzan, y por eso
+// significa algo cuando aparece).
+export type ScoreLevel = "mejorar" | "bien" | "muy_bueno" | "impecable";
 
-export type ScoreBand = "high" | "medium" | "low";
+export const SCORE_LEVELS: {
+  level: ScoreLevel;
+  label: string;
+  /** Desde este puntaje, inclusive. El siguiente nivel marca el techo. */
+  min: number;
+  colorVar: string;
+  /** Hex real: la tarjeta compartible (Satori) no resuelve variables CSS. */
+  hex: string;
+}[] = [
+  { level: "mejorar", label: "A mejorar", min: 0, colorVar: "var(--red)", hex: "#e5484d" },
+  { level: "bien", label: "Va bien", min: 45, colorVar: "var(--amber)", hex: "#f5a524" },
+  { level: "muy_bueno", label: "Muy bueno", min: 65, colorVar: "var(--lime)", hex: "#8faf3e" },
+  { level: "impecable", label: "Impecable", min: 80, colorVar: "var(--green)", hex: "#2fa36b" },
+];
 
-export function scoreBand(score: number): ScoreBand {
-  if (score >= SCORE_BAND_THRESHOLDS.high) return "high";
-  if (score >= SCORE_BAND_THRESHOLDS.medium) return "medium";
-  return "low";
+/** En qué nivel cae un puntaje. */
+export function scoreLevel(score: number): ScoreLevel {
+  // De mayor a menor: el primero cuyo mínimo alcanza.
+  for (let i = SCORE_LEVELS.length - 1; i >= 0; i--) {
+    if (score >= SCORE_LEVELS[i].min) return SCORE_LEVELS[i].level;
+  }
+  return "mejorar";
+}
+
+function levelDef(score: number) {
+  const level = scoreLevel(score);
+  return SCORE_LEVELS.find((l) => l.level === level)!;
+}
+
+/** Etiqueta del nivel ("Va bien", "Impecable"…). */
+export function scoreLevelLabel(score: number): string {
+  return levelDef(score).label;
 }
 
 export function scoreBandColorVar(score: number): string {
-  const band = scoreBand(score);
-  return band === "high" ? "var(--green)" : band === "medium" ? "var(--amber)" : "var(--red)";
+  return levelDef(score).colorVar;
 }
 
-// Igual que scoreBandColorVar pero con el hex real. Necesario para la tarjeta
-// compartible (ImageResponse/Satori NO resuelve variables CSS de la página).
-// Hex alineados con globals.css: --green #2fa36b, --amber #f5a524, --red #e5484d.
 export function scoreBandHex(score: number): string {
-  const band = scoreBand(score);
-  return band === "high" ? "#2fa36b" : band === "medium" ? "#f5a524" : "#e5484d";
+  return levelDef(score).hex;
 }
 
 // La adecuación a la ocasión actúa como TECHO del score final, no solo como un

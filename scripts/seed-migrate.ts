@@ -35,7 +35,7 @@ import { join, resolve, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { computeOverallScore, applicableCategories, scoreBand, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, applicableCategories, scoreLevel, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import type { AnalysisType, OccasionId, UserGender } from "@/types/domain";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -240,8 +240,10 @@ function syntheticScoring(gender: UserGender, analysisType: AnalysisType) {
   };
 
   const overall = computeOverallScore(categories, analysisType);
-  const band = scoreBand(overall);
-  const badge = pick(band === "high" ? BADGES_HIGH : band === "medium" ? BADGES_MID : BADGES_LOW);
+  const level = scoreLevel(overall);
+  const badge = pick(
+    level === "impecable" || level === "muy_bueno" ? BADGES_HIGH : level === "bien" ? BADGES_MID : BADGES_LOW,
+  );
 
   return {
     result: {

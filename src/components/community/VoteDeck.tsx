@@ -15,6 +15,7 @@ import {
   VOTE_BUCKETS,
   bucketLabel,
   bucketForScore,
+  emptyTally,
   communityScore,
   type VoteBucket,
   type VoteTally,
@@ -115,7 +116,7 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
         correct: bucketForScore(aiScore) === bucket,
       });
     } catch {
-      const tally: VoteTally = { low: 0, mid: 0, high: 0 };
+      const tally: VoteTally = emptyTally();
       tally[bucket] = 1;
       setReveal({ bucket, tally });
     } finally {
@@ -160,14 +161,14 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
           {header}
           <CardPhoto url={card.photoUrl} />
           <p className="mt-3 text-center text-[15px] font-extrabold text-ink">¿Qué score le puso la IA?</p>
-          <div className="mt-2 flex gap-2.5">
+          <div className="mt-2 grid grid-cols-2 gap-2.5">
             {VOTE_BUCKETS.map((b) => (
               <button
                 key={b.bucket}
                 type="button"
                 disabled={voting}
                 onClick={() => vote(b.bucket)}
-                className="flex flex-1 flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
+                className="flex flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
               >
                 <span className="text-[15px] font-extrabold text-ink">{b.label}</span>
                 <span className="mt-0.5 text-[11px] font-semibold text-faint">{b.range}</span>

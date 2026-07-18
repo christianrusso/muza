@@ -7,6 +7,7 @@ import {
   VOTE_BUCKETS,
   bucketLabel,
   bucketForScore,
+  emptyTally,
   communityScore,
   type VoteBucket,
   type VoteTally,
@@ -58,7 +59,7 @@ export function PostVotePanel({
       setRevealed(true);
       track("voted", { post_id: postId, bucket: b, correct: bucketForScore(aiScore) === b });
     } catch {
-      const t: VoteTally = { low: 0, mid: 0, high: 0 };
+      const t: VoteTally = emptyTally();
       t[b] = 1;
       setTally(t);
       setBucket(b);
@@ -138,14 +139,14 @@ export function PostVotePanel({
     return (
       <div className="mt-4 rounded-2xl border border-line bg-white p-4">
         <p className="text-center text-[15px] font-extrabold text-ink">¿Qué score le puso la IA?</p>
-        <div className="mt-3 flex gap-2.5">
+        <div className="mt-3 grid grid-cols-2 gap-2.5">
           {VOTE_BUCKETS.map((b) => (
             <button
               key={b.bucket}
               type="button"
               disabled={voting}
               onClick={() => vote(b.bucket)}
-              className="flex flex-1 flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
+              className="flex flex-col items-center rounded-2xl border border-line bg-white py-3 disabled:opacity-60"
             >
               <span className="text-[15px] font-extrabold text-ink">{b.label}</span>
               <span className="mt-0.5 text-[11px] font-semibold text-faint">{b.range}</span>

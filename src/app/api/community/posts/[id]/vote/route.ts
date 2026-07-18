@@ -3,8 +3,10 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { emptyTally } from "@/lib/community/constants";
 
-const VoteSchema = z.object({ bucket: z.enum(["low", "mid", "high"]) });
+// Los votos son los 4 niveles de la escala (ver SCORE_LEVELS).
+const VoteSchema = z.object({ bucket: z.enum(["mejorar", "bien", "muy_bueno", "impecable"]) });
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,7 +19,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (isDemoMode()) {
     getDemoStore().votes.set(id, bucket);
     // Consenso fabricado para el reveal en demo: solo cuenta el voto propio.
-    const tally = { low: 0, mid: 0, high: 0 };
+    const tally = emptyTally();
     tally[bucket] = 1;
     return NextResponse.json({ bucket, tally });
   }
@@ -40,14 +42,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // Consenso fresco (ya incluye este voto): lo saca la vista agregada.
   const { data: agg } = await supabase
     .from("community_feed_view")
-    .select("low_votes, mid_votes, high_votes")
+    .select("votes_mejorar, votes_bien, votes_muy_bueno, votes_impecable")
     .eq("post_id", id)
     .maybeSingle();
 
   const tally = {
-    low: agg?.low_votes ?? 0,
-    mid: agg?.mid_votes ?? 0,
-    high: agg?.high_votes ?? 0,
+    mejorar: agg?.votes_mejorar ?? 0,
+    bien: agg?.votes_bien ?? 0,
+    muy_bueno: agg?.votes_muy_bueno ?? 0,
+    impecable: agg?.votes_impecable ?? 0,
   };
   return NextResponse.json({ bucket, tally });
 }

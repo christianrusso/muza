@@ -248,13 +248,13 @@ export interface Database {
           id: string;
           post_id: string;
           user_id: string;
-          bucket: "low" | "mid" | "high";
+          bucket: "mejorar" | "bien" | "muy_bueno" | "impecable";
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["post_votes"]["Row"]> & {
           post_id: string;
           user_id: string;
-          bucket: "low" | "mid" | "high";
+          bucket: "mejorar" | "bien" | "muy_bueno" | "impecable";
         };
         Update: Partial<Database["public"]["Tables"]["post_votes"]["Row"]>;
         Relationships: [
@@ -287,9 +287,10 @@ export interface Database {
           like_count: number;
           dislike_count: number;
           comment_count: number;
-          low_votes: number;
-          mid_votes: number;
-          high_votes: number;
+          votes_mejorar: number;
+          votes_bien: number;
+          votes_muy_bueno: number;
+          votes_impecable: number;
         };
         Relationships: [];
       };
