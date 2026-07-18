@@ -32,7 +32,7 @@ interface DemoStore {
   analyses: Map<string, DemoCreatedAnalysis>;
   posts: Map<string, DemoCreatedPost>;
   // Voto del usuario demo por post (postId -> franja). Un solo usuario en demo.
-  votes: Map<string, "low" | "mid" | "high">;
+  votes: Map<string, "mejorar" | "bien" | "muy_bueno" | "impecable">;
   // Ids de autores que el usuario demo sigue.
   follows: Set<string>;
 }

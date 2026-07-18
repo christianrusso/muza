@@ -12,7 +12,7 @@ import { PostVotePanel } from "@/components/community/PostVotePanel";
 import { CommentForm } from "@/components/community/CommentForm";
 import { DeletePostButton } from "@/components/community/DeletePostButton";
 import { GuestGateProvider } from "@/components/community/GuestGate";
-import type { VoteBucket, VoteTally } from "@/lib/community/constants";
+import { emptyTally, type VoteBucket, type VoteTally } from "@/lib/community/constants";
 import type { OccasionId } from "@/types/domain";
 
 interface PostDetail {
@@ -29,7 +29,7 @@ async function loadPost(id: string): Promise<PostDetail | null> {
   if (isDemoMode()) {
     const store = getDemoStore();
     const myBucket = (store.votes.get(id) as VoteBucket | undefined) ?? null;
-    const tally: VoteTally = { low: 0, mid: 0, high: 0 };
+    const tally: VoteTally = emptyTally();
     if (myBucket) tally[myBucket] = 1;
 
     const created = store.posts.get(id);
@@ -158,9 +158,10 @@ async function loadPost(id: string): Promise<PostDetail | null> {
     aiScore,
     myBucket,
     tally: {
-      low: post.low_votes ?? 0,
-      mid: post.mid_votes ?? 0,
-      high: post.high_votes ?? 0,
+      mejorar: post.votes_mejorar ?? 0,
+      bien: post.votes_bien ?? 0,
+      muy_bueno: post.votes_muy_bueno ?? 0,
+      impecable: post.votes_impecable ?? 0,
     },
   };
 }

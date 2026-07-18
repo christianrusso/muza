@@ -6,6 +6,7 @@ import { buildScoringPrompt } from "./prompts/scoring.prompt";
 import { ScoringResultSchema, type ScoringResult } from "./schema";
 import { assertAiBudget } from "./budgetGuard";
 import { logAiUsage } from "./usageLog";
+import { stripBodyMentions } from "./bodySafety";
 import type { FewShotExample } from "@/lib/scoring/knowledgeBase";
 import type { AnalysisType, UserGender } from "@/types/domain";
 
@@ -123,7 +124,18 @@ export async function scoreOutfit({
       if (!parsed) {
         throw new AIScoringError("El modelo no devolvió un resultado de puntuación válido.");
       }
-      return parsed;
+
+      // Última barrera de la promesa "evaluamos la ropa, nunca el cuerpo". El
+      // prompt ya lo prohíbe, pero se detectaron fugas reales en producción, así
+      // que ningún texto llega al usuario sin pasar por acá. Se filtra solo el
+      // texto; los puntajes quedan intactos.
+      const { result: safe, removed } = stripBodyMentions(parsed);
+      if (removed > 0) {
+        // No rompemos el análisis, pero dejamos rastro: si esto aparece seguido,
+        // el prompt se está degradando y hay que revisarlo.
+        console.warn(`[looklab] scoring: ${removed} texto(s) filtrados por mencionar el cuerpo`);
+      }
+      return safe;
     } catch (err) {
       lastErr = err;
       // Reintentamos una sola vez y solo ante fallas transitorias. Un error

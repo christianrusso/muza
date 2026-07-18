@@ -1,6 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { computeOverallScore, occasionCeiling, spreadScore, scoreBand, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import {
+  computeOverallScore,
+  occasionCeiling,
+  spreadScore,
+  scoreLevel,
+  scoreLevelLabel,
+  SCORE_LEVELS,
+  SCORE_CATEGORIES,
+} from "@/lib/scoring/categories";
 import { canCreateAnalysis } from "@/lib/plans/gating";
 import type { CategoryKey } from "@/types/domain";
 
@@ -73,11 +81,34 @@ test("spreadScore: clampa fuera de rango en vez de romper", () => {
   assert.equal(spreadScore(150), 100);
 });
 
-test("bandas: un outfit bueno sigue en verde, uno plano cae en ámbar", () => {
-  // Estirados: bueno (80 crudo → 68) verde; plano (75 crudo → 62) ámbar; malo rojo.
-  assert.equal(scoreBand(spreadScore(85)), "high"); // muy bueno → verde
-  assert.equal(scoreBand(spreadScore(75)), "medium"); // plano → ámbar
-  assert.equal(scoreBand(spreadScore(50)), "low"); // flojo → rojo
+test("niveles: cada corte cae donde debe", () => {
+  assert.equal(scoreLevel(0), "mejorar");
+  assert.equal(scoreLevel(44), "mejorar");
+  assert.equal(scoreLevel(45), "bien"); // primer punto del segundo nivel
+  assert.equal(scoreLevel(64), "bien");
+  assert.equal(scoreLevel(65), "muy_bueno");
+  assert.equal(scoreLevel(79), "muy_bueno");
+  assert.equal(scoreLevel(80), "impecable"); // escalón aspiracional
+  assert.equal(scoreLevel(100), "impecable");
+});
+
+test("niveles: sobre la escala estirada, un outfit real cae donde corresponde", () => {
+  // 85 crudo → 79 estirado → "Muy bueno". 75 crudo → 60 → "Va bien". 50 → 27 → "A mejorar".
+  assert.equal(scoreLevelLabel(spreadScore(85)), "Muy bueno");
+  assert.equal(scoreLevelLabel(spreadScore(75)), "Va bien");
+  assert.equal(scoreLevelLabel(spreadScore(50)), "A mejorar");
+});
+
+test("niveles: los 4 están ordenados y sin huecos", () => {
+  assert.equal(SCORE_LEVELS.length, 4);
+  for (let i = 1; i < SCORE_LEVELS.length; i++) {
+    assert.ok(
+      SCORE_LEVELS[i].min > SCORE_LEVELS[i - 1].min,
+      `los mínimos deben ser crecientes: ${SCORE_LEVELS[i - 1].min} → ${SCORE_LEVELS[i].min}`,
+    );
+  }
+  // Todo puntaje 0-100 tiene nivel (sin huecos).
+  for (let s = 0; s <= 100; s++) assert.ok(scoreLevel(s), `sin nivel para ${s}`);
 });
 
 test("canCreateAnalysis: lanzamiento gratis → free sin tope", () => {

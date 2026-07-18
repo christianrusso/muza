@@ -1,3 +1,5 @@
+import { SCORE_LEVELS, scoreLevel, type ScoreLevel } from "@/lib/scoring/categories";
+
 // Tamaño de página del feed de comunidad. Se cargan de a 10 y el scroll infinito
 // pide la siguiente tanda. Vive fuera de feed.ts (server-only) para poder
 // importarse también desde el componente cliente de scroll infinito.
@@ -21,47 +23,67 @@ export function normalizeTab(tab: string | undefined, isAuthed = true): Communit
 }
 
 // ===== Votación "adiviná el score" =====
-export type VoteBucket = "low" | "mid" | "high";
+// Las opciones de voto SON los 4 niveles de la escala (ver SCORE_LEVELS en
+// lib/scoring/categories). Antes eran tres franjas propias (menos de 25 / 25-75 /
+// más de 75) que quedaron rotas al recalibrar el puntaje: con la escala nueva casi
+// todo cae entre 45 y 80, así que "Medio" acertaba siempre y el juego perdía
+// sentido. Usando los mismos niveles, adivinar es adivinar la etiqueta que va a
+// mostrar el resultado — y una sola palabra significa lo mismo en toda la app.
+export type VoteBucket = ScoreLevel;
 
-// Las 3 franjas que ve el usuario. Los límites coinciden con la escala 0-100 de
-// la IA: bajo = menos de 25, medio = 25-75, alto = más de 75.
-export const VOTE_BUCKETS: { bucket: VoteBucket; label: string; range: string }[] = [
-  { bucket: "low", label: "Bajo", range: "menos de 25" },
-  { bucket: "mid", label: "Medio", range: "25 – 75" },
-  { bucket: "high", label: "Alto", range: "más de 75" },
-];
+export const VOTE_BUCKETS: { bucket: VoteBucket; label: string; range: string }[] = SCORE_LEVELS.map(
+  (l, i) => {
+    const next = SCORE_LEVELS[i + 1];
+    return {
+      bucket: l.level,
+      label: l.label,
+      range: next ? `${l.min} – ${next.min - 1}` : `${l.min} o más`,
+    };
+  },
+);
 
-const BUCKET_LABEL: Record<VoteBucket, string> = { low: "Bajo", mid: "Medio", high: "Alto" };
-// Punto medio de cada franja: sirve para convertir los votos (categóricos) en un
-// "score de comunidad" numérico comparable al de la IA.
-const BUCKET_MIDPOINT: Record<VoteBucket, number> = { low: 12.5, mid: 50, high: 87.5 };
+// Punto medio de cada nivel: convierte los votos (categóricos) en un "score de
+// comunidad" numérico comparable al de la IA. El último nivel es abierto (80-100),
+// así que su punto medio se calcula contra 100.
+const BUCKET_MIDPOINT: Record<VoteBucket, number> = SCORE_LEVELS.reduce(
+  (acc, l, i) => {
+    const top = SCORE_LEVELS[i + 1] ? SCORE_LEVELS[i + 1].min - 1 : 100;
+    acc[l.level] = Math.round((l.min + top) / 2);
+    return acc;
+  },
+  {} as Record<VoteBucket, number>,
+);
 
 export function bucketLabel(bucket: VoteBucket): string {
-  return BUCKET_LABEL[bucket];
+  return SCORE_LEVELS.find((l) => l.level === bucket)?.label ?? bucket;
 }
 
-/** En qué franja cae un score de la IA (para saber si el usuario acertó). */
+/** En qué nivel cae un score de la IA (para saber si el usuario acertó). */
 export function bucketForScore(score: number): VoteBucket {
-  if (score < 25) return "low";
-  if (score > 75) return "high";
-  return "mid";
+  return scoreLevel(score);
 }
 
-/** Conteo de votos por franja. Alimenta el consenso de la comunidad. */
-export interface VoteTally {
-  low: number;
-  mid: number;
-  high: number;
+/** Conteo de votos por nivel. Alimenta el consenso de la comunidad. */
+export type VoteTally = Record<VoteBucket, number>;
+
+/** Tally en cero, para inicializar sin repetir las claves en cada lugar. */
+export function emptyTally(): VoteTally {
+  return SCORE_LEVELS.reduce((acc, l) => {
+    acc[l.level] = 0;
+    return acc;
+  }, {} as VoteTally);
 }
 
 /**
- * Score de comunidad: promedio ponderado de los puntos medios de cada franja,
+ * Score de comunidad: promedio ponderado de los puntos medios de cada nivel,
  * redondeado. Devuelve null si todavía no hay votos.
  */
 export function communityScore(tally: VoteTally): number | null {
-  const total = tally.low + tally.mid + tally.high;
+  const total = SCORE_LEVELS.reduce((sum, l) => sum + (tally[l.level] ?? 0), 0);
   if (total === 0) return null;
-  const sum =
-    tally.low * BUCKET_MIDPOINT.low + tally.mid * BUCKET_MIDPOINT.mid + tally.high * BUCKET_MIDPOINT.high;
+  const sum = SCORE_LEVELS.reduce(
+    (acc, l) => acc + (tally[l.level] ?? 0) * BUCKET_MIDPOINT[l.level],
+    0,
+  );
   return Math.round(sum / total);
 }
