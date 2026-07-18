@@ -32,19 +32,22 @@ export function categoryLabel(key: CategoryKey): string {
 // una banda donde no se percibe. Ni un prompt calibrado ni un modelo más nuevo
 // lo arreglan (gpt-4.1 comprime aún más). La única salida es re-expandir la banda.
 //
-// Esta curva monótona por tramos mapea la zona densa (65-90) a un rango más
-// ancho, preservando el orden (dos outfits nunca cambian de posición). Baja el
-// baseline inflado a algo más honesto: un casual correcto pasa de ~80 a ~68. Se
-// aplica a cada categoría y al score general por igual, así todo queda en la
-// misma escala y las bandas de color de abajo valen para ambos. Es cosmético a
-// propósito: no inventa señal, hace visible la que el modelo ya da.
+// Esta curva monótona por tramos mapea la zona densa a un rango más ancho,
+// preservando el orden (dos outfits nunca cambian de posición). Se aplica a cada
+// categoría y al score general por igual, así todo queda en la misma escala y las
+// bandas de color de abajo valen para ambos. Es cosmético a propósito: no inventa
+// señal, hace visible la que el modelo ya da.
+//
+// Calibrada contra DATOS REALES de producción: dos usuarios distintos con fotos
+// casual dieron todos 73-80 (rango de 6-7 puntos). Ahí es donde hay que estirar
+// fuerte, no en 80-90. La pendiente máxima (~2x) está en 68-80 por eso. Verificado:
+// esos 73-80 se abren a ~55-70 (rango 15) sin romper el ranking ni la zona alta.
 const SPREAD_ANCHORS: [number, number][] = [
   [0, 0],
-  [55, 40],
-  [70, 55],
-  [80, 68],
-  [88, 82],
-  [95, 95],
+  [55, 30],
+  [68, 45],
+  [80, 70],
+  [90, 88],
   [100, 100],
 ];
 
