@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { track } from "@/lib/analytics";
 import type { OccasionId } from "@/types/domain";
 
+// Tope del texto libre. Tiene que coincidir con el max() del schema de
+// /api/analyses: si el campo permitiera más de lo que la API acepta, el análisis
+// fallaría recién al crearse, después de que la persona ya escribió y sacó la foto.
+const CONTEXT_MAX = 250;
+
 export function OccasionGrid() {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
@@ -16,6 +21,10 @@ export function OccasionGrid() {
   const [context, setContext] = useState("");
 
   const groups = selected ? occasionVariantGroups(selected as OccasionId) : [];
+  // "Otro" no dice nada por sí solo: sin el texto libre, la IA no tiene contra qué
+  // evaluar la adecuación (que es la categoría de mayor peso). Ahí es obligatorio.
+  const contextRequired = selected === "other";
+  const contextOk = !contextRequired || context.trim().length > 0;
 
   function selectOccasion(id: string) {
     setSelected(id);
@@ -35,7 +44,9 @@ export function OccasionGrid() {
   }
 
   function handleContinue() {
-    const qs = new URLSearchParams({ occasion: selected! });
+    // El botón ya viene deshabilitado, pero no dependemos solo de eso.
+    if (!selected || !contextOk) return;
+    const qs = new URLSearchParams({ occasion: selected });
     // Se juntan las variantes elegidas en orden de grupo (ej. "Noche · Cóctel").
     const variant = groups
       .map((g) => byGroup[g.label])
@@ -90,19 +101,40 @@ export function OccasionGrid() {
 
       {selected && (
         <div className="mt-4">
-          <span className="section-label mb-2 block px-1">Contá más (opcional)</span>
-          <input
-            type="text"
+          <div className="mb-2 flex items-baseline justify-between px-1">
+            <span className="section-label">
+              Contá más {contextRequired ? "(obligatorio)" : "(opcional)"}
+            </span>
+            <span className="text-[11px] font-semibold text-faint">
+              {context.length}/{CONTEXT_MAX}
+            </span>
+          </div>
+          <textarea
             value={context}
             onChange={(e) => setContext(e.target.value)}
-            maxLength={120}
-            placeholder="Ej: cumpleaños infantil, asado, boda en la playa…"
-            className="w-full rounded-2xl border-[1.5px] border-line bg-white px-4 py-3 text-sm font-semibold outline-none placeholder:font-medium placeholder:text-muted focus:border-coral"
+            maxLength={CONTEXT_MAX}
+            rows={3}
+            placeholder={
+              contextRequired
+                ? "Contanos para qué es: ej. cumpleaños infantil, asado con amigos, primera comunión…"
+                : "Ej: cumpleaños infantil, asado, boda en la playa…"
+            }
+            className="w-full resize-none rounded-2xl border-[1.5px] border-line bg-white px-4 py-3 text-sm font-semibold leading-snug outline-none placeholder:font-medium placeholder:text-muted focus:border-coral"
           />
+          {contextRequired && (
+            <p className="mt-1.5 px-1 text-[13px] font-semibold text-muted">
+              Como elegiste “Otro”, necesitamos saber para qué ocasión es: sin eso la IA no
+              puede evaluar si el look es adecuado.
+            </p>
+          )}
         </div>
       )}
 
-      <Button style={{ marginTop: "auto" }} disabled={!selected} onClick={handleContinue}>
+      <Button
+        style={{ marginTop: "auto" }}
+        disabled={!selected || !contextOk}
+        onClick={handleContinue}
+      >
         Continuar
       </Button>
     </>

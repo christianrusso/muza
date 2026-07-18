@@ -101,11 +101,22 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .single();
 
   try {
+    // Con "Otro", el label ("Otro") no le dice nada al modelo: el texto libre ES la
+    // ocasión. Se lo pasamos como label para que la línea del prompt diga la
+    // situación real ("...la ocasión es: cumpleaños infantil") en vez de "Otro", y
+    // no lo repetimos como contexto aparte. En la base queda igual: occasion_id
+    // "other" + occasion_context con el texto.
+    const isOther = analysis.occasion_id === "other";
+    const freeContext = analysis.occasion_context?.trim() || null;
+    const useContextAsOccasion = isOther && Boolean(freeContext);
+
     const result = await scoreOutfit({
       photoUrl: signed.signedUrl,
-      occasionLabel: occasionLabel(analysis.occasion_id as OccasionId),
+      occasionLabel: useContextAsOccasion
+        ? freeContext!
+        : occasionLabel(analysis.occasion_id as OccasionId),
       occasionVariant: analysis.occasion_variant,
-      occasionContext: analysis.occasion_context,
+      occasionContext: useContextAsOccasion ? null : freeContext,
       analysisType: analysis.analysis_type as AnalysisType,
       userGender: profile?.gender ?? null,
       examples,
