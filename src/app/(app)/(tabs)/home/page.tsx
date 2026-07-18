@@ -12,8 +12,6 @@ import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
-const HOME_HEADLINE_TYPE: AnalysisType = "completo";
-
 async function loadHomeData() {
   if (isDemoMode()) {
     const created = Array.from(getDemoStore().analyses.values()).filter(
@@ -23,9 +21,10 @@ async function loadHomeData() {
       ...DEMO_ANALYSES.map((a) => a.overallScore),
       ...created.map((a) => a.overallScore!),
     ];
-    const latest = DEMO_ANALYSES.filter((a) => a.analysisType === HOME_HEADLINE_TYPE).map((a) => ({
+    const latest = DEMO_ANALYSES.map((a) => ({
       id: a.id,
       occasion_id: a.occasionId,
+      analysis_type: a.analysisType,
       overall_score: a.overallScore,
       style_descriptors: a.styleDescriptors,
       photoUrl: null as string | null,
@@ -77,11 +76,15 @@ async function loadHomeData() {
   const scores = all.map((a) => a.overall_score).filter((s): s is number => s !== null);
   const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
-  const latestCompleto = all.find((a) => a.analysis_type === HOME_HEADLINE_TYPE);
-  const latest = latestCompleto
+  // El último análisis, sea del tipo que sea. Antes se pedía uno "completo"
+  // (cuerpo entero) y, si la persona solo había sacado fotos de torso, la tarjeta
+  // no aparecía nunca: quedaba el estado vacío de "todavía no hiciste ninguno"
+  // contradiciendo al contador de al lado, que sí los cuenta a todos.
+  const latestAnalysis = all[0];
+  const latest = latestAnalysis
     ? {
-        ...latestCompleto,
-        photoUrl: await signedPhotoUrl(supabase, latestCompleto.photo_path, "full"),
+        ...latestAnalysis,
+        photoUrl: await signedPhotoUrl(supabase, latestAnalysis.photo_path, "full"),
       }
     : null;
 
@@ -132,7 +135,7 @@ export default async function HomePage() {
       {latest ? (
         <div className="card p-4" style={{ boxShadow: "0 12px 30px -18px rgba(20,18,16,.25)" }}>
           <div className="mb-3.5 flex items-center justify-between">
-            <AnalysisTypePill type={HOME_HEADLINE_TYPE} />
+            <AnalysisTypePill type={(latest.analysis_type as AnalysisType) ?? "completo"} />
             <span className="section-label">Último Outfit Score</span>
           </div>
           <div className="flex items-center gap-4">

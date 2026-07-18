@@ -58,3 +58,4 @@ seed-fotos/**/*.jpg
 seed-fotos/**/*.jpeg
 seed-fotos/**/*.png
 seed-fotos/**/*.webp
+scripts/seed-fechas-backup-*.json
