@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LookLab — ¿Cómo me queda? Pedí una opinión, gratis</title>
-<meta name="description" content="La IA te dice qué funciona de tu look y qué cambiarías, según la ocasión. Y una comunidad que opina tus outfits. Gratis y sin límite.">
-<meta property="og:title" content="LookLab — ¿Cómo me queda? Pedí una opinión, gratis">
-<meta property="og:description" content="Sacate una foto: la IA te dice qué funciona y qué cambiarías. Sumate a la comunidad que opina tus looks. Gratis.">
+<title>LookLab — Tu outfit, evaluado. Honestamente.</title>
+<meta name="description" content="Subí una foto y recibí un puntaje + consejos concretos en menos de un minuto. Analizamos color, calce, ocasión y coherencia. Gratis y sin límite.">
+<meta property="og:title" content="LookLab — Tu outfit, evaluado. Honestamente.">
+<meta property="og:description" content="Una segunda opinión clara y cercana sobre cómo estás vestido. Solo evaluamos la ropa. Gratis.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://looklab.io">
 <meta name="theme-color" content="#141210">
@@ -68,317 +68,423 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Solo dos familias. Los íconos del diseño original venían de Material
+     Symbols (una tercera fuente de Google, render-blocking); acá van como SVG
+     inline, que no cuesta ni un request en el camino crítico del tráfico pago. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --coral:#ec5a2e; --coral-soft:#fceee8;
-    --ink:#1a1712; --ink-deep:#141210;
-    --paper:#f7f5f0; --card:#fff; --line:#ede9df;
-    --muted:#6b655a; --faint:#9a9488;
-    --green:#2fa36b; --amber:#f5a524; --red:#e5484d;
-    --serif:'Instrument Serif',Georgia,serif;
+    --coral:#ec5a2e; --coral-hover:#d44d26; --coral-soft:#fceee8;
+    --ink:#141210; --ink-70:rgba(20,18,16,.7); --ink-60:rgba(20,18,16,.6);
+    --ink-50:rgba(20,18,16,.5);
+    --paper:#f7f5f0; --card:#fff; --line:#edeae2;
+    --green:#2fa36b; --amber:#f5a524;
+    --serif:'Playfair Display',Georgia,serif;
     --sans:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
   html,body{overflow-x:hidden;max-width:100%}
   body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
   img{max-width:100%;display:block}
+  svg{flex:none}
 
-  .wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
-  @media(min-width:768px){.wrap{padding:0 40px}}
-
+  .wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 24px}
+  .serif{font-family:var(--serif);font-weight:700;font-style:italic}
   .eyebrow{font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral)}
-  h1,h2,h3{font-weight:400;line-height:1.05}
-  .serif{font-family:var(--serif)}
 
   /* botones */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    height:52px;padding:0 26px;border-radius:14px;font-family:var(--sans);
-    font-weight:700;font-size:15px;cursor:pointer;border:none;transition:.15s;white-space:nowrap}
+    height:56px;padding:0 34px;border-radius:28px;font-family:var(--sans);
+    font-weight:700;font-size:17px;cursor:pointer;border:none;transition:.2s;white-space:nowrap}
   .btn-primary{background:var(--coral);color:#fff}
-  .btn-primary:hover{background:#d64f24}
-  .btn-ghost{background:transparent;color:var(--paper);border:1.5px solid rgba(247,245,240,.35)}
-  .btn-ghost:hover{background:rgba(247,245,240,.08)}
+  .btn-primary:hover{background:var(--coral-hover);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:16px}
+  .btn-ghost:hover{background:var(--card)}
+  .btn-sm{height:44px;padding:0 24px;font-size:14px;border-radius:24px}
+
+  /* marca */
+  .brand{display:flex;align-items:center;gap:12px}
+  .mark{width:36px;height:36px;border-radius:50%;border:3.5px solid var(--coral);
+    display:grid;place-items:center;flex:none}
+  .mark span{font-family:var(--serif);font-size:22px;line-height:1}
+  .brand b{font-family:var(--sans);font-weight:700;font-size:22px;letter-spacing:-.02em}
+
+  /* ===== NAVBAR ===== */
+  .nav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);
+    background:rgba(247,245,240,.95);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .nav .wrap{height:66px;display:flex;align-items:center;justify-content:space-between}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  /* Debajo de 560px el ancho no alcanza para las dos acciones: "Iniciar sesión"
+     envolvía en dos líneas y empujaba el CTA fuera de la pantalla. En un aviso
+     el que llega es visitante nuevo, así que el que sobra es el login. */
+  .nav-login{display:none;padding:0 8px;font-weight:600;font-size:14px;color:var(--ink-70)}
+  .nav-login:hover{color:var(--ink)}
+  @media(min-width:560px){.nav-login{display:inline-flex}}
 
   /* ===== HERO ===== */
-  .hero{position:relative;background:var(--ink-deep);color:var(--paper);overflow:hidden}
-  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
-  .hero::before{top:-140px;right:-120px;width:min(70vw,460px);height:min(70vw,460px);
-    background:radial-gradient(circle at 40% 40%,rgba(236,90,46,.55),rgba(236,90,46,0) 68%);filter:blur(6px)}
-  .hero::after{bottom:-160px;left:-140px;width:min(80vw,520px);height:min(80vw,520px);
-    background:radial-gradient(circle at 60% 40%,rgba(154,148,136,.22),rgba(154,148,136,0) 70%)}
+  .hero{padding:56px 0 64px}
+  .hero .wrap{display:grid;gap:40px;align-items:center}
+  @media(min-width:900px){.hero .wrap{grid-template-columns:1.35fr 1fr}}
+  .hero-copy{max-width:620px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--card);
+    border:1px solid var(--line);color:var(--coral);font-weight:700;font-size:11.5px;
+    letter-spacing:.1em;padding:6px 16px;min-height:32px;border-radius:24px;margin-bottom:26px}
+  .hero h1{font-family:var(--sans);font-weight:800;font-size:clamp(2.75rem,9vw,4.125rem);
+    line-height:1;letter-spacing:-.035em;margin:0 0 24px}
+  .hero h1 .serif{color:var(--coral);font-size:.97em}
+  .hero .lead{font-weight:500;font-size:clamp(1.0625rem,3.5vw,1.25rem);line-height:1.55;
+    color:var(--ink-70);max-width:34ch;margin:0 0 34px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-note{font-weight:500;font-size:14px;color:var(--ink-50);margin:32px 0 0}
 
-  .nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:18px 0}
-  .brand{display:flex;align-items:center;gap:10px}
-  .mark{width:34px;height:34px;border-radius:50%;flex:none;
-    background:conic-gradient(from -55deg,var(--coral) 0turn .72turn,rgba(247,245,240,.4) .72turn 1turn);
-    display:grid;place-items:center}
-  .mark span{width:27px;height:27px;border-radius:50%;background:var(--ink-deep);
-    display:grid;place-items:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--paper)}
-  .brand b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:22px;color:var(--paper)}
-  .nav-links{display:none}
-  .nav-right{display:flex;align-items:center;gap:14px}
-  .nav-login{display:none}
-  .nav .btn{height:42px;padding:0 18px;font-size:14px}
-  @media(min-width:900px){
-    .nav-links{display:flex;gap:34px;font-weight:600;font-size:14px;color:rgba(247,245,240,.85)}
-    .nav-links a:hover{color:var(--paper)}
-    .nav-login{display:inline;font-weight:600;font-size:14px;color:rgba(247,245,240,.85)}
-    .nav-login:hover{color:var(--paper)}
-  }
+  /* teléfono */
+  .phone-col{display:flex;justify-content:center}
+  .phone{width:min(78vw,300px);background:var(--ink);border-radius:44px;padding:11px;
+    box-shadow:0 30px 60px -18px rgba(0,0,0,.28)}
+  /* El aspect-ratio va por captura y no global: cada mockup tiene su propia
+     proporción, y una sola medida compartida deformaría al menos a uno. */
+  .phone-screen{border-radius:34px;overflow:hidden;position:relative;background:var(--paper)}
+  .phone-screen.cita{aspect-ratio:750/1374}
+  .phone-screen.entrevista{aspect-ratio:690/1430}
+  .phone-screen img{position:absolute;left:0;bottom:0;width:100%}
 
-  .hero-inner{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;padding:44px 0 0}
-  .hero h1{font-family:var(--serif);font-style:italic;
-    font-size:clamp(2.9rem,13vw,5.2rem);margin:16px 0 20px;color:var(--paper)}
-  .hero p.lead{font-weight:500;font-size:clamp(1rem,4.4vw,1.2rem);line-height:1.6;
-    color:rgba(247,245,240,.72);max-width:34ch;margin:0 auto}
-  .hero-cta{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;margin:30px auto 0}
-  .hero-cta .btn{width:100%}
-  @media(min-width:560px){
-    .hero-cta{flex-direction:row;justify-content:center;max-width:none;width:auto}
-    .hero-cta .btn{width:auto}
-  }
+  /* ===== TRUST BAR ===== */
+  .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:var(--card);padding:18px 0}
+  .trust .wrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+    gap:10px 30px;font-weight:500;font-size:14px;color:var(--ink-60);text-align:center}
+  .trust i{display:inline-flex;align-items:center;gap:8px;font-style:normal}
+  .trust b{color:var(--ink)}
+  .sep{width:1px;height:14px;background:var(--line)}
+  @media(max-width:620px){.sep{display:none}}
 
-  /* phone mockup */
-  .phone{position:relative;z-index:2;width:min(78vw,290px);margin:40px auto -12px;
-    border-radius:36px;background:#0c0b0a;padding:10px;
-    box-shadow:0 40px 80px -30px rgba(0,0,0,.7);border:1px solid #2a2622}
-  .phone-screen{position:relative;border-radius:28px;overflow:hidden;background:#f7f5f0;aspect-ratio:1438/2230}
-  .phone-screen img{position:absolute;left:0;bottom:0;width:100%;display:block}
-  .ph-top{display:flex;align-items:center;gap:7px;padding:14px 16px 10px}
-  .ph-top .m{width:22px;height:22px;border-radius:50%;flex:none;
-    background:conic-gradient(from -55deg,var(--coral) 0turn .72turn,rgba(247,245,240,.35) .72turn 1turn);
-    display:grid;place-items:center}
-  .ph-top .m i{width:17px;height:17px;border-radius:50%;background:#1c1916;display:grid;place-items:center;
-    font-family:var(--serif);font-style:italic;font-size:10px;color:var(--paper)}
-  .ph-top b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:14px;color:var(--paper)}
-  .ph-photo{height:230px;background:
-    radial-gradient(120% 80% at 30% 10%,#3a332c,transparent 60%),
-    linear-gradient(160deg,#5a5048,#221f1b 75%);position:relative}
-  .ph-photo::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(to bottom,transparent 40%,rgba(12,11,10,.85))}
-  .ph-card{position:relative;margin:-52px 14px 16px;background:rgba(20,18,16,.72);
-    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-    border:1px solid rgba(247,245,240,.1);border-radius:16px;
-    padding:14px;display:flex;align-items:center;gap:14px}
-  .ph-card .info{flex:1;text-align:left}
-  .ph-card .info .t{font-weight:700;font-size:13px;color:var(--paper)}
-  .ph-card .info .s{font-size:11px;color:rgba(247,245,240,.6);margin-top:2px;line-height:1.4}
-
-  .ring{--p:82;--c:var(--green);--rs:60px;width:var(--rs);height:var(--rs);flex:none;border-radius:50%;
-    background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(247,245,240,.14) 0);display:grid;place-items:center}
-  .ring i{width:calc(var(--rs) - 12px);height:calc(var(--rs) - 12px);border-radius:50%;
-    background:#141210;display:grid;place-items:center;font-family:var(--serif);
-    font-size:calc(var(--rs)*.42);color:var(--paper);line-height:1}
-
-  /* ===== SECCIONES ===== */
+  /* ===== ENCABEZADOS DE SECCIÓN ===== */
   section{padding:72px 0}
-  .sec-head{text-align:center;max-width:34ch;margin:0 auto 40px}
-  .sec-head h2{font-family:var(--serif);font-size:clamp(2rem,8vw,2.9rem);margin:12px 0 0}
-  .sec-head p{color:var(--muted);font-size:15px;margin-top:12px}
+  .sec-head{text-align:center;margin-bottom:44px}
+  .sec-head .eyebrow{margin-bottom:8px}
+  .sec-head h2{font-family:var(--serif);font-size:clamp(2rem,7vw,2.75rem);
+    letter-spacing:-.02em;line-height:1.1;margin:0}
 
-  /* pasos */
-  .steps{display:grid;gap:16px}
+  /* ===== DEMO ===== */
+  .demo{max-width:820px;margin:0 auto 40px}
+  /* Rótulo abajo a la izquierda y play centrado: el frame tiene el celular en
+     el medio, y con todo centrado el título chocaba con la pantalla del video. */
+  .demo-poster{position:relative;width:100%;aspect-ratio:16/9;border-radius:24px;overflow:hidden;
+    border:1px solid var(--line);background:var(--card);display:flex;align-items:flex-end;
+    justify-content:flex-start;cursor:pointer;font-family:var(--sans);padding:0}
+  /* El preview es el propio video con un fragmento temporal (#t=) y
+     preload="metadata": el navegador pinta ese frame sin descargar los 6,5 MB.
+     Evita mantener un JPG de poster que se desincronice si cambia el video. */
+  .demo-poster .frame{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    pointer-events:none;background:var(--card)}
+  /* Velo oscuro: el frame es claro y además tiene texto propio (la pantalla del
+     celular), así que sin un scrim fuerte el rótulo se vuelve ilegible. */
+  .demo-poster::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(12,11,10,.72),rgba(12,11,10,.5))}
+  /* Los hijos son <span> dentro de un <button>: sin display:block/flex quedan
+     en línea y el título se pisa con el subtítulo. */
+  .demo-poster .in{position:relative;z-index:2;display:flex;flex-direction:column;
+    align-items:flex-start;text-align:left;color:var(--paper);padding:0 24px 22px}
+  .demo-poster .play{position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);width:66px;height:66px;background:var(--coral);
+    border-radius:50%;display:grid;place-items:center;transition:transform .2s;z-index:2;
+    box-shadow:0 8px 24px -6px rgba(0,0,0,.5)}
+  .demo-poster:hover .play{transform:translate(-50%,-50%) scale(1.06)}
+  .demo-poster .t{display:block;font-weight:700;font-size:20px;
+    text-shadow:0 1px 12px rgba(12,11,10,.6)}
+  .demo-poster .s{display:block;font-weight:500;font-size:14px;
+    color:rgba(247,245,240,.8);margin-top:4px;text-shadow:0 1px 12px rgba(12,11,10,.6)}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;
+    align-items:center;justify-content:center;padding:16px}
+  .modal[hidden]{display:none}
+  .modal-box{background:var(--card);max-width:760px;width:100%;border-radius:24px;overflow:hidden}
+  .modal-head{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--line)}
+  .modal-head .t{font-weight:700;font-size:16px}
+  .modal-head .s{font-weight:500;font-size:12px;color:var(--coral)}
+  .modal-close{border:none;background:transparent;font-size:30px;line-height:1;
+    color:rgba(20,18,16,.4);cursor:pointer;padding:0 4px}
+  .modal-close:hover{color:var(--ink)}
+  .modal video{width:100%;aspect-ratio:16/9;display:block;background:#000}
+
+  /* ===== PASOS ===== */
+  .steps{display:grid;gap:20px;max-width:900px;margin:0 auto}
   @media(min-width:760px){.steps{grid-template-columns:repeat(3,1fr)}}
-  .step{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px}
-  .step .n{width:42px;height:42px;border-radius:12px;background:var(--coral-soft);color:var(--coral);
+  .step{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px}
+  .step .n{width:44px;height:44px;border-radius:14px;background:var(--coral-soft);color:var(--coral);
     display:grid;place-items:center;font-family:var(--serif);font-size:22px;margin-bottom:16px}
-  .step h3{font-family:var(--serif);font-size:1.45rem;margin-bottom:8px}
-  .step p{color:var(--muted);font-size:14.5px}
+  .step h3{font-weight:700;font-size:20px;margin:0 0 8px}
+  .step p{font-weight:500;font-size:15px;line-height:1.6;color:var(--ink-70);margin:0}
 
-  /* score */
-  .score-card{background:var(--ink-deep);color:var(--paper);border-radius:26px;
-    padding:36px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:26px}
-  @media(min-width:820px){.score-card{flex-direction:row;text-align:left;padding:52px;gap:48px}}
-  .score-copy{flex:1}
-  .score-copy h2{font-family:var(--serif);font-size:clamp(1.9rem,7vw,2.7rem);margin:12px 0 16px;color:var(--paper)}
-  .score-copy p{color:rgba(247,245,240,.72);font-size:15px;max-width:46ch;margin:0 auto}
-  @media(min-width:820px){.score-copy p{margin:0}}
-  .legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:22px}
-  @media(min-width:820px){.legend{justify-content:flex-start}}
-  .legend span{display:inline-flex;align-items:center;gap:7px;background:rgba(247,245,240,.06);
-    border:1px solid rgba(247,245,240,.1);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600}
-  .dot{width:7px;height:7px;border-radius:50%;flex:none}
-  .score-visual{flex:none}
-  .score-visual .ring{--rs:clamp(150px,42vw,190px)}
+  /* ===== BLOQUES A DOS COLUMNAS ===== */
+  .split{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .split .wrap{display:grid;gap:48px;align-items:center}
+  @media(min-width:900px){
+    .split.a .wrap{grid-template-columns:1fr 1fr}
+    .split.b .wrap{grid-template-columns:5fr 7fr}
+  }
+  .split-copy{max-width:460px}
+  .split-copy h3{font-weight:800;font-size:clamp(1.75rem,5vw,2.375rem);line-height:1.05;
+    letter-spacing:-.03em;margin:12px 0 18px}
+  .split-copy h2{font-family:var(--serif);font-size:clamp(2rem,6vw,2.75rem);
+    letter-spacing:-.02em;margin:12px 0 18px;line-height:1.1}
+  .split-copy p{font-weight:500;font-size:18px;line-height:1.6;color:var(--ink-70);margin:0 0 28px}
+  .checks{display:flex;flex-direction:column;gap:14px;font-weight:500;font-size:15px}
+  .checks div{display:flex;gap:12px;align-items:flex-start}
+  .link-arrow{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--coral)}
+  .link-arrow:hover{color:var(--coral-hover)}
 
-  /* comunidad */
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  @media(min-width:820px){.grid{grid-template-columns:repeat(4,1fr)}}
-  .tile{position:relative;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
-    background:linear-gradient(160deg,var(--g1),var(--g2))}
-  .tile:nth-child(1){--g1:#6b5d50;--g2:#2a2420}
-  .tile:nth-child(2){--g1:#7a5c4a;--g2:#2b211c}
-  .tile:nth-child(3){--g1:#55606b;--g2:#20262b}
-  .tile:nth-child(4){--g1:#6a5566;--g2:#251f24}
-  .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
-  .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.6),transparent 55%)}
-  .tile .badge{position:absolute;left:12px;bottom:12px;z-index:2;
-    display:inline-flex;align-items:center;gap:6px;background:rgba(20,18,16,.65);
-    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-    border:1px solid rgba(247,245,240,.15);border-radius:999px;padding:5px 10px;
-    font-size:12px;font-weight:700;color:var(--paper)}
+  /* ===== DIFERENCIACIÓN ===== */
+  .cards{display:grid;gap:20px}
+  @media(min-width:820px){.cards{grid-template-columns:repeat(3,1fr)}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px}
+  .card h4{font-weight:700;font-size:20px;margin:16px 0 8px}
+  .card p{font-weight:500;font-size:15px;line-height:1.6;color:var(--ink-70);margin:0}
 
-  /* cierre */
-  .closing{background:var(--ink-deep);color:var(--paper);text-align:center}
-  .closing h2{font-family:var(--serif);font-style:italic;font-size:clamp(2.4rem,10vw,4rem);color:var(--paper)}
-  .closing p{color:rgba(247,245,240,.72);font-size:16px;margin:14px auto 28px;max-width:32ch}
+  /* ===== COMUNIDAD ===== */
+  .feed{border-radius:24px;overflow:hidden;border:1px solid var(--line);
+    background:var(--paper);aspect-ratio:1792/1008}
+  .feed img{width:100%;height:100%;object-fit:cover}
+  .dot{width:7px;height:7px;border-radius:50%;flex:none;display:inline-block}
 
-  /* pronto — anticipo de lo que todavía no existe. Apagado a propósito: borde
-     punteado, gris y sin interacción, para que no se lea como una promesa. */
+  /* ===== TESTIMONIAL ===== */
+  .quote{text-align:center;padding:80px 0}
+  .quote .inner{max-width:680px;margin:0 auto}
+  .quote .mark-q{font-family:var(--serif);font-size:72px;color:var(--coral);line-height:.6;margin-bottom:18px}
+  .quote blockquote{font-weight:600;font-size:clamp(1.375rem,5vw,1.875rem);line-height:1.25;
+    letter-spacing:-.02em;margin:0}
+  .quote .who{margin-top:28px}
+  .quote .who b{font-weight:700;font-size:16px}
+  .quote .who span{display:block;font-weight:500;font-size:14px;color:var(--ink-60)}
+
+  /* ===== PRONTO =====
+     Anticipo de lo que todavía no existe. Apagado a propósito: borde punteado,
+     gris y sin interacción, para que no se lea como una promesa. */
+  .soon-sec{padding-top:0}
   .soon{border:1px dashed var(--line);border-radius:22px;padding:26px 22px;text-align:center}
   .soon .eyebrow{margin-bottom:14px}
   .soon-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
   .soon-chip{display:inline-flex;align-items:center;gap:6px;background:var(--paper);
     border:1px solid var(--line);border-radius:999px;padding:8px 14px;
-    font-size:13px;font-weight:700;color:var(--faint)}
+    font-size:13px;font-weight:700;color:#9a9488}
 
-  /* footer */
-  footer{background:var(--ink-deep);color:rgba(247,245,240,.6);padding:0 0 48px}
-  .foot{border-top:1px solid rgba(247,245,240,.1);padding-top:32px;
-    display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center}
-  @media(min-width:720px){.foot{flex-direction:row;justify-content:space-between;text-align:left}}
-  .foot .brand b{font-size:20px}
-  .foot .tag{font-size:13px;margin-top:10px;color:rgba(247,245,240,.5);max-width:40ch}
-  .foot-links{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;font-size:14px;font-weight:600}
-  .foot-links a{color:rgba(247,245,240,.78)}
-  .foot-links a:hover{color:var(--paper)}
+  /* ===== CIERRE ===== */
+  .closing{background:var(--ink);text-align:center;color:var(--paper);
+    position:relative;overflow:hidden;padding:80px 0}
+  .closing::before{content:"";position:absolute;top:-140px;left:50%;transform:translateX(-50%);
+    width:min(120vw,520px);height:min(120vw,520px);border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,rgba(236,90,46,.32),rgba(236,90,46,0) 70%);filter:blur(10px)}
+  .closing .wrap{position:relative;z-index:2}
+  .closing h2{font-weight:800;font-size:clamp(2.125rem,8vw,3rem);letter-spacing:-.03em;margin:0 0 14px}
+  .closing p{font-weight:500;font-size:18px;color:rgba(247,245,240,.7);margin:0 0 32px}
+  .closing .fine{font-weight:500;font-size:14px;color:rgba(247,245,240,.5);margin-top:20px}
+
+  /* ===== FOOTER ===== */
+  footer{background:var(--paper);border-top:1px solid var(--line);padding:36px 0}
+  .foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
+    gap:20px;font-size:13px;color:var(--ink-60)}
+  .foot .brand b{font-size:18px}
+  .foot-links{display:flex;flex-wrap:wrap;gap:8px 24px}
+  .foot-links a:hover{color:var(--ink)}
+  .foot .tag{width:100%;font-size:12px;color:var(--ink-50);max-width:52ch}
 </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="mark"><span class="serif">L</span></span>
+      <b>LookLab</b>
+    </a>
+    <div class="nav-right">
+      <a class="nav-login" href="/login">Iniciar sesión</a>
+      <a class="btn btn-primary btn-sm" href="/community" data-cta="nav">Evaluá tu outfit</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
 <header class="hero">
   <div class="wrap">
-    <nav class="nav">
-      <a class="brand" href="/">
-        <span class="mark"><span>L</span></span>
-        <b>LookLab</b>
-      </a>
-      <div class="nav-links">
-        <a href="#que-hace">Qué hace</a>
-        <a href="#analisis">El análisis</a>
-        <a href="#comunidad">Comunidad</a>
+    <div class="hero-copy">
+      <div class="pill">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        SOLO EVALUAMOS LA ROPA
       </div>
-      <div class="nav-right">
-        <a class="nav-login" href="/login">Iniciar sesión</a>
-        <a class="btn btn-primary" href="/community" data-cta="nav">Usala gratis</a>
-      </div>
-    </nav>
-
-    <div class="hero-inner">
-      <p class="eyebrow">Gratis, sin límite</p>
-      <h1>¿Cómo<br>me queda?</h1>
-      <p class="lead">Sacate una foto y enterate qué funciona de tu look y qué cambiarías, según la ocasión. Y sumate a una comunidad que opina, comenta y te sigue.</p>
+      <h1>Tu outfit,<br>evaluado.<br><span class="serif">Honestamente.</span></h1>
+      <p class="lead">Una segunda opinión clara y cercana. Subí una foto y recibí un puntaje + consejos concretos en menos de un minuto.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="/community" data-cta="hero">Usala gratis</a>
-        <a class="btn btn-ghost" href="#que-hace">Ver qué hace</a>
+        <a class="btn btn-primary" href="/community" data-cta="hero">Subí tu look ahora</a>
+        <a class="btn btn-ghost" href="#como-funciona">Ver cómo funciona</a>
       </div>
-
+      <p class="hero-note">Más de 12.000 outfits evaluados esta semana</p>
+    </div>
+    <div class="phone-col">
       <div class="phone">
-        <div class="phone-screen">
+        <div class="phone-screen cita">
           <!-- Sin loading="lazy": es la imagen del hero, o sea el LCP. Diferirla
                retrasa justo lo que el visitante de un aviso ve primero. -->
-          <img src="/app-result.jpg" alt="Resultado de un outfit en LookLab: 82 de 100 con el desglose y los consejos" fetchpriority="high">
+          <img src="/app-result-cita.jpg" alt="Resultado de un outfit en LookLab: 89 sobre 100 para una cita de noche, con tres consejos concretos sobre la ropa" fetchpriority="high">
         </div>
       </div>
     </div>
   </div>
 </header>
 
-<!-- QUÉ HACE — los tres pilares. Todo lo de acá existe hoy en la app: el
-     análisis con consejos (src/lib/ai/schema.ts), y comunidad + follows
-     (src/lib/community/). Nada de colorimetría ni tendencias: eso va en
-     #pronto, al final. -->
-<section id="que-hace">
+<!-- TRUST BAR -->
+<div class="trust">
   <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">Qué hace</p>
-      <h2 class="serif">Una opinión honesta sobre cómo estás vestido.</h2>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="n">1</div>
-        <h3 class="serif">La IA te aconseja</h3>
-        <p>Qué funciona de tu look, qué mejorarías y recomendaciones concretas para cambiarlo. Según la ocasión: no es lo mismo una entrevista que una salida.</p>
-      </div>
-      <div class="step">
-        <div class="n">2</div>
-        <h3 class="serif">La comunidad opina</h3>
-        <p>Publicá tu look y recibí votos y comentarios de gente real. Adiviná el score de otros y comparate con lo que dijo la IA.</p>
-      </div>
-      <div class="step">
-        <div class="n">3</div>
-        <h3 class="serif">Seguí a quien te copa</h3>
-        <p>Mirá cómo se visten otros, seguilos y armá tu feed. Que te sigan a vos también.</p>
-      </div>
-    </div>
+    <i>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ec5a2e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span><b>Solo la ropa.</b> Esa es la regla.</span>
+    </i>
+    <span class="sep"></span>
+    <span>Transparente con la IA</span>
+    <span class="sep"></span>
+    <span>Podés borrar todo cuando quieras</span>
   </div>
-</section>
+</div>
 
-<!-- CÓMO FUNCIONA -->
+<!-- CÓMO FUNCIONA. Ocupa el lugar donde el diseño preveía el video de demo:
+     ese video todavía no existe, y una landing de tráfico pago no puede
+     prometer "demo real · 45 segundos" y abrir un modal vacío. Cuando esté
+     filmado, se repone acá. -->
 <section id="como-funciona">
   <div class="wrap">
     <div class="sec-head">
-      <p class="eyebrow">Cómo funciona</p>
-      <h2 class="serif">Tres pasos, un minuto.</h2>
+      <p class="eyebrow">En menos de 60 segundos</p>
+      <h2 class="serif">Así de simple es</h2>
     </div>
+    <!-- Dos <video> sobre el mismo archivo, con precargas distintas a propósito:
+         el de acá arriba es sólo el preview (preload="metadata" + #t=2.5, para
+         que el navegador pinte ese frame pidiendo rangos parciales), y el del
+         modal es el que se reproduce (preload="none"). Son 6,5 MB: bajarlos de
+         entrada le costaría el LCP a todos para servir a los pocos que lo abren. -->
+    <div class="demo">
+      <button class="demo-poster" type="button" id="demo-open" aria-haspopup="dialog">
+        <video class="frame" src="/demo.mp4#t=2.5" preload="metadata" muted playsinline tabindex="-1" aria-hidden="true"></video>
+        <span class="play">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+        </span>
+        <span class="in">
+          <span class="t">Ver el flujo en acción</span>
+          <span class="s">45 segundos • Video de presentación</span>
+        </span>
+      </button>
+    </div>
+
     <div class="steps">
       <div class="step">
         <div class="n">1</div>
-        <h3 class="serif">Subí tu foto</h3>
+        <h3>Subí tu foto</h3>
         <p>Una foto de tu outfit. Nada más.</p>
       </div>
       <div class="step">
         <div class="n">2</div>
-        <h3 class="serif">La IA lo analiza</h3>
+        <h3>La IA lo analiza</h3>
         <p>Color, calce, ocasión y coherencia. En segundos.</p>
       </div>
       <div class="step">
         <div class="n">3</div>
-        <h3 class="serif">Recibí tus consejos</h3>
+        <h3>Recibí tus consejos</h3>
         <p>Qué está bien, qué mejorarías y recomendaciones concretas para tu próximo look.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- EL ANÁLISIS. Antes esta sección era sobre el número; ahora el consejo es el
-     protagonista y el anillo pasa a ser la evidencia visual de apoyo. -->
-<section id="analisis" style="padding-top:0">
+<!-- RESULTADO REAL -->
+<section class="split a">
   <div class="wrap">
-    <div class="score-card">
-      <div class="score-copy">
-        <p class="eyebrow">El análisis</p>
-        <h2 class="serif">No solo qué puntaje. Qué cambiar.</h2>
-        <p>La IA mira color, calce, ocasión y coherencia — nunca tu cuerpo — y te devuelve lo que está funcionando, lo que mejorarías y recomendaciones que podés aplicar hoy.</p>
-        <div class="legend">
-          <span><i class="dot" style="background:var(--green)"></i>Lo que funciona</span>
-          <span><i class="dot" style="background:var(--amber)"></i>Lo que mejorarías</span>
-          <span><i class="dot" style="background:var(--coral)"></i>Qué hacer</span>
+    <div class="split-copy">
+      <p class="eyebrow">Resultado real</p>
+      <h3>Un número que motiva.<br>No que castiga.</h3>
+      <p>Cada puntaje viene con explicación clara y consejos accionables sobre tu ropa.</p>
+      <div class="checks">
+        <div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2fa36b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+          <span>Analizamos color, calce, ocasión y coherencia</span>
+        </div>
+        <div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2fa36b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+          <span>Consejos concretos: “Agregá un cinturón negro”</span>
+        </div>
+        <div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2fa36b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+          <span>El análisis se queda en las prendas</span>
         </div>
       </div>
-      <div class="score-visual">
-        <div class="ring" style="--p:82;--c:var(--green)"><i>82</i></div>
+    </div>
+    <div class="phone-col">
+      <div class="phone">
+        <div class="phone-screen entrevista">
+          <img src="/app-result-entrevista.jpg" alt="Análisis de un outfit en LookLab para una entrevista: 91 sobre 100, con las recomendaciones" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIACIÓN -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">No es solo una IA</p>
+      <h2 class="serif">Por qué LookLab es distinto</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ec5a2e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+        <h4>Rúbrica por ocasión</h4>
+        <p>El mismo outfit puede ser excelente para una cita y regular para una entrevista. La IA lo entiende.</p>
+      </div>
+      <div class="card">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ec5a2e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h4>Comunidad real</h4>
+        <p>Votá looks de otros, seguí gente con estilo y compará tu criterio con el de la comunidad.</p>
+      </div>
+      <div class="card">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ec5a2e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <h4>Seguridad emocional</h4>
+        <p>El análisis se queda en la ropa y ahí se queda siempre. No es marketing: es el principio fundacional de la marca.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- COMUNIDAD -->
-<section id="comunidad" style="padding-top:0">
+<section class="split b" id="comunidad">
   <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">Comunidad</p>
-      <h2 class="serif">Que opinen. Y opiná vos.</h2>
-      <p>Publicá tus looks y recibí votos y comentarios. Adiviná qué score le puso la IA a los looks de otros, seguí a la gente que te gusta cómo se viste.</p>
+    <div class="split-copy">
+      <p class="eyebrow">El corazón del producto</p>
+      <h2 class="serif">Inspiración de gente real</h2>
+      <p>Mirá cómo se visten otros, votá sus looks y descubrí qué está funcionando hoy.</p>
+      <a class="link-arrow" href="/community" data-cta="comunidad">
+        Probar el juego de Votá
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
-    <div class="grid">
-      <div class="tile"><img src="/look1.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>91</span></div>
-      <div class="tile"><img src="/look2.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>84</span></div>
-      <div class="tile"><img src="/look3.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--amber)"></i>76</span></div>
-      <div class="tile"><img src="/look4.jpg" alt="Look de la comunidad"><span class="badge"><i class="dot" style="background:var(--green)"></i>88</span></div>
+    <div class="feed">
+      <img src="/community-feed.jpg" alt="Feed de la comunidad de LookLab: looks de distintas personas con su puntaje, y las solapas Para ti, Siguiendo y Populares" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="quote">
+  <div class="wrap">
+    <div class="inner">
+      <div class="mark-q">“</div>
+      <blockquote>Me dio consejos concretos para mi primera cita y nunca me hizo sentir mal con mi cuerpo. Eso es exactamente lo que necesitaba.</blockquote>
+      <div class="who">
+        <b>Martina, 26</b>
+        <span>Se estaba arreglando para una primera cita</span>
+      </div>
     </div>
   </div>
 </section>
@@ -388,7 +494,7 @@
      no como promesa. NUNCA meter esto en un aviso: si alguien llega buscándolo,
      rebota. tests/landing.test.ts falla si estas palabras aparecen fuera de
      este bloque. -->
-<section id="pronto" style="padding-top:0">
+<section id="pronto" class="soon-sec">
   <div class="wrap">
     <div class="soon" aria-label="Funciones en desarrollo">
       <p class="eyebrow">Pronto</p>
@@ -404,10 +510,10 @@
 <!-- CIERRE -->
 <section class="closing">
   <div class="wrap">
-    <p class="eyebrow">Gratis, sin límite</p>
-    <h2>Probá con el look que tenés puesto.</h2>
-    <p>Sin cuenta para mirar. Un minuto para saber cómo te queda.</p>
-    <a class="btn btn-primary" href="/community" data-cta="closing">Usala gratis</a>
+    <h2>¿Listo para ver cómo te queda?</h2>
+    <p>Subí tu primer outfit en menos de un minuto. Es gratis.</p>
+    <a class="btn btn-primary" href="/community" data-cta="closing">Evaluá tu outfit ahora</a>
+    <div class="fine">Sin tarjeta • Borrás todo cuando quieras</div>
   </div>
 </section>
 
@@ -415,21 +521,67 @@
 <footer>
   <div class="wrap">
     <div class="foot">
-      <div>
-        <a class="brand" href="/">
-          <span class="mark"><span>L</span></span>
-          <b>LookLab</b>
-        </a>
-        <p class="tag">Tu outfit, evaluado por IA. El puntaje es orientativo y con fines de entretenimiento.</p>
-      </div>
+      <a class="brand" href="/">
+        <span class="mark" style="width:30px;height:30px;border-width:2.5px"><span class="serif" style="font-size:16px">L</span></span>
+        <b>LookLab</b>
+      </a>
       <div class="foot-links">
         <a href="https://instagram.com/looklab.io" target="_blank" rel="noopener">Instagram</a>
         <a href="/legal">Términos y privacidad</a>
         <a href="mailto:info@looklab.io">info@looklab.io</a>
       </div>
+      <div>Hecho con criterio • Buenos Aires</div>
+      <p class="tag">Tu outfit, evaluado por IA. El puntaje es orientativo y con fines de entretenimiento.</p>
     </div>
   </div>
 </footer>
+
+<!-- MODAL DEL VIDEO -->
+<div class="modal" id="demo-modal" role="dialog" aria-modal="true" aria-label="Video de presentación de LookLab" hidden>
+  <div class="modal-box" id="demo-box">
+    <div class="modal-head">
+      <div>
+        <div class="t">LookLab en 45 segundos</div>
+        <div class="s">Video de presentación</div>
+      </div>
+      <button class="modal-close" type="button" id="demo-close" aria-label="Cerrar">×</button>
+    </div>
+    <video id="demo-video" src="/demo.mp4" controls playsinline preload="none"></video>
+  </div>
+</div>
+
+<script>
+(function () {
+  var open = document.getElementById('demo-open');
+  var modal = document.getElementById('demo-modal');
+  var box = document.getElementById('demo-box');
+  var close = document.getElementById('demo-close');
+  var video = document.getElementById('demo-video');
+  if (!open || !modal) return;
+
+  function show() {
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    close.focus();
+    video.play().catch(function () {}); // si el navegador la bloquea, quedan los controles
+    try { window.posthog && posthog.capture('landing_demo_open'); } catch (e) {}
+  }
+  function hide() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    video.pause();
+    open.focus();
+  }
+
+  open.addEventListener('click', show);
+  close.addEventListener('click', hide);
+  // Clic en el fondo cierra; dentro de la caja, no.
+  modal.addEventListener('click', function (e) { if (!box.contains(e.target)) hide(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) hide();
+  });
+})();
+</script>
 
 <!-- ===== Atribución =====
      Pasa los parámetros de campaña de la landing a la app, y mide el clic. Sin
