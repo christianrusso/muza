@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/image/compress";
-import { occasionFullLabel } from "@/lib/occasions";
+import { occasionFullLabel, occasionIcon } from "@/lib/occasions";
 import { track } from "@/lib/analytics";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { OccasionId } from "@/types/domain";
@@ -24,6 +24,10 @@ export function CameraCapture({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [streamOk, setStreamOk] = useState(false);
+  // Por qué no hay cámara. null = todavía no se sabe (arrancando) o anda bien.
+  // Se distinguen los casos porque la salida es distinta: si el permiso está
+  // denegado hay que ir a la config del navegador; si no hay cámara, no.
+  const [cameraIssue, setCameraIssue] = useState<"denied" | "notfound" | "busy" | "other" | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Foto capturada a la espera de confirmación ("Usar esta" / "Repetir").
@@ -35,6 +39,13 @@ export function CameraCapture({
 
     async function start() {
       try {
+        // Sin API de cámara (navegador viejo, o contexto no seguro: getUserMedia
+        // solo existe en https o localhost).
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setStreamOk(false);
+          setCameraIssue("notfound");
+          return;
+        }
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
@@ -45,9 +56,22 @@ export function CameraCapture({
           // iOS Safari a veces no arranca con autoPlay: forzamos play().
           await videoRef.current.play().catch(() => {});
           setStreamOk(true);
+          setCameraIssue(null);
         }
-      } catch {
+      } catch (err) {
+        if (cancelled) return;
         setStreamOk(false);
+        // getUserMedia rechaza con un DOMException cuyo `name` dice el motivo.
+        const name = err instanceof DOMException ? err.name : "";
+        setCameraIssue(
+          name === "NotAllowedError" || name === "SecurityError"
+            ? "denied"
+            : name === "NotFoundError" || name === "OverconstrainedError"
+              ? "notfound"
+              : name === "NotReadableError" || name === "AbortError"
+                ? "busy"
+                : "other",
+        );
       }
     }
     start();
@@ -174,10 +198,15 @@ export function CameraCapture({
           streamOk ? "opacity-100" : "opacity-0"
         } ${captured ? "invisible" : ""}`}
       />
-      {/* Foto congelada, encima del video, mientras se confirma. */}
+      {/* Foto congelada, encima del video, mientras se confirma.
+          object-contain y NO object-cover: lo que se sube es el archivo entero,
+          así que el preview tiene que mostrarlo entero. Con cover, una imagen
+          apaisada (una captura de pantalla de la PC, por ejemplo) se agranda
+          para llenar un contenedor vertical y solo se ve una franja del medio:
+          la persona confirma "Usar esta" sobre algo que no es lo que se analiza. */}
       {captured && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={captured.url} alt="Foto capturada" className="absolute inset-0 z-10 h-full w-full object-cover" />
+        <img src={captured.url} alt="Foto capturada" className="absolute inset-0 z-10 h-full w-full object-contain" />
       )}
       <canvas ref={canvasRef} className="hidden" />
       {/* Sin `capture`: en iOS eso fuerza la cámara; sin él abre la galería. */}
@@ -198,15 +227,15 @@ export function CameraCapture({
           <MaterialIcon name="close" size={22} className="text-white" />
         </button>
         <span className="flex h-[34px] items-center gap-1.5 rounded-full bg-white/[.14] px-3.5 text-sm font-bold text-white">
-          <MaterialIcon name="favorite" size={16} className="text-coral" />
+          <MaterialIcon name={occasionIcon(occasionId)} size={16} className="text-coral" />
           {occasionFullLabel(occasionId, variant)}
         </span>
-        <div className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/[.14]">
-          <MaterialIcon name="bolt" size={22} className="text-white" />
-        </div>
+        {/* Espaciador del ancho del botón de cerrar: mantiene el chip centrado
+            ahora que no hay un tercer control a la derecha. */}
+        <span className="h-[38px] w-[38px] flex-none" aria-hidden />
       </div>
 
-      {!captured && (
+      {!captured && !cameraIssue && (
         <>
           <div className="absolute left-6 right-6 top-[112px] flex items-center gap-2 rounded-2xl bg-coral/[.92] px-3.5 py-2.5">
             <MaterialIcon name="lightbulb" size={19} className="text-white" />
@@ -222,6 +251,43 @@ export function CameraCapture({
             </span>
           </div>
         </>
+      )}
+
+      {/* Sin cámara: en vez de una pantalla negra sin explicación, decimos qué
+          pasó y ofrecemos la salida (la galería sirve igual para el análisis). */}
+      {!captured && cameraIssue && (
+        <div className="absolute inset-x-6 top-[112px] z-20 flex flex-col items-center justify-center gap-3 rounded-[26px] border-2 border-dashed border-white/25 bg-black/30 px-6 py-8 text-center"
+          style={{ bottom: "calc(2.75rem + env(safe-area-inset-bottom))" }}
+        >
+          <MaterialIcon name="no_photography" size={46} className="text-white/55" />
+          <span className="text-[16px] font-extrabold text-white">
+            {cameraIssue === "denied"
+              ? "No tenemos permiso para la cámara"
+              : cameraIssue === "notfound"
+                ? "No encontramos una cámara"
+                : cameraIssue === "busy"
+                  ? "La cámara está ocupada"
+                  : "No pudimos abrir la cámara"}
+          </span>
+          <p className="max-w-[280px] text-[13.5px] font-semibold leading-snug text-white/75">
+            {cameraIssue === "denied"
+              ? "Habilitá el permiso de cámara para este sitio (tocá el candado en la barra de direcciones) y volvé a entrar. Mientras tanto podés subir una foto de tu galería."
+              : cameraIssue === "notfound"
+                ? "Este dispositivo no tiene una cámara disponible. Podés subir una foto de tu galería."
+                : cameraIssue === "busy"
+                  ? "Otra aplicación la está usando. Cerrala y volvé a entrar, o subí una foto de tu galería."
+                  : "Probá recargar la página. Si sigue igual, subí una foto de tu galería."}
+          </p>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="mt-1 flex h-[50px] items-center justify-center gap-2 rounded-full bg-coral px-7 text-sm font-bold text-white disabled:opacity-60"
+          >
+            <MaterialIcon name="photo_library" size={20} className="text-white" />
+            Elegir de la galería
+          </button>
+        </div>
       )}
 
       {error && (
@@ -254,7 +320,7 @@ export function CameraCapture({
             {uploading ? "Subiendo…" : "Usar esta"}
           </button>
         </div>
-      ) : (
+      ) : cameraIssue ? null : (
         <div
           className="absolute inset-x-0 z-20 flex items-center justify-around px-8"
           style={{ bottom: "calc(2.75rem + env(safe-area-inset-bottom))" }}
