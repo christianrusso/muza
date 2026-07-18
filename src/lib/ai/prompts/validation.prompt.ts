@@ -16,6 +16,11 @@ Clasificá el resultado:
 - "analysisType": clasificá en "completo" (cuerpo completo visible), "superior" (solo torso/parte superior), "inferior" (solo piernas/parte inferior), o "individual" (una prenda o accesorio suelto, sin persona vistiéndolo). Usá null si verdict es "invalid".
 - "issues": lista breve en español de los problemas detectados (vacía si no hay problemas).
 - "partialReason": si verdict es "partial", una frase corta explicando qué parte es visible; si no, null.
+- "invalidReason": si verdict es "invalid", el motivo principal en UNA de estas categorías; si no, null. Elegí siempre la primera que aplique, en este orden:
+  - "not_outfit": el sujeto principal no es vestimenta (comida, mascota, animal, paisaje, objeto, captura de pantalla, meme, documento).
+  - "no_clothing_visible": hay una persona, pero no hay vestimenta que analizar (por ejemplo, ropa interior o sin ropa).
+  - "occluded": hay vestimenta, pero está tapada por objetos u otras personas, o el encuadre la deja fuera.
+  - "photo_quality": la vestimenta está en cuadro y sin tapar, y el problema es la foto en sí (oscura, borrosa, o de resolución insuficiente).
 
 Reglas estrictas:
 - Rechazá ("invalid") SOLO cuando es evidente que la foto no tiene vestimenta que analizar (bebé/mascota/comida/objeto/paisaje/screenshot). Si hay una persona vestida o una prenda/accesorio claramente identificable, la foto es válida — no la rechaces por encuadre imperfecto, fondo raro o estilo poco común.

@@ -7,6 +7,7 @@ import type {
   OccasionId,
 } from "@/types/domain";
 import { SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import type { InvalidReason } from "@/lib/ai/schema";
 
 // Active whenever Supabase credentials aren't configured — lets the whole
 // app be clicked through locally with in-memory mock data and stubbed AI
@@ -171,6 +172,7 @@ export function buildStubValidationResult() {
     analysisType: "completo" as AnalysisType,
     issues: [] as string[],
     partialReason: null as string | null,
+    invalidReason: null as InvalidReason | null,
   };
 }
 
