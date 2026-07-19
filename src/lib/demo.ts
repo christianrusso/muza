@@ -7,6 +7,7 @@ import type {
   OccasionId,
 } from "@/types/domain";
 import { SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import type { InvalidReason } from "@/lib/ai/schema";
 
 // Active whenever Supabase credentials aren't configured — lets the whole
 // app be clicked through locally with in-memory mock data and stubbed AI
@@ -194,6 +195,7 @@ export function buildStubValidationResult() {
     analysisType: "completo" as AnalysisType,
     issues: [] as string[],
     partialReason: null as string | null,
+    invalidReason: null as InvalidReason | null,
   };
 }
 
@@ -230,6 +232,7 @@ export const DEMO_COMMUNITY_POSTS = [
     author_id: "demo-martina",
     author_name: "Martina R.",
     author_avatar_url: null,
+    author_gender: "femenino" as const,
     analysis_id: "demo-analysis-4",
     occasion_id: "party" as OccasionId,
     analysis_type: "completo" as AnalysisType,
@@ -246,6 +249,7 @@ export const DEMO_COMMUNITY_POSTS = [
     author_id: "demo-tomas",
     author_name: "Tomás L.",
     author_avatar_url: null,
+    author_gender: "masculino" as const,
     analysis_id: "demo-analysis-2",
     occasion_id: "work" as OccasionId,
     analysis_type: "superior" as AnalysisType,

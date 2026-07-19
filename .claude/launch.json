@@ -9,6 +9,13 @@
       "autoPort": true
     },
     {
+      "name": "muza-demo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:demo"],
+      "port": 3007,
+      "autoPort": true
+    },
+    {
       "name": "eval-report",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "eval:serve"],

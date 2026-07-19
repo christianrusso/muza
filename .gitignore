@@ -51,8 +51,16 @@ skills-lock.json
 /scripts/eval/holdout.txt
 
 # fotos de prueba del eval (imágenes de personas, no van al repo)
-/test-photos/
+# ahora vive en "LookLab Marketing/test-photos"; acá queda un symlink (tampoco se versiona)
+/test-photos
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Fotos de seed de comunidad (no versionar)
+seed-fotos/**/*.jpg
+seed-fotos/**/*.jpeg
+seed-fotos/**/*.png
+seed-fotos/**/*.webp
+scripts/seed-fechas-backup-*.json

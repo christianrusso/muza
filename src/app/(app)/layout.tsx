@@ -1,5 +1,12 @@
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  // Fondo oscuro a pantalla completa detrás de la columna tipo teléfono: en
+  // mobile la columna la tapa por completo; en desktop encuadra la app como un
+  // dispositivo en vez de dejar los márgenes en paper (blanco) que se veía mal.
   return (
-    <div className="relative mx-auto min-h-screen w-full max-w-[430px] bg-paper">{children}</div>
+    <div className="min-h-screen w-full bg-ink-deep">
+      <div className="relative mx-auto min-h-screen w-full max-w-[430px] bg-paper md:shadow-[0_0_60px_-10px_rgba(0,0,0,0.55)]">
+        {children}
+      </div>
+    </div>
   );
 }

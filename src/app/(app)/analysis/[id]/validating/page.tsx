@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { track } from "@/lib/analytics";
 
 function ValidatingContent() {
   const router = useRouter();
@@ -18,8 +19,29 @@ function ValidatingContent() {
       const validateRes = await fetch(`/api/analyses/${params.id}/validate`, { method: "POST" });
       const validation = await validateRes.json();
 
-      if (!validateRes.ok || validation.verdict === "invalid") {
-        router.replace(`/analysis/${params.id}/invalid?occasion=${occasion}`);
+      track("validation", {
+        occasion_id: occasion,
+        verdict: !validateRes.ok ? "error" : validation.verdict,
+        analysis_type: validation.analysisType ?? null,
+        // Con esto se puede ver en PostHog QUÉ se rechaza, no solo cuánto.
+        invalid_reason: validateRes.ok ? (validation.invalidReason ?? null) : null,
+        error_code: !validateRes.ok ? (validation.error?.code ?? "UNKNOWN") : null,
+      });
+
+      // Un fallo del servicio NO es una foto inválida. Mandarlo a la misma
+      // pantalla le dice a alguien con una foto impecable que mejore la luz.
+      if (!validateRes.ok) {
+        router.replace(
+          `/analysis/${params.id}/invalid?occasion=${occasion}&reason=service_error`,
+        );
+        return;
+      }
+
+      if (validation.verdict === "invalid") {
+        router.replace(
+          `/analysis/${params.id}/invalid?occasion=${occasion}` +
+            `&reason=${validation.invalidReason ?? "unknown"}`,
+        );
         return;
       }
 

@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { DEMO_MODE } from "@/lib/demoClient";
+import { nextQuery, safeNextPath } from "@/lib/redirect";
+import { AuthBackground } from "@/components/brand/AuthBackground";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Banner } from "@/components/ui/Banner";
 import { Spinner } from "@/components/ui/Spinner";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { translateAuthError } from "@/lib/supabase/authErrors";
+import { track } from "@/lib/analytics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,6 +26,12 @@ export default function LoginPage() {
   // Cuando el login falla por email sin confirmar, ofrecemos reenviar el correo.
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resend, setResend] = useState<"idle" | "sending" | "sent">("idle");
+  // Destino post-login (deep link compartido). Ver welcome/page.tsx.
+  const [next, setNext] = useState<string | null>(null);
+  useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get("next"));
+  }, []);
+  const nextSuffix = nextQuery(next);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +40,7 @@ export default function LoginPage() {
     setNeedsConfirm(false);
     setResend("idle");
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     const supabase = createClient();
@@ -42,8 +51,14 @@ export default function LoginPage() {
       setNeedsConfirm(signInError.message === "Email not confirmed");
       return;
     }
+    track("logged_in", { method: "password" });
     setSuccess(true);
-    setTimeout(() => router.push("/home"), 700);
+    // Navegación DURA, no soft. signInWithPassword acaba de escribir la cookie de
+    // sesión; un router.push (soft-nav) corre antes de que el middleware del edge
+    // la lea y rebota a /welcome o deja la pantalla en blanco. Antes se tapaba con
+    // un setTimeout(700) — frágil: en un celu lento no alcanzaba. location.assign
+    // fuerza un request HTTP nuevo que ya lleva la cookie, sin adivinar tiempos.
+    window.location.assign(safeNextPath(next));
   }
 
   async function resendConfirmation() {
@@ -61,7 +76,7 @@ export default function LoginPage() {
 
   async function continueWithOAuth(provider: "google") {
     if (DEMO_MODE) {
-      router.push("/home");
+      router.push(safeNextPath(next));
       return;
     }
     // Feedback inmediato: el redirect OAuth (Supabase → Google) tarda unos
@@ -74,7 +89,7 @@ export default function LoginPage() {
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback${nextSuffix}` },
       });
       if (oauthError) {
         setError(oauthError.message);
@@ -89,9 +104,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-dvh flex-col">
       {/* Foto de fondo full-bleed que funde hacia el papel donde vive el form. */}
-      <div className="ph-dark absolute inset-x-0 top-0 h-[42vh] max-h-[360px] min-h-[220px] overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/login-bg.webp" alt="" className="h-full w-full object-cover" />
+      <AuthBackground className="absolute inset-x-0 top-0 h-[42vh] max-h-[360px] min-h-[220px]">
         <div
           className="absolute inset-0"
           style={{
@@ -99,11 +112,11 @@ export default function LoginPage() {
               "linear-gradient(to bottom, rgba(20,18,16,.28) 0%, rgba(20,18,16,0) 38%, rgba(247,245,240,0) 62%, var(--paper) 100%)",
           }}
         />
-      </div>
+      </AuthBackground>
 
       {/* Volver: sobre la foto, en blanco. */}
       <Link
-        href="/welcome"
+        href={`/welcome${nextSuffix}`}
         aria-label="Volver"
         className="relative z-10 mx-5 mt-5 flex h-10 w-10 items-center justify-center rounded-full text-white"
         style={{ background: "rgba(20,18,16,.4)", backdropFilter: "blur(4px)" }}
@@ -185,7 +198,7 @@ export default function LoginPage() {
 
         <p className="mt-auto text-center text-sm font-semibold text-muted">
           ¿No tenés cuenta?{" "}
-          <Link href="/register" className="font-bold text-coral">
+          <Link href={`/register${nextSuffix}`} className="font-bold text-coral">
             Registrate
           </Link>
         </p>

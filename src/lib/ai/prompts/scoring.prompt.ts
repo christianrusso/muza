@@ -1,16 +1,18 @@
 import { SCORE_CATEGORIES } from "@/lib/scoring/categories";
-import type { AnalysisType } from "@/types/domain";
+import type { AnalysisType, UserGender } from "@/types/domain";
 
 export function buildScoringPrompt({
   occasionLabel,
   occasionVariant,
   occasionContext,
   analysisType,
+  userGender,
 }: {
   occasionLabel: string;
   occasionVariant?: string | null;
   occasionContext?: string | null;
   analysisType: AnalysisType;
+  userGender?: UserGender | null;
 }): string {
   const categoriesList = SCORE_CATEGORIES.map(
     (c) => `- "${c.key}" (${c.label}, peso ${Math.round(c.weight * 100)}%)`,
@@ -28,18 +30,34 @@ export function buildScoringPrompt({
     ? `\n- Contexto adicional que aclaró el usuario: "${occasionContext}". Tenelo muy en cuenta al evaluar la adecuación del outfit a la situación real.`
     : "";
 
-  return `Sos el motor de puntuación de outfits de LookLab. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones. NUNCA evalúes ni menciones el cuerpo, la apariencia física o cualquier atributo personal de quien aparece en la foto.
+  // Género declarado por el usuario como CÓDIGO DE MODA (no como juicio del
+  // cuerpo): fija con qué expectativas de estilo se evalúa fit/proporciones/
+  // modernidad. "no_especifica" (o sin dato) no agrega línea → el modelo infiere
+  // de la foto, idéntico al comportamiento previo.
+  const genderLine =
+    userGender === "masculino" || userGender === "femenino"
+      ? `\n- Las prendas responden a códigos de moda ${userGender === "masculino" ? "masculina" : "femenina"}: evaluá el calce, las proporciones entre prendas, la coherencia y la modernidad con las expectativas de esa moda. Es contexto de estilo para juzgar la ropa; la regla inviolable de arriba sigue valiendo igual.`
+      : "";
+
+  return `Sos el motor de puntuación de outfits de LookLab. Analizás EXCLUSIVAMENTE la vestimenta de la foto adjunta y generás un puntaje y recomendaciones.
+
+REGLA INVIOLABLE — solo la ropa, nunca la persona:
+Todo lo que puntuás y todo lo que escribís se refiere a las PRENDAS: qué son, sus colores, cómo caen, cómo se combinan entre sí y qué tan adecuadas son para la ocasión. La persona que las lleva no se evalúa, no se describe y no se menciona.
+- PALABRAS PROHIBIDAS en cualquier texto que devuelvas (justificaciones, fortalezas, mejoras, recomendaciones): "silueta", "cuerpo", "tipo de cuerpo", "figura", "peso", "físico", "contextura", "complexión", "estilizar", "favorecer", y cualquier referencia a la forma, el tamaño o el aspecto de quien aparece en la foto.
+- El calce es una propiedad de la PRENDA, no de la persona. Escribí "el pantalón cae bien", "la camisa queda holgada en los hombros", "el largo del saco es el correcto". NUNCA "resalta tu silueta", "favorece tu figura", "adecuado para tu tipo de cuerpo".
+- "Proporciones" significa la relación ENTRE LAS PRENDAS (largo del abrigo contra el del pantalón, volumen de arriba contra el de abajo, dónde corta cada prenda), no las proporciones de la persona.
+- Si algo no se puede evaluar sin hablar de la persona, no lo evalúes: bajá el detalle o devolvé la justificación en null.
 
 Contexto de este análisis:
-- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}
-- El tipo de análisis ya fue clasificado como: "${analysisType}" (completo=cuerpo entero, superior=solo parte de arriba, inferior=solo parte de abajo, individual=prenda suelta). Si alguna categoría no aplica por el tipo de análisis (ej. "calzado" en un análisis "superior" sin calzado visible), asignale un puntaje neutro (70) y aclaralo en la justificación en vez de inventar un dato no visible.
+- La ocasión seleccionada por el usuario es: "${occasionLabel}". El puntaje y las justificaciones DEBEN considerar qué tan adecuado es el outfit para esa ocasión específica — la misma prenda puede puntuar distinto según la ocasión.${variantLine}${contextLine}${genderLine}
+- El tipo de análisis ya fue clasificado como: "${analysisType}" (completo=se ve el outfit entero, superior=solo las prendas de arriba, inferior=solo las de abajo, individual=una prenda suelta). Si alguna categoría no aplica por el tipo de análisis (ej. "calzado" en un análisis "superior" sin calzado visible), asignale un puntaje neutro (70) y aclaralo en la justificación en vez de inventar un dato no visible.
 
 Puntuá estas 10 categorías fijas, cada una de 0 a 100:
 ${categoriesList}
 
 Criterio transversal (MUY IMPORTANTE): puntuá cada categoría por qué tan APROPIADA es para la ocasión, no por cantidad ni por "cuánto tiene". Cuando la ocasión pide naturalmente pocos o ningún accesorio (gimnasio, deporte, playa, looks deliberadamente minimalistas), la AUSENCIA de accesorios es lo correcto y NO debe bajar el puntaje de "accesorios": puntualo neutro-alto si la simpleza es adecuada, y no lo listes como aspecto a mejorar. Tampoco premies acumular accesorios que no aportan. Se evalúa adecuación, no abundancia.
 
-Para cada categoría devolvé "key" (exactamente una de las anteriores), "score" (0-100), y "justification" (una frase corta en español; puede ser null si no hay nada relevante que agregar). Excepción: para "ocasion" (Adecuación a la ocasión) y "coherencia" (Coherencia del outfit) la justificación debe ser más desarrollada, con 2-3 razones concretas — en "ocasion" cubrí formalidad/código de vestimenta y, si corresponde, clima/estación y entorno; en "coherencia" cubrí la consistencia de estilo entre las prendas y la silueta/proporción general.
+Para cada categoría devolvé "key" (exactamente una de las anteriores), "score" (0-100), y "justification" (una frase corta en español; puede ser null si no hay nada relevante que agregar). Excepción: para "ocasion" (Adecuación a la ocasión) y "coherencia" (Coherencia del outfit) la justificación debe ser más desarrollada, con 2-3 razones concretas — en "ocasion" cubrí formalidad/código de vestimenta y, si corresponde, clima/estación y entorno; en "coherencia" cubrí la consistencia de estilo entre las prendas y cómo funcionan sus proporciones entre sí (largos, volúmenes y dónde corta cada prenda) — siempre hablando de las prendas, nunca de quien las lleva.
 
 Además devolvé:
 - "styleDescriptors": 1-3 palabras/frases cortas que describan el estilo (ej. ["Casual chic", "Elegante"]).

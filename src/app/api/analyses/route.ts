@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { canCreateAnalysis } from "@/lib/plans/gating";
+import { rateLimitAnalysisCreation } from "@/lib/rateLimit";
 import { isDemoMode } from "@/lib/demo";
 import { createDemoAnalysis } from "@/lib/demoStore";
 import type { OccasionId } from "@/types/domain";
@@ -9,7 +10,9 @@ import type { OccasionId } from "@/types/domain";
 const CreateAnalysisSchema = z.object({
   occasionId: z.string(),
   occasionVariant: z.string().nullable().optional(),
-  occasionContext: z.string().trim().max(200).nullable().optional(),
+  // 250 = el mismo tope que el textarea de OccasionGrid. Si la API aceptara menos,
+  // el análisis fallaría recién al crearse, con la foto ya sacada.
+  occasionContext: z.string().trim().max(250).nullable().optional(),
   photoPath: z.string().optional(),
   photoDataUrl: z.string().optional(),
 });
@@ -37,6 +40,16 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "No autenticado." } }, { status: 401 });
+  }
+
+  // Rate limit (protección técnica anti-abuso, aparte del límite de plan): cada
+  // análisis dispara 2 llamadas pagas a OpenAI. Limita por usuario y por IP.
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (await rateLimitAnalysisCreation({ userId: user.id, ip })) {
+    return NextResponse.json(
+      { error: { code: "RATE_LIMITED", message: "Estás creando análisis muy rápido. Esperá un momento." } },
+      { status: 429 },
+    );
   }
 
   if (!body.data.photoPath) {

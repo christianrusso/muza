@@ -13,22 +13,12 @@ function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
 
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
-
-  function setDigit(index: number, value: string) {
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const next = [...code];
-    next[index] = digit;
-    setCode(next);
-    if (digit && index < 5) {
-      document.getElementById(`code-${index + 1}`)?.focus();
-    }
-  }
 
   async function handleResend() {
     setResending(true);
@@ -46,7 +36,7 @@ function ResetPasswordForm() {
     setSubmitting(true);
     setError(null);
     const supabase = createClient();
-    const token = code.join("");
+    const token = code.trim();
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
       token,
@@ -75,25 +65,24 @@ function ResetPasswordForm() {
           <MaterialIcon name="mail" size={26} className="text-coral" />
         </span>
         <p className="text-sm font-semibold text-muted">
-          Te enviamos un código de 6 dígitos a tu email
+          Te enviamos un código de verificación a tu email
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-5">
         <Field label="Código de verificación">
-          <div className="flex justify-between gap-2">
-            {code.map((digit, i) => (
-              <input
-                key={i}
-                id={`code-${i}`}
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => setDigit(i, e.target.value)}
-                className="input h-14 w-11 text-center text-lg"
-              />
-            ))}
-          </div>
+          {/* Un solo input en vez de casillas fijas: el largo del OTP lo define
+              la config de Supabase (6–10 dígitos), así que no lo hardcodeamos.
+              Aceptamos solo dígitos y permitimos pegar el código completo. */}
+          <input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={10}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+            placeholder="Código"
+            className="input h-14 text-center text-lg tracking-[0.4em]"
+          />
         </Field>
 
         <Field label="Nueva contraseña">
@@ -117,7 +106,7 @@ function ResetPasswordForm() {
 
         {error && <p className="text-sm font-semibold text-[var(--red)]">{error}</p>}
 
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting || code.length < 6}>
           {submitting ? "Restableciendo..." : "Restablecer contraseña"}
         </Button>
         <button

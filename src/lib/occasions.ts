@@ -93,6 +93,12 @@ export function occasionLabel(id: OccasionId): string {
   return OCCASIONS.find((o) => o.id === id)?.label ?? id;
 }
 
+// Ícono (Material Symbols) de la ocasión, para mostrarlo junto al label.
+// Cae a "more_horiz" (el de "Otro") si el id no existe.
+export function occasionIcon(id: OccasionId): string {
+  return OCCASIONS.find((o) => o.id === id)?.icon ?? "more_horiz";
+}
+
 // Grupos de variantes de una ocasión ([] si no tiene).
 export function occasionVariantGroups(id: OccasionId): VariantGroup[] {
   return OCCASIONS.find((o) => o.id === id)?.variantGroups ?? [];

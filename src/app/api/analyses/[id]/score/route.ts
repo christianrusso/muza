@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreOutfit, AIScoringError } from "@/lib/ai/scoreOutfit";
+import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { getFewShotExamples } from "@/lib/scoring/knowledgeBase";
-import { computeOverallScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, spreadScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, buildStubScoringResult } from "@/lib/demo";
 import { getDemoCreatedAnalysis, updateDemoAnalysisScore } from "@/lib/demoStore";
@@ -21,7 +22,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: { code: "NOT_FOUND", message: "Análisis no encontrado." } }, { status: 404 });
     }
     const result = buildStubScoringResult(occasionLabel(analysis.occasionId));
-    const overallScore = computeOverallScore(result.categories, result.analysisType);
+    // Estiramos la escala (ver spreadScore): el general y cada categoría, para que
+    // todo quede en la misma escala recalibrada que las bandas de color.
+    const overallScore = spreadScore(computeOverallScore(result.categories, result.analysisType));
     updateDemoAnalysisScore(id, {
       overallScore,
       qualitativeBadge: result.qualitativeBadge,
@@ -31,7 +34,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       categories: applicableCategories(result.categories, result.analysisType).map((c) => ({
         categoryKey: c.key,
         weight: SCORE_CATEGORIES.find((d) => d.key === c.key)?.weight ?? 0,
-        score: c.score,
+        score: spreadScore(c.score),
         justification: c.justification,
       })),
       feedback: [
@@ -89,17 +92,41 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   // hay ejemplos para la ocasión → el scoring se comporta igual que hoy.
   const examples = await getFewShotExamples(supabase, analysis.occasion_id as string);
 
+  // Género declarado por el usuario para personalizar el scoring (código de moda).
+  // Si es null (usuario viejo sin onboardear), el prompt no agrega línea de género.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("gender")
+    .eq("id", user.id)
+    .single();
+
   try {
+    // Con "Otro", el label ("Otro") no le dice nada al modelo: el texto libre ES la
+    // ocasión. Se lo pasamos como label para que la línea del prompt diga la
+    // situación real ("...la ocasión es: cumpleaños infantil") en vez de "Otro", y
+    // no lo repetimos como contexto aparte. En la base queda igual: occasion_id
+    // "other" + occasion_context con el texto.
+    const isOther = analysis.occasion_id === "other";
+    const freeContext = analysis.occasion_context?.trim() || null;
+    const useContextAsOccasion = isOther && Boolean(freeContext);
+
     const result = await scoreOutfit({
       photoUrl: signed.signedUrl,
-      occasionLabel: occasionLabel(analysis.occasion_id as OccasionId),
+      occasionLabel: useContextAsOccasion
+        ? freeContext!
+        : occasionLabel(analysis.occasion_id as OccasionId),
       occasionVariant: analysis.occasion_variant,
-      occasionContext: analysis.occasion_context,
+      occasionContext: useContextAsOccasion ? null : freeContext,
       analysisType: analysis.analysis_type as AnalysisType,
+      userGender: profile?.gender ?? null,
       examples,
+      userId: user.id,
     });
 
-    const overallScore = computeOverallScore(result.categories, result.analysisType);
+    // Estiramos la escala (ver spreadScore): el modelo comprime todo lo decente
+    // en ~65-90; esto re-expande esa banda preservando el orden, y deja el general
+    // y las categorías en la misma escala que las bandas de color.
+    const overallScore = spreadScore(computeOverallScore(result.categories, result.analysisType));
 
     await supabase
       .from("analyses")
@@ -125,7 +152,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         category_key: c.key,
         // weight is looked up server-side from the fixed category defs, never trusted from the model
         weight: SCORE_CATEGORIES.find((d) => d.key === c.key)?.weight ?? 0,
-        score: c.score,
+        // Estirado, igual que el general. El score crudo del modelo queda en
+        // ai_raw_response por si hay que re-calibrar la curva a futuro.
+        score: spreadScore(c.score),
         justification: c.justification,
       })),
     );
@@ -143,6 +172,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json({ id, overallScore, aiRawResponse: result });
   } catch (err) {
+    // Tope de gasto alcanzado: no es una falla de la IA, es un corte a propósito.
+    if (err instanceof AIBudgetExceededError) {
+      return NextResponse.json(
+        { error: { code: "AI_BUDGET_EXCEEDED", message: "El servicio está saturado por hoy. Probá más tarde." } },
+        { status: 503 },
+      );
+    }
     const message = err instanceof AIScoringError ? err.message : "Error puntuando el outfit.";
     return NextResponse.json({ error: { code: "AI_SCORING_FAILED", message } }, { status: 502 });
   }

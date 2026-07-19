@@ -4,13 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:demo": "NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= next dev -p 3007",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --import tsx --test tests/*.test.ts",
     "eval:ai": "tsx scripts/eval/run.ts",
     "eval:serve": "tsx scripts/eval/serve.ts",
-    "eval:import": "tsx scripts/eval/import-to-supabase.ts"
+    "eval:import": "tsx scripts/eval/import-to-supabase.ts",
+    "seed:community": "tsx scripts/seed-community.ts",
+    "seed:migrate": "tsx scripts/seed-migrate.ts",
+    "posthog:dashboard": "tsx scripts/posthog-dashboard.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
@@ -23,6 +27,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
