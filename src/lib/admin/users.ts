@@ -59,8 +59,21 @@ export type AdminUserAnalysis = {
   fullUrl: string | null;
 };
 
+// admin_user_detail nació devolviendo MENOS campos que admin_users_list, pero
+// las dos se tipaban como AdminUser a secas. El tipo mentía y TypeScript no
+// podía verlo (las RPC van casteadas), así que leer un campo faltante compilaba
+// y explotaba en runtime — se comió la ficha entera con "Algo salió mal".
+//
+// 0021 los agrega, pero el tipo los deja opcionales igual: entre que se deploya
+// el código y se aplica la migración, la función vieja sigue viva. Marcarlos
+// opcionales obliga a manejar ese hueco en vez de confiar en que ya está.
+type DetailLateField = "analyses_valid" | "likes_given" | "last_analysis_at";
+
+export type AdminUserDetailUser = Omit<AdminUser, DetailLateField> &
+  Partial<Pick<AdminUser, DetailLateField>>;
+
 export type AdminUserDetail = {
-  user: AdminUser;
+  user: AdminUserDetailUser;
   analyses: AdminUserAnalysis[];
 };
 
@@ -77,15 +90,19 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
   }
 
   const detail = data as unknown as {
-    user: AdminUser | null;
-    analyses: Omit<AdminUserAnalysis, "thumbUrl" | "fullUrl">[];
-  };
+    user: AdminUserDetailUser | null;
+    analyses: Omit<AdminUserAnalysis, "thumbUrl" | "fullUrl">[] | null;
+  } | null;
   if (!detail?.user) return null;
+
+  // Si la RPC devolviera el usuario sin la lista, este .map de abajo tiraba
+  // TypeError dentro del try del page y se veía como un error de carga.
+  const rows = detail.analyses ?? [];
 
   // Las fotos están en un bucket privado; el cliente service-role puede firmar
   // las de cualquier usuario. `thumb` para la grilla y `full` para el visor, en
   // paralelo (cada firma es un round-trip a Storage).
-  const paths = detail.analyses.map((a) => a.photo_path);
+  const paths = rows.map((a) => a.photo_path);
   const [thumbs, fulls] = await Promise.all([
     signedPhotoUrls(admin, paths, "thumb"),
     signedPhotoUrls(admin, paths, "full"),
@@ -93,7 +110,7 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
 
   return {
     user: detail.user,
-    analyses: detail.analyses.map((a) => ({
+    analyses: rows.map((a) => ({
       ...a,
       thumbUrl: thumbs.get(a.photo_path) ?? null,
       fullUrl: fulls.get(a.photo_path) ?? null,
