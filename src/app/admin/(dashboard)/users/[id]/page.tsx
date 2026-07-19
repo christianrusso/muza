@@ -7,14 +7,21 @@ import { PhotoGrid } from "./PhotoGrid";
 
 export const dynamic = "force-dynamic";
 
-function fmt(n: number): string {
-  return n.toLocaleString("es-AR");
+// Tolera null/undefined a propósito. El tipo AdminUser es compartido entre
+// admin_users_list y admin_user_detail, y la segunda devuelve MENOS campos que
+// los que el tipo declara: el tipo miente y TypeScript no lo puede ver (la RPC
+// va casteada). Un fmt(undefined) tiraba TypeError en render y se comía la ficha
+// entera con "Algo salió mal". Un "—" es infinitamente mejor que una pantalla
+// de error por un número que falta.
+function fmt(n: number | null | undefined): string {
+  return n === null || n === undefined ? "—" : n.toLocaleString("es-AR");
 }
 
 // El gasto de IA por usuario son centavos: con 2 decimales casi todos se verían
 // como "US$ 0,00". Abajo de un dólar mostramos 3 para que se distinga a quién le
 // estamos gastando plata de verdad.
-function fmtUsd(n: number): string {
+function fmtUsd(n: number | null | undefined): string {
+  if (n === null || n === undefined) return "—";
   // Un gasto real que redondea a 0,000 se leería como "no gastó nada", que es
   // justo lo contrario de lo que pasó.
   if (n > 0 && n < 0.001) return "< US$ 0,001";
@@ -23,6 +30,19 @@ function fmtUsd(n: number): string {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })}`;
+}
+
+// parseISO(null) y parseISO("") tiran, y format() de una fecha inválida también.
+// Una sola fila con una fecha rara tumbaba la ficha entera con "Algo salió mal",
+// que es una respuesta desproporcionada para no poder escribir un día y un mes.
+function fmtDate(iso: string | null | undefined, pattern = "dd/MM/yyyy"): string | null {
+  if (!iso) return null;
+  try {
+    const d = parseISO(iso);
+    return Number.isNaN(d.getTime()) ? null : format(d, pattern);
+  } catch {
+    return null;
+  }
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -81,18 +101,19 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           </h1>
           <p className="mt-1 text-sm text-muted">{u.email ?? "—"}</p>
           <p className="mt-0.5 text-xs text-faint">
-            Registrado el {format(parseISO(u.created_at), "dd/MM/yyyy")} · plan {u.plan_tier}
+            {fmtDate(u.created_at) ? `Registrado el ${fmtDate(u.created_at)} · ` : ""}
+            plan {u.plan_tier}
             {u.gender && ` · ${u.gender}`}
-            {u.last_sign_in_at &&
-              ` · último ingreso ${format(parseISO(u.last_sign_in_at), "dd/MM/yyyy HH:mm")}`}
+            {fmtDate(u.last_sign_in_at, "dd/MM/yyyy HH:mm") &&
+              ` · último ingreso ${fmtDate(u.last_sign_in_at, "dd/MM/yyyy HH:mm")}`}
             {/* Junto al último ingreso a propósito: la distancia entre "entró" y
                 "subió una foto" es la señal de un usuario que mira y no usa. */}
-            {u.last_analysis_at &&
-              ` · última foto ${format(parseISO(u.last_analysis_at), "dd/MM/yyyy HH:mm")}`}
+            {fmtDate(u.last_analysis_at, "dd/MM/yyyy HH:mm") &&
+              ` · última foto ${fmtDate(u.last_analysis_at, "dd/MM/yyyy HH:mm")}`}
           </p>
-          {u.blocked_at && (
+          {fmtDate(u.blocked_at, "dd/MM/yyyy HH:mm") && (
             <p className="mt-1 text-xs text-red">
-              Bloqueado el {format(parseISO(u.blocked_at), "dd/MM/yyyy HH:mm")}
+              Bloqueado el {fmtDate(u.blocked_at, "dd/MM/yyyy HH:mm")}
             </p>
           )}
         </div>

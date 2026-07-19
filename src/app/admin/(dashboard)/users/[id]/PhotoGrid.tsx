@@ -1,6 +1,18 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+
+// Misma razon que en la ficha: una fecha invalida en UNA foto no puede tumbar
+// la grilla entera con "Algo salio mal".
+function fmtDate(iso: string | null | undefined, pattern: string): string {
+  if (!iso) return "—";
+  try {
+    const d = parseISO(iso);
+    return Number.isNaN(d.getTime()) ? "—" : format(d, pattern);
+  } catch {
+    return "—";
+  }
+}
 import { useEffect, useState } from "react";
 import type { AdminUserAnalysis } from "@/lib/admin/users";
 
@@ -74,7 +86,7 @@ export function PhotoGrid({ analyses }: { analyses: AdminUserAnalysis[] }) {
               <div className="min-w-0">
                 <p className="truncate text-xs font-medium text-ink">{a.occasion}</p>
                 <p className="text-[11px] text-faint">
-                  {format(parseISO(a.created_at), "dd/MM/yy")}
+                  {fmtDate(a.created_at, "dd/MM/yy")}
                 </p>
               </div>
               <span className={`shrink-0 text-sm font-semibold tabular-nums ${scoreColor(a.overall_score)}`}>
@@ -104,7 +116,7 @@ export function PhotoGrid({ analyses }: { analyses: AdminUserAnalysis[] }) {
                   {open.analysis_type && <span className="text-faint"> · {open.analysis_type}</span>}
                 </p>
                 <p className="text-xs text-faint">
-                  {format(parseISO(open.created_at), "dd/MM/yyyy HH:mm")}
+                  {fmtDate(open.created_at, "dd/MM/yyyy HH:mm")}
                   {open.post_id && ` · publicada · ♥ ${open.post_likes}`}
                 </p>
               </div>
