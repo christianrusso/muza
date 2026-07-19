@@ -9,6 +9,7 @@ import {
   bucketForScore,
   emptyTally,
   communityScore,
+  communityLevel,
   type VoteBucket,
   type VoteTally,
 } from "@/lib/community/constants";
@@ -69,7 +70,9 @@ export function PostVotePanel({
     }
   }
 
+  // El número solo posiciona el punto en la barra; lo que se muestra es el nivel.
   const comScore = communityScore(tally) ?? aiScore;
+  const comLevel = communityLevel(tally);
   const correct = bucket ? bucketForScore(aiScore) === bucket : null;
 
   // Vista con el score revelado. La reusan el anónimo (anzuelo) y el logueado que
@@ -96,18 +99,25 @@ export function PostVotePanel({
             className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--green)]"
             style={{ left: `${aiScore}%` }}
           />
-          <span
-            className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-coral"
-            style={{ left: `${comScore}%` }}
-          />
+          {/* Sin votos no hay punto de comunidad: caía sobre el de la IA y parecía
+              un consenso que nadie emitió. */}
+          {comLevel && (
+            <span
+              className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-coral"
+              style={{ left: `${comScore}%` }}
+            />
+          )}
         </div>
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-semibold">
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[var(--green)]" /> IA <b className="text-ink">{aiScore}</b>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad <b className="text-ink">{comScore}</b>
-          </span>
+          {comLevel && (
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad{" "}
+              <b className="text-ink">{bucketLabel(comLevel)}</b>
+            </span>
+          )}
           {bucket && (
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-ink" /> Tu voto <b className="text-ink">{bucketLabel(bucket)}</b>

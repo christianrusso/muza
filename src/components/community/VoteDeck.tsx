@@ -18,6 +18,7 @@ import {
   bucketForScore,
   emptyTally,
   communityScore,
+  communityLevel,
   type VoteBucket,
   type VoteTally,
 } from "@/lib/community/constants";
@@ -222,7 +223,10 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   }
 
   // ===== Revelado: la foto se reemplaza por el resultado, en el mismo lugar =====
+  // El número solo posiciona el punto en la barra; lo que se muestra es el nivel.
+  // Acá el tally siempre trae al menos el voto propio, así que nunca es null.
   const comScore = communityScore(reveal.tally) ?? aiScore;
+  const comLevel = communityLevel(reveal.tally);
   const correct = bucketForScore(aiScore) === reveal.bucket;
 
   return (
@@ -259,9 +263,12 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-[var(--green)]" /> IA <b className="text-ink">{aiScore}</b>
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad <b className="text-ink">{comScore}</b>
-              </span>
+              {comLevel && (
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad{" "}
+                  <b className="text-ink">{bucketLabel(comLevel)}</b>
+                </span>
+              )}
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-ink" /> Tu voto{" "}
                 <b className="text-ink">{bucketLabel(reveal.bucket)}</b>
