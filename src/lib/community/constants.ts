@@ -54,6 +54,17 @@ const BUCKET_MIDPOINT: Record<VoteBucket, number> = SCORE_LEVELS.reduce(
   {} as Record<VoteBucket, number>,
 );
 
+/**
+ * Rango [min, max] de un nivel, para dibujarlo como franja en la barra.
+ * El último nivel es abierto y su techo es 100.
+ */
+export function bucketRange(bucket: VoteBucket): { min: number; max: number } {
+  const i = SCORE_LEVELS.findIndex((l) => l.level === bucket);
+  const min = SCORE_LEVELS[i]?.min ?? 0;
+  const max = SCORE_LEVELS[i + 1] ? SCORE_LEVELS[i + 1].min - 1 : 100;
+  return { min, max };
+}
+
 export function bucketLabel(bucket: VoteBucket): string {
   return SCORE_LEVELS.find((l) => l.level === bucket)?.label ?? bucket;
 }
@@ -75,8 +86,26 @@ export function emptyTally(): VoteTally {
 }
 
 /**
+ * Nivel de comunidad: en qué nivel cae el consenso.
+ *
+ * Es LO QUE SE MUESTRA, en vez del número de communityScore(). Los votos son
+ * categóricos: quien vota "Impecable" dice "80 o más", no dice 90 — ese 90 lo
+ * inventa el punto medio del nivel abierto. Mostrarlo como número le daba al
+ * consenso la misma pinta de dato exacto que tiene el score de la IA, que sí lo
+ * es. El nivel devuelve el dato a la granularidad que realmente tiene.
+ *
+ * El número sigue existiendo para POSICIONAR el punto en la barra comparativa:
+ * ahí es una aproximación visual y se lee como tal.
+ */
+export function communityLevel(tally: VoteTally): VoteBucket | null {
+  const score = communityScore(tally);
+  return score === null ? null : scoreLevel(score);
+}
+
+/**
  * Score de comunidad: promedio ponderado de los puntos medios de cada nivel,
- * redondeado. Devuelve null si todavía no hay votos.
+ * redondeado. Devuelve null si todavía no hay votos. Para mostrar el consenso
+ * usá communityLevel(); esto es para ubicar el punto en la barra.
  */
 export function communityScore(tally: VoteTally): number | null {
   const total = SCORE_LEVELS.reduce((sum, l) => sum + (tally[l.level] ?? 0), 0);

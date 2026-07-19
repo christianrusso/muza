@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { greetingDate } from "@/lib/dates";
 import { occasionLabel } from "@/lib/occasions";
+import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
@@ -17,7 +18,7 @@ import { DailyChallengeCard } from "@/components/dailyChallenge/DailyChallengeCa
 async function loadHomeData() {
   if (isDemoMode()) {
     const created = Array.from(getDemoStore().analyses.values()).filter(
-      (a) => a.validityStatus === "valid" && a.overallScore !== null,
+      (a) => isScored(a.validityStatus) && a.overallScore !== null,
     );
     const allScores = [
       ...DEMO_ANALYSES.map((a) => a.overallScore),
@@ -71,7 +72,7 @@ async function loadHomeData() {
     .from("analyses")
     .select("id, occasion_id, analysis_type, overall_score, style_descriptors, photo_path, created_at")
     .eq("user_id", user.id)
-    .eq("validity_status", "valid")
+    .in("validity_status", SCORED_VALIDITY_STATUSES)
     .order("created_at", { ascending: false });
 
   const all = validAnalyses ?? [];
@@ -116,8 +117,8 @@ export default async function HomePage() {
               Hola, <span className="font-serif italic text-[32px] font-normal">{firstName}</span>
             </span>
           ) : (
-            // Invitado: no hay nombre a qui�n saludar. Va la propuesta de valor,
-            // que adem�s es la que ya vio en la landing y en /welcome.
+            // Invitado: no hay nombre a quién saludar. Va la propuesta de valor,
+            // que además es la que ya vio en la landing y en /welcome.
             <span className="font-serif italic leading-tight text-ink" style={{ fontSize: 32 }}>
               Tu outfit, evaluado
             </span>
@@ -187,7 +188,7 @@ export default async function HomePage() {
         <div className="card flex-1 p-3.5">
           <span className="section-label">Promedio histórico</span>
           <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-[30px] font-extrabold">{average ?? "–"}</span>
+            <span className="text-[30px] font-extrabold">{average ?? "—"}</span>
           </div>
         </div>
         <div className="card flex-1 p-3.5">
@@ -201,7 +202,7 @@ export default async function HomePage() {
 
       <NewAnalysisCard />
 
-      {/* Próximamente: no es un botón → no navega ni se puede tocar. Está para
+      {/* Próximamente: no es un botón — no navega ni se puede tocar. Está para
           anticipar la feature (borde punteado + candado), no para usarse. */}
       <div
         className="flex items-center gap-3.5 rounded-[20px] border-2 border-dashed border-line-strong px-[18px] py-4"

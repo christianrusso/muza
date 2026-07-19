@@ -11,9 +11,13 @@ import type { AnalysisType } from "@/types/domain";
 export function ResultPhotoHeader({
   photoUrl,
   analysisType,
+  analysisId,
+  children,
 }: {
   photoUrl: string | undefined;
   analysisType: AnalysisType;
+  analysisId: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="ph relative overflow-hidden" style={{ height: 266 }}>
@@ -43,8 +47,9 @@ export function ResultPhotoHeader({
           <MaterialIcon name="chevron_left" size={22} />
         </Link>
         <AnalysisTypePill type={analysisType} style={{ height: 32, background: "rgba(247,245,240,.92)" }} />
-        <ShareButton />
+        <ShareButton analysisId={analysisId} />
       </div>
+      {children}
     </div>
   );
 }

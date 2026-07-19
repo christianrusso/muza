@@ -14,13 +14,33 @@ function PartialContent() {
   const occasion = searchParams.get("occasion") ?? "other";
   const analysisType = (searchParams.get("type") ?? "individual") as AnalysisType;
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleContinue() {
     setSubmitting(true);
-    const res = await fetch(`/api/analyses/${params.id}/score`, { method: "POST" });
-    setSubmitting(false);
-    if (res.ok) {
-      router.push(`/analysis/${params.id}/result`);
+    setError(null);
+    try {
+      const res = await fetch(`/api/analyses/${params.id}/score`, { method: "POST" });
+      if (res.ok) {
+        router.push(`/analysis/${params.id}/result`);
+        return;
+      }
+      // Un parcial puede terminar sin ninguna prenda detectada (422): la parte
+      // visible no alcanzaba. Es un veredicto sobre la foto, no una falla.
+      if (res.status === 409 || res.status === 422) {
+        const body = await res.json().catch(() => null);
+        const reason = body?.error?.reason;
+        router.replace(
+          `/analysis/${params.id}/invalid?occasion=${occasion}` + (reason ? `&reason=${reason}` : ""),
+        );
+        return;
+      }
+      // Antes cualquier fallo dejaba el botón sin hacer nada y sin explicación.
+      setError("No pudimos calcular tu puntaje. Fue un problema momentáneo, probá de nuevo.");
+    } catch {
+      setError("No pudimos calcular tu puntaje. Revisá tu conexión y probá de nuevo.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -55,6 +75,10 @@ function PartialContent() {
             </p>
           </div>
         </div>
+
+        {error && (
+          <p className="mb-3 text-center text-[13px] font-semibold text-coral">{error}</p>
+        )}
 
         <Button onClick={handleContinue} disabled={submitting} className="mb-2.5">
           {submitting ? "Analizando..." : "Continuar de todos modos"}

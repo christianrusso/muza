@@ -39,7 +39,7 @@ import {
   type ValidationResult,
   type ScoringResult,
 } from "@/lib/ai/schema";
-import { computeOverallScore, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, spreadScore, scoreLevelLabel, SCORE_CATEGORIES } from "@/lib/scoring/categories";
 import { OCCASIONS, occasionLabel } from "@/lib/occasions";
 import type { OccasionId } from "@/types/domain";
 
@@ -577,7 +577,7 @@ function toCsv(results: ImageResult[]): string {
     "analysisType",
     "overall",
     ...catKeys,
-    "badge",
+    "nivel",
     "val_ms",
     "score_ms",
     "error",
@@ -596,7 +596,7 @@ function toCsv(results: ImageResult[]): string {
           run.validation?.analysisType ?? "",
           run.overall ?? "",
           ...catKeys.map(catScore),
-          csvCell(run.scoring?.qualitativeBadge ?? ""),
+          csvCell(run.overall === null ? "" : scoreLevelLabel(spreadScore(run.overall))),
           run.validationMeta?.ms ?? "",
           run.scoringMeta?.ms ?? "",
           csvCell(run.error ?? ""),

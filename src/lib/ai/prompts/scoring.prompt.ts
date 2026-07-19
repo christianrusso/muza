@@ -62,8 +62,7 @@ Para cada categoría devolvé "key" (exactamente una de las anteriores), "score"
 Además devolvé:
 - "styleDescriptors": 1-3 palabras/frases cortas que describan el estilo (ej. ["Casual chic", "Elegante"]).
 - "occasionContext": una frase corta y opcional que combine la ocasión con un matiz de estilo/momento (ej. "Cita nocturna"), o null si no aplica.
-- "qualitativeBadge": una etiqueta corta de 2-3 palabras que resuma el resultado (ej. "Buen look", "Para mejorar", "Excelente elección").
-- "detected": prendas superiores, prendas inferiores, calzado, accesorios y colores predominantes detectados (listas de strings en español, vacías si no aplica/no visibles), y "estilo" (una palabra que describa el estilo general, o null).
+- "detected": prendas superiores, prendas inferiores, calzado, accesorios y colores predominantes detectados (listas de strings en español, vacías si no aplica/no visibles), y "estilo" (una palabra que describa el estilo general, o null). Listá SOLO lo que ves de verdad: si una prenda no está en cuadro, la lista va vacía. No completes por inferencia (no supongas un pantalón porque hay una remera) — el sistema usa estas listas para detectar fotos sin outfit evaluable.
 - "strengths": 2-4 fortalezas concretas del outfit (en español, frases cortas).
 - "improvements": 2-4 aspectos a mejorar concretos (en español, frases cortas, constructivas).
 - "recommendations": 4-6 recomendaciones de acción concretas y accionables (en español, frases cortas tipo "Agregá un cinturón de cuero"). Que sean variadas y no redundantes entre sí.

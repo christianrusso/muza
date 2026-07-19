@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { loadMoreVoteCards } from "@/app/(app)/(tabs)/community/actions";
 import { relativeShortDate } from "@/lib/dates";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { ScoreRing } from "@/components/community/ScoreRing";
@@ -16,7 +17,8 @@ import {
   bucketLabel,
   bucketForScore,
   emptyTally,
-  communityScore,
+  communityLevel,
+  bucketRange,
   type VoteBucket,
   type VoteTally,
 } from "@/lib/community/constants";
@@ -73,18 +75,52 @@ function CardPhoto({ url, children }: { url: string | null; children?: ReactNode
   );
 }
 
+// Cuántas cartas ya mostradas mandamos como "no repitas estas". Es una ventana,
+// no el historial completo: con el corpus chico, excluir todo dejaría la cola seca.
+const RECENT_WINDOW = 40;
+// Cuántas cartas sin consumir tienen que quedar para pedir la próxima tanda.
+const PREFETCH_AT = 4;
+
 export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   const { requireAuth } = useGuestGate();
+  const [cards, setCards] = useState(initialQueue);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState<{ bucket: VoteBucket; tally: VoteTally } | null>(null);
   const [voting, setVoting] = useState(false);
+  // Solo se prende si el servidor devuelve una tanda vacía: ahí no hay nada que
+  // votar en toda la comunidad y el deck sí puede terminar. Una cola inicial
+  // vacía ya significa eso (loadVoteQueue recicla antes de devolver nada).
+  const [exhausted, setExhausted] = useState(initialQueue.length === 0);
+  const loadingRef = useRef(false);
 
-  const card = initialQueue[index];
+  const topUp = useCallback(async (recent: string[]) => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    try {
+      const next = await loadMoreVoteCards(recent);
+      if (next.length === 0) setExhausted(true);
+      else setCards((prev) => [...prev, ...next]);
+    } catch {
+      // Sin red la tanda actual sigue siendo válida; se reintenta en el próximo next().
+    } finally {
+      loadingRef.current = false;
+    }
+  }, []);
+
+  const card = cards[index];
 
   if (!card) {
+    // Sin carta pero con tanda en vuelo: es un hueco momentáneo, no el final.
+    if (!exhausted) {
+      return (
+        <div className="flex flex-1 flex-col items-center justify-center px-[22px] py-20 text-center">
+          <p className="text-sm font-semibold text-muted">Buscando más looks…</p>
+        </div>
+      );
+    }
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-[22px] py-20 text-center">
-        <p className="text-lg font-extrabold text-ink">Por ahora votaste todo 👏</p>
+        <p className="text-lg font-extrabold text-ink">Todavía no hay looks para votar 👀</p>
         <p className="mt-1.5 text-sm font-semibold text-muted">Volvé más tarde o mirá a quién seguís.</p>
         <Link
           href="/community?tab=siguiendo"
@@ -126,7 +162,13 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
 
   function next() {
     setReveal(null);
-    setIndex((i) => i + 1);
+    const nextIndex = index + 1;
+    setIndex(nextIndex);
+    // Recarga anticipada: la próxima tanda se pide antes de tocar el fondo, así
+    // el usuario nunca ve el hueco.
+    if (!exhausted && cards.length - nextIndex <= PREFETCH_AT) {
+      void topUp(cards.slice(-RECENT_WINDOW).map((c) => c.postId));
+    }
   }
 
   const aiScore = card.overallScore;
@@ -181,15 +223,24 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   }
 
   // ===== Revelado: la foto se reemplaza por el resultado, en el mismo lugar =====
-  const comScore = communityScore(reveal.tally) ?? aiScore;
+  // El consenso se dibuja como FRANJA (el rango del nivel), no como punto: los
+  // votos son categóricos y un punto afirmaría una posición exacta que nadie votó.
+  // Acá el tally siempre trae al menos el voto propio, así que nunca es null.
+  const comLevel = communityLevel(reveal.tally);
+  const comRange = comLevel ? bucketRange(comLevel) : null;
   const correct = bucketForScore(aiScore) === reveal.bucket;
 
   return (
-    <div className="flex flex-1 flex-col px-[22px] pb-4 pt-3">
-      <div className="flex flex-1 flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
+    // A diferencia del estado con foto, acá la carta NO se estira: el contenido
+    // del revelado es bastante más bajo y el flex-1 dejaba un hueco blanco entre
+    // el bloque de seguir y el botón. Se ajusta al contenido y se centra en el
+    // espacio sobrante; si no entra (pantalla corta) crece y scrollea la página,
+    // que es el contenedor con overflow (ver el layout de tabs).
+    <div className="flex flex-1 flex-col justify-center px-[22px] pb-4 pt-3">
+      <div className="flex flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
         {header}
 
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 py-1">
+        <div className="flex flex-col items-center gap-3.5 py-1">
           <ScoreRing score={aiScore} size={116} />
           <p className="text-center text-[15px] font-extrabold text-ink">
             {correct ? (
@@ -205,22 +256,33 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
           <div className="w-full">
             <span className="section-label">IA vs. Comunidad</span>
             <div className="relative mt-2.5 h-2 rounded-full" style={{ background: "var(--line)" }}>
+              {/* La franja va primero: el punto de la IA (que sí es un valor
+                  exacto) queda encima. */}
+              {comRange && (
+                <span
+                  className="absolute inset-y-0 rounded-full bg-coral opacity-40"
+                  style={{ left: `${comRange.min}%`, width: `${comRange.max - comRange.min}%` }}
+                />
+              )}
               <span
                 className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--green)]"
                 style={{ left: `${aiScore}%` }}
-              />
-              <span
-                className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-coral"
-                style={{ left: `${comScore}%` }}
               />
             </div>
             <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-semibold">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-[var(--green)]" /> IA <b className="text-ink">{aiScore}</b>
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad <b className="text-ink">{comScore}</b>
-              </span>
+              {comLevel && comRange && (
+                <span className="flex items-center gap-1.5">
+                  {/* Swatch alargado, igual que la franja: no es un valor puntual. */}
+                  <span className="h-2 w-4 rounded-full bg-coral opacity-40" /> Comunidad{" "}
+                  <b className="text-ink">{bucketLabel(comLevel)}</b>
+                  <span className="text-faint">
+                    {comRange.min}–{comRange.max}
+                  </span>
+                </span>
+              )}
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-ink" /> Tu voto{" "}
                 <b className="text-ink">{bucketLabel(reveal.bucket)}</b>

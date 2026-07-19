@@ -13,12 +13,18 @@ export const AnalysisTypeSchema = z.enum(["completo", "superior", "inferior", "i
  * - not_outfit: el sujeto no es vestimenta (comida, mascota, paisaje, objeto,
  *   captura de pantalla, meme).
  * - no_clothing_visible: hay una persona pero no hay ropa que analizar.
- * - occluded: hay ropa, pero tapada o fuera de cuadro.
+ * - framing: hay una persona vestida, pero el encuadre deja las prendas fuera
+ *   (primer plano de la cara, recorte muy cerrado). Se separó de `occluded`
+ *   porque el problema y el consejo son distintos: acá no hay nada tapando, hay
+ *   que alejar la cámara. Sin esta categoría, un retrato pasaba como "valid" y
+ *   terminaba con un score bajo que el usuario lee como un juicio sobre su ropa.
+ * - occluded: hay ropa en cuadro, pero tapada por objetos u otras personas.
  * - photo_quality: la ropa está, el problema es la foto (luz, foco, resolución).
  */
 export const InvalidReasonSchema = z.enum([
   "not_outfit",
   "no_clothing_visible",
+  "framing",
   "occluded",
   "photo_quality",
 ]);
@@ -55,10 +61,27 @@ export const ScoringResultSchema = z.object({
   styleDescriptors: z.array(z.string()),
   occasionContext: z.string().nullable(),
   categories: z.array(ScoringCategorySchema).length(SCORE_CATEGORIES.length),
-  qualitativeBadge: z.string(),
   detected: DetectedItemsSchema,
   strengths: z.array(z.string()),
   improvements: z.array(z.string()),
   recommendations: z.array(z.string()),
 });
 export type ScoringResult = z.infer<typeof ScoringResultSchema>;
+
+/**
+ * ¿El scoring llegó a ver prendas reales? Red de seguridad server-side para las
+ * fotos que el validador dejó pasar sin outfit evaluable (típicamente un primer
+ * plano de la cara). Sin esto, el motor puntúa igual: la ocasión queda muy baja,
+ * `occasionCeiling` la vuelve el techo del score, y sale un 16/100 que el usuario
+ * lee como un juicio sobre su ropa en vez de "no vimos tu ropa".
+ *
+ * Sólo cuentan las tres listas de PRENDAS. Los accesorios quedan fuera a
+ * propósito: un retrato suele devolver aros o anteojos, y eso no es un outfit.
+ */
+export function hasEvaluableGarments(detected: z.infer<typeof DetectedItemsSchema>): boolean {
+  return (
+    detected.prendasSuperiores.length > 0 ||
+    detected.prendasInferiores.length > 0 ||
+    detected.calzado.length > 0
+  );
+}

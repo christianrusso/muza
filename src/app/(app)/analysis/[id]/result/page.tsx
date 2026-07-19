@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getHydratedAnalysis } from "@/lib/analyses";
 import { occasionFullLabel } from "@/lib/occasions";
@@ -6,12 +7,10 @@ import { ResultScoreCard } from "@/components/analysis/ResultScoreCard";
 import { ResultFeedbackSection } from "@/components/analysis/ResultFeedbackSection";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
 import { PhotoLightbox } from "@/components/analysis/PhotoLightbox";
-import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
 import { ScoreViewedTracker } from "@/components/analysis/ScoreViewedTracker";
 import { PublishButton } from "@/components/community/PublishButton";
 import { getPostForAnalysis } from "@/lib/community/posts";
-import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { TabScreenShell } from "@/components/navigation/TabScreenShell";
 
@@ -41,60 +40,25 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
     .join(" · ");
 
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden">
+    <TabScreenShell>
       <ScoreViewedTracker
         analysisId={id}
         occasionId={analysis.occasionId}
         analysisType={analysis.analysisType}
         overallScore={analysis.overallScore}
       />
-      <div className="flex-1 overflow-y-auto pb-[100px]">
-      <div className="ph relative overflow-hidden" style={{ height: 266 }}>
-        {analysis.photoUrl && (
-          // Foto como fondo ambiental (borrosa): antes se veía nítida y quedaba
-          // rara según el encuadre (ej. la cara en una foto "superior"). El blur
-          // + scale la vuelve una textura de color detrás del score. El scale
-          // evita que el blur deje bordes transparentes.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={analysis.photoUrl}
-            alt=""
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ filter: "blur(20px)", transform: "scale(1.2)" }}
-          />
-        )}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(20,18,16,.42), rgba(20,18,16,.1) 34%, rgba(247,245,240,0) 68%, var(--paper))",
-          }}
-        />
-        <div className="absolute left-5 right-5 top-[58px] flex items-center justify-between">
-          <Link
-            href="/home"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-full"
-            style={{ background: "rgba(247,245,240,.9)" }}
-          >
-            <MaterialIcon name="chevron_left" size={22} />
-          </Link>
-          <AnalysisTypePill type={analysis.analysisType} style={{ height: 32, background: "rgba(247,245,240,.92)" }} />
-          <ShareButton analysisId={id} />
-        </div>
-
+      <ResultPhotoHeader photoUrl={analysis.photoUrl} analysisType={analysis.analysisType} analysisId={id}>
         {analysis.photoUrl && (
           <div className="absolute left-1/2 top-[102px] -translate-x-1/2">
             <PhotoLightbox url={analysis.photoUrl} />
           </div>
         )}
-      </div>
+      </ResultPhotoHeader>
 
       <div className="relative px-[22px]" style={{ marginTop: -70 }}>
         <ResultScoreCard
           score={analysis.overallScore}
           occasionAndStyle={occasionAndStyle}
-          qualitativeBadge={analysis.qualitativeBadge}
           detectedColores={analysis.detectedColores}
         />
 
@@ -148,7 +112,6 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           items={aspectos}
         />
         <ResultFeedbackSection title="Recomendaciones" variant="rec" items={recomendaciones} />
-      </div>
       </div>
     </TabScreenShell>
   );

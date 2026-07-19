@@ -50,6 +50,16 @@ const VARIANTS: Record<string, Variant> = {
     tips: [],
     cta: "Subir otra foto",
   },
+  // El caso más común de esta familia es el primer plano de la cara. El mensaje
+  // no dice "no detectamos ropa" (suena a que la persona hizo algo mal): dice qué
+  // hacer distinto, que es lo único accionable — alejarse de la cámara.
+  framing: {
+    icon: "zoom_out_map",
+    title: "Quedó muy cerca",
+    subtitle: "Necesitamos ver tu ropa para analizarla. Alejá un poco la cámara y que entre el outfit.",
+    tips: TIPS_ENCUADRE,
+    cta: "Reintentar",
+  },
   occluded: {
     icon: "visibility_off",
     title: "La ropa quedó tapada",

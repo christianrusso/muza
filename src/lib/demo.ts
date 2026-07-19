@@ -41,7 +41,6 @@ export interface DemoAnalysis {
   occasionId: OccasionId;
   analysisType: AnalysisType;
   overallScore: number;
-  qualitativeBadge: string;
   styleDescriptors: string[];
   detectedColores: string[];
   categories: AnalysisCategoryRow[];
@@ -95,7 +94,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "date",
     analysisType: "completo",
     overallScore: 82,
-    qualitativeBadge: "Buen look",
     styleDescriptors: ["Casual chic", "Elegante"],
     detectedColores: ["Blanco", "Negro", "Camel"],
     categories: FEATURED_CATEGORIES,
@@ -107,7 +105,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "work",
     analysisType: "superior",
     overallScore: 74,
-    qualitativeBadge: "Para mejorar",
     styleDescriptors: ["Formal"],
     detectedColores: ["Azul marino", "Blanco", "Gris"],
     categories: buildCategories({ ocasion: 80, calzado: 70 }),
@@ -126,7 +123,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "gym",
     analysisType: "inferior",
     overallScore: 68,
-    qualitativeBadge: "Para mejorar",
     styleDescriptors: ["Deportivo"],
     detectedColores: ["Negro", "Gris", "Verde militar"],
     categories: buildCategories({}),
@@ -143,7 +139,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "party",
     analysisType: "completo",
     overallScore: 91,
-    qualitativeBadge: "Excelente elección",
     styleDescriptors: ["Audaz"],
     detectedColores: ["Bordó", "Negro", "Dorado"],
     categories: buildCategories({ ocasion: 95, colores: 92 }),
@@ -172,7 +167,6 @@ export function getDemoAnalysis(id: string): Analysis | null {
     analysisType: found.analysisType,
     validityStatus: "valid",
     overallScore: found.overallScore,
-    qualitativeBadge: found.qualitativeBadge,
     styleDescriptors: found.styleDescriptors,
     detectedPrendasSuperiores: [],
     detectedPrendasInferiores: [],
@@ -209,7 +203,6 @@ export function buildStubScoringResult(occasionLabel: string) {
       score: c.score,
       justification: c.justification,
     })),
-    qualitativeBadge: "Buen look",
     detected: {
       prendasSuperiores: ["Camisa blanca"],
       prendasInferiores: ["Pantalón negro"],

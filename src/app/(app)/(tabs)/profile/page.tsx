@@ -4,6 +4,7 @@ import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { AvatarUploader } from "@/components/profile/AvatarUploader";
 
@@ -11,7 +12,7 @@ async function loadProfileData() {
   if (isDemoMode()) {
     const store = getDemoStore();
     const created = Array.from(store.analyses.values()).filter(
-      (a) => a.validityStatus === "valid" && a.overallScore !== null,
+      (a) => isScored(a.validityStatus) && a.overallScore !== null,
     );
     const scores = [...created.map((a) => a.overallScore!), ...DEMO_ANALYSES.map((a) => a.overallScore)];
     const average = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
@@ -49,7 +50,7 @@ async function loadProfileData() {
     .from("analyses")
     .select("overall_score")
     .eq("user_id", user!.id)
-    .eq("validity_status", "valid");
+    .in("validity_status", SCORED_VALIDITY_STATUSES);
   const scores = (analyses ?? []).map((a) => a.overall_score).filter((s): s is number => s !== null);
   const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 

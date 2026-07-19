@@ -3,6 +3,7 @@ import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { occasionLabel } from "@/lib/occasions";
 import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { PublishButton } from "@/components/community/PublishButton";
@@ -21,7 +22,7 @@ async function loadEligibleAnalyses(): Promise<EligibleAnalysis[]> {
     const store = getDemoStore();
     const postedAnalysisIds = new Set(Array.from(store.posts.values()).map((p) => p.analysisId));
     const created = Array.from(store.analyses.values())
-      .filter((a) => a.validityStatus === "valid" && a.overallScore !== null && !postedAnalysisIds.has(a.id))
+      .filter((a) => isScored(a.validityStatus) && a.overallScore !== null && !postedAnalysisIds.has(a.id))
       .map((a) => ({
         id: a.id,
         occasion_id: a.occasionId,
@@ -54,7 +55,7 @@ async function loadEligibleAnalyses(): Promise<EligibleAnalysis[]> {
     .from("analyses")
     .select("id, occasion_id, analysis_type, overall_score, photo_path, created_at")
     .eq("user_id", user!.id)
-    .eq("validity_status", "valid")
+    .in("validity_status", SCORED_VALIDITY_STATUSES)
     .order("created_at", { ascending: false });
 
   const eligible = (analyses ?? []).filter((a) => !postedIds.has(a.id));

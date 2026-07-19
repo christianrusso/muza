@@ -143,6 +143,19 @@ button {
   box-shadow: none;
   cursor: default;
 }
+/* Violeta: acción principal de colorimetría. El coral es la acción principal
+   del análisis de outfit; colorimetría usa violeta en todos lados (ícono del
+   home, badges) y el CTA acompaña esa familia. */
+.btn-violet {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 14px 26px -14px rgba(91, 79, 214, 0.6);
+}
+.btn-violet:disabled {
+  color: rgba(255, 255, 255, 0.6);
+  box-shadow: none;
+  cursor: default;
+}
 .btn-outline {
   background: #fff;
   border: 1.5px solid var(--line-strong);
