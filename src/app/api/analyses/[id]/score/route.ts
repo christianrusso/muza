@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreOutfit, AIScoringError } from "@/lib/ai/scoreOutfit";
+import { hasEvaluableGarments } from "@/lib/ai/schema";
 import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { getFewShotExamples } from "@/lib/scoring/knowledgeBase";
 import { computeOverallScore, spreadScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
@@ -27,7 +28,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     const overallScore = spreadScore(computeOverallScore(result.categories, result.analysisType));
     updateDemoAnalysisScore(id, {
       overallScore,
-      qualitativeBadge: result.qualitativeBadge,
       styleDescriptors: result.styleDescriptors,
       // Solo guardamos las categorías que aplican al tipo (ej. sin "calzado" en
       // una foto "superior") para que no aparezcan en el desglose como neutras.
@@ -123,6 +123,34 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       userId: user.id,
     });
 
+    // Red de seguridad: el validador puede dejar pasar una foto sin outfit
+    // evaluable (un primer plano de la cara es el caso típico — hay una persona,
+    // está vestida, y sólo el encuadre falla). Si llegamos hasta acá y el modelo
+    // no detectó NINGUNA prenda, el score que saldría es basura: la ocasión
+    // puntúa bajísimo, occasionCeiling la convierte en el techo del general, y
+    // el usuario ve un 16/100 como si fuera un juicio sobre su ropa. Preferimos
+    // no guardar nada y mandarlo a /invalid con el motivo correcto.
+    //
+    // Va DESPUÉS del scoring y no antes porque es la primera vez que tenemos la
+    // lista de prendas detectadas; el costo de la llamada ya se pagó igual.
+    if (!hasEvaluableGarments(result.detected)) {
+      await supabase
+        .from("analyses")
+        .update({ validity_status: "invalid", ai_raw_response: result })
+        .eq("id", id);
+
+      return NextResponse.json(
+        {
+          error: {
+            code: "NO_GARMENTS_DETECTED",
+            message: "No pudimos ver prendas para analizar en esta foto.",
+            reason: "framing",
+          },
+        },
+        { status: 422 },
+      );
+    }
+
     // Estiramos la escala (ver spreadScore): el modelo comprime todo lo decente
     // en ~65-90; esto re-expande esa banda preservando el orden, y deja el general
     // y las categorías en la misma escala que las bandas de color.
@@ -131,9 +159,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     await supabase
       .from("analyses")
       .update({
-        validity_status: "valid",
+        // Un parcial sigue siendo parcial después de puntuarlo. Antes acá se
+        // escribía "valid" a secas y se perdía el estado: el análisis aparecía
+        // como válido en home/historial/perfil y como publicable en la comunidad,
+        // que filtran por validity_status = 'valid'.
+        validity_status: analysis.validity_status === "partial" ? "partial" : "valid",
         overall_score: overallScore,
-        qualitative_badge: result.qualitativeBadge,
         style_descriptors: result.styleDescriptors,
         detected_prendas_superiores: result.detected.prendasSuperiores,
         detected_prendas_inferiores: result.detected.prendasInferiores,

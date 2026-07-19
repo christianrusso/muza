@@ -19,7 +19,7 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { buildScoringPrompt } from "@/lib/ai/prompts/scoring.prompt";
 import { ScoringResultSchema } from "@/lib/ai/schema";
-import { computeOverallScore } from "@/lib/scoring/categories";
+import { computeOverallScore, spreadScore, scoreLevelLabel } from "@/lib/scoring/categories";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..", "..");
@@ -71,11 +71,14 @@ async function scoreOnce(
   });
   const p = res.output_parsed!;
   const occ = p.categories.find((c) => c.key === "ocasion");
+  const overall = computeOverallScore(p.categories, p.analysisType);
   return {
-    overall: computeOverallScore(p.categories, p.analysisType),
+    overall,
     ocasion: occ?.score,
     just: occ?.justification,
-    badge: p.qualitativeBadge,
+    // El nivel que vería el usuario: la insignia se deriva del score estirado,
+    // igual que en la pantalla de resultado.
+    badge: scoreLevelLabel(spreadScore(overall)),
   };
 }
 

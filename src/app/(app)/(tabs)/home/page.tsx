@@ -6,6 +6,7 @@ import { occasionLabel } from "@/lib/occasions";
 import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
@@ -15,7 +16,7 @@ import type { AnalysisType, OccasionId } from "@/types/domain";
 async function loadHomeData() {
   if (isDemoMode()) {
     const created = Array.from(getDemoStore().analyses.values()).filter(
-      (a) => a.validityStatus === "valid" && a.overallScore !== null,
+      (a) => isScored(a.validityStatus) && a.overallScore !== null,
     );
     const allScores = [
       ...DEMO_ANALYSES.map((a) => a.overallScore),
@@ -69,7 +70,7 @@ async function loadHomeData() {
     .from("analyses")
     .select("id, occasion_id, analysis_type, overall_score, style_descriptors, photo_path, created_at")
     .eq("user_id", user.id)
-    .eq("validity_status", "valid")
+    .in("validity_status", SCORED_VALIDITY_STATUSES)
     .order("created_at", { ascending: false });
 
   const all = validAnalyses ?? [];
