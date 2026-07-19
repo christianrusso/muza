@@ -9,40 +9,64 @@ const BADGE = {
   like: { icon: "favorite", bg: "var(--coral)" },
   comment: { icon: "chat_bubble", bg: "var(--green)" },
   follow: { icon: "person_add", bg: "var(--ink)" },
+  votes: { icon: "how_to_vote", bg: "var(--coral)" },
 } as const;
 
 const ACTION_TEXT = {
   like: "le dio like a tu look",
   comment: "comentó tu look",
   follow: "empezó a seguirte",
+  votes: "",
 } as const;
 
 function ActivityRow({ item }: { item: ActivityItem }) {
-  // Los follows llevan al perfil del que te siguió; likes/comentarios al post.
+  // Los follows llevan al perfil del que te siguió; el resto al post.
   const href = item.kind === "follow" ? `/community/user/${item.actorId}` : `/community/post/${item.postId}`;
+  // Los votos son un resumen: no hay actor, así que en vez del avatar va el ícono
+  // sobre un círculo neutro y el texto habla del post, no de una persona.
+  const isVotes = item.kind === "votes";
+  const count = item.voteCount ?? 0;
 
   return (
     <Link href={href} className="flex items-center gap-3">
       <div className="relative flex-none">
-        {item.actorAvatarUrl ? (
+        {isVotes ? (
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-coral-soft" aria-hidden>
+            <MaterialIcon name="how_to_vote" size={20} className="text-coral" />
+          </span>
+        ) : item.actorAvatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.actorAvatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
         ) : (
           <div className="ph h-10 w-10 rounded-full" />
         )}
-        <span
-          className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
-          style={{ background: BADGE[item.kind].bg }}
-        >
-          <MaterialIcon name={BADGE[item.kind].icon} size={12} filled />
-        </span>
+        {!isVotes && (
+          <span
+            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
+            style={{ background: BADGE[item.kind].bg }}
+          >
+            <MaterialIcon name={BADGE[item.kind].icon} size={12} filled />
+          </span>
+        )}
       </div>
 
       <div className="flex-1 leading-tight">
-        <span className="text-[13.5px] font-extrabold">{item.actorName}</span>{" "}
-        <span className="text-[13.5px] font-semibold text-muted">{ACTION_TEXT[item.kind]}</span>
-        {item.kind === "comment" && item.commentBody && (
-          <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold text-ink">“{item.commentBody}”</p>
+        {isVotes ? (
+          <>
+            <span className="text-[13.5px] font-extrabold">
+              {count === 1 ? "1 persona votó" : `${count} personas votaron`}
+            </span>{" "}
+            <span className="text-[13.5px] font-semibold text-muted">tu look</span>
+            <p className="mt-0.5 text-[13px] font-semibold text-muted">Mirá cómo viene el consenso</p>
+          </>
+        ) : (
+          <>
+            <span className="text-[13.5px] font-extrabold">{item.actorName}</span>{" "}
+            <span className="text-[13.5px] font-semibold text-muted">{ACTION_TEXT[item.kind]}</span>
+            {item.kind === "comment" && item.commentBody && (
+              <p className="mt-0.5 line-clamp-2 text-[13px] font-semibold text-ink">“{item.commentBody}”</p>
+            )}
+          </>
         )}
         <span className="mt-0.5 block text-[11px] font-semibold text-faint">
           {relativeShortDate(item.createdAt)}
@@ -79,7 +103,7 @@ export default async function ActivityPage() {
           <p className="text-sm font-semibold text-muted">
             Todavía no hay actividad.
             <br />
-            Cuando te den like o comenten tus looks, aparece acá.
+            Cuando voten, te den like o comenten tus looks, aparece acá.
           </p>
         </div>
       ) : (
