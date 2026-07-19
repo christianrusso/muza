@@ -243,6 +243,22 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["follows"]["Row"]>;
         Relationships: [];
       };
+      user_block_history: {
+        Row: {
+          id: string;
+          blocker_id: string;
+          blocked_id: string;
+          blocked_at: string;
+          unblocked_at: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["user_block_history"]["Row"]> & {
+          blocker_id: string;
+          blocked_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["user_block_history"]["Row"]>;
+        Relationships: [];
+      };
       post_votes: {
         Row: {
           id: string;
@@ -303,6 +319,31 @@ export interface Database {
       unread_activity_count: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      is_blocked_with: {
+        Args: { p_target_id: string };
+        Returns: boolean;
+      };
+      is_post_blocked: {
+        Args: { p_post_id: string };
+        Returns: boolean;
+      };
+      set_user_blocked: {
+        Args: { p_blocked_id: string; p_blocked: boolean };
+        Returns: Json;
+      };
+      list_my_blocked_users: {
+        Args: Record<string, never>;
+        Returns: {
+          user_id: string;
+          name: string;
+          avatar_url: string | null;
+          blocked_at: string;
+        }[];
+      };
+      admin_block_metrics: {
+        Args: Record<string, never>;
+        Returns: Json;
       };
     };
     Enums: Record<string, never>;

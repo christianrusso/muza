@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { emptyTally } from "@/lib/community/constants";
+import { isPostBlocked } from "@/lib/community/blocks";
 
 // Los votos son los 4 niveles de la escala (ver SCORE_LEVELS).
 const VoteSchema = z.object({ bucket: z.enum(["mejorar", "bien", "muy_bueno", "impecable"]) });
@@ -17,6 +18,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { bucket } = body.data;
 
   if (isDemoMode()) {
+    if (await isPostBlocked(id)) {
+      return NextResponse.json(
+        { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+        { status: 403 },
+      );
+    }
     getDemoStore().votes.set(id, bucket);
     // Consenso fabricado para el reveal en demo: solo cuenta el voto propio.
     const tally = emptyTally();
@@ -30,6 +37,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "No autenticado." } }, { status: 401 });
+  }
+
+  if (await isPostBlocked(id)) {
+    return NextResponse.json(
+      { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+      { status: 403 },
+    );
   }
 
   const { error } = await supabase
