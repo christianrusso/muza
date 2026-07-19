@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getHydratedAnalysis } from "@/lib/analyses";
 import { occasionFullLabel } from "@/lib/occasions";
+import { scoreLevelLabel, scoreBandColorVar } from "@/lib/scoring/categories";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
@@ -97,12 +98,22 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           <ScoreRing score={analysis.overallScore} />
           <span className="section-label mt-4">Outfit Score</span>
           <span className="font-serif mt-1.5 text-[22px]">{occasionAndStyle}</span>
-          {analysis.qualitativeBadge && (
-            <span className="badge badge--top mt-3" style={{ height: 28 }}>
-              <MaterialIcon name="verified" size={15} />
-              {analysis.qualitativeBadge}
-            </span>
-          )}
+          {/* La insignia sale del MISMO score que pinta el aro (SCORE_LEVELS, la
+              fuente única de la escala). Antes era texto libre del modelo con la
+              clase fija `badge--top`, que es verde: un 16 pintaba el aro de rojo
+              y la insignia de verde, diciendo dos cosas opuestas sobre el mismo
+              outfit. */}
+          <span
+            className="badge mt-3"
+            style={{
+              height: 28,
+              color: scoreBandColorVar(analysis.overallScore),
+              background: `color-mix(in srgb, ${scoreBandColorVar(analysis.overallScore)} 14%, transparent)`,
+            }}
+          >
+            <MaterialIcon name="verified" size={15} />
+            {scoreLevelLabel(analysis.overallScore)}
+          </span>
         </div>
 
         {communityPost ? (

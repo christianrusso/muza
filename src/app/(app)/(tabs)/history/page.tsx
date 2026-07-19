@@ -8,6 +8,7 @@ import { relativeShortDate } from "@/lib/dates";
 import { scoreBandColorVar } from "@/lib/scoring/categories";
 import { isDemoMode, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { getPostRefsForUser } from "@/lib/community/posts";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { PublishButton } from "@/components/community/PublishButton";
@@ -27,7 +28,7 @@ interface HistoryItem {
 async function loadHistoryData(activeType: AnalysisType | "all"): Promise<HistoryItem[]> {
   if (isDemoMode()) {
     const created = Array.from(getDemoStore().analyses.values())
-      .filter((a) => a.validityStatus === "valid" && a.overallScore !== null)
+      .filter((a) => isScored(a.validityStatus) && a.overallScore !== null)
       .map((a) => ({
         id: a.id,
         occasion_id: a.occasionId,
@@ -64,7 +65,7 @@ async function loadHistoryData(activeType: AnalysisType | "all"): Promise<Histor
     .from("analyses")
     .select("id, occasion_id, analysis_type, overall_score, photo_path, created_at")
     .eq("user_id", user!.id)
-    .eq("validity_status", "valid")
+    .in("validity_status", SCORED_VALIDITY_STATUSES)
     .order("created_at", { ascending: false });
 
   if (activeType !== "all") query = query.eq("analysis_type", activeType);

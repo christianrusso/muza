@@ -202,7 +202,6 @@ async function seedOne(
     analysis_type: ANALYSIS_TYPE,
     validity_status: "valid",
     overall_score: overall,
-    qualitative_badge: result.qualitativeBadge,
     style_descriptors: result.styleDescriptors,
     detected_prendas_superiores: result.detected.prendasSuperiores,
     detected_prendas_inferiores: result.detected.prendasInferiores,

@@ -63,7 +63,6 @@ export interface Analysis {
   analysisType: AnalysisType;
   validityStatus: ValidityStatus;
   overallScore: number | null;
-  qualitativeBadge: string | null;
   styleDescriptors: string[];
   detectedPrendasSuperiores: string[];
   detectedPrendasInferiores: string[];

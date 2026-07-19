@@ -12,7 +12,6 @@ interface DemoCreatedAnalysis {
   analysisType: AnalysisType | null;
   validityStatus: "pending" | "valid" | "partial" | "invalid";
   overallScore: number | null;
-  qualitativeBadge: string | null;
   styleDescriptors: string[];
   categories: Analysis["categories"];
   feedback: Analysis["feedback"];
@@ -60,7 +59,6 @@ export function createDemoAnalysis(occasionId: OccasionId, photoDataUrl: string 
     analysisType: null,
     validityStatus: "pending",
     overallScore: null,
-    qualitativeBadge: null,
     styleDescriptors: [],
     categories: [],
     feedback: [],
@@ -88,7 +86,6 @@ export function updateDemoAnalysisScore(
   id: string,
   update: {
     overallScore: number;
-    qualitativeBadge: string;
     styleDescriptors: string[];
     categories: Analysis["categories"];
     feedback: Analysis["feedback"];
@@ -96,9 +93,10 @@ export function updateDemoAnalysisScore(
 ) {
   const analysis = getDemoStore().analyses.get(id);
   if (!analysis) return;
-  analysis.validityStatus = "valid";
+  // Igual que en el endpoint real: un parcial sigue siendo parcial después de
+  // puntuarlo, no se promueve a "valid".
+  if (analysis.validityStatus !== "partial") analysis.validityStatus = "valid";
   analysis.overallScore = update.overallScore;
-  analysis.qualitativeBadge = update.qualitativeBadge;
   analysis.styleDescriptors = update.styleDescriptors;
   analysis.categories = update.categories;
   analysis.feedback = update.feedback;

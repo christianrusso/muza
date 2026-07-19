@@ -12,6 +12,9 @@ import { MaterialIcon } from "@/components/brand/MaterialIcon";
 //
 // Distingue "la foto no sirve" de "la IA falló un toque":
 //   - 409 (NOT_VALIDATED): la validación real falló → va a /invalid.
+//   - 422 (NO_GARMENTS_DETECTED): el scoring no encontró ninguna prenda (típico
+//     de un primer plano de la cara que el validador dejó pasar) → también es la
+//     foto, y va a /invalid con el motivo que manda el server.
 //   - cualquier otra falla (502 de scoring, timeout, red): NO es culpa de la foto
 //     → muestra una pantalla honesta con "Reintentar" que re-pide el score sin
 //     re-sacar la foto (el POST es idempotente).
@@ -36,10 +39,16 @@ export function ScoringInProgress({
         router.refresh(); // re-renderiza el resultado ya con el score
         return;
       }
-      // Solo la validación real (409) manda a "foto inválida". Todo el resto es
-      // una falla de scoring: pantalla honesta + reintento.
-      if (res.status === 409) {
-        router.replace(`/analysis/${analysisId}/invalid?occasion=${occasionId}`);
+      // Solo los veredictos sobre la FOTO (409 validación, 422 sin prendas
+      // detectadas) mandan a "foto inválida". Todo el resto es una falla de
+      // scoring: pantalla honesta + reintento.
+      if (res.status === 409 || res.status === 422) {
+        const body = await res.json().catch(() => null);
+        const reason = body?.error?.reason;
+        router.replace(
+          `/analysis/${analysisId}/invalid?occasion=${occasionId}` +
+            (reason ? `&reason=${reason}` : ""),
+        );
         return;
       }
       setFailed(true);

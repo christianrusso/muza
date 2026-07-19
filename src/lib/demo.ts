@@ -41,7 +41,6 @@ export interface DemoAnalysis {
   occasionId: OccasionId;
   analysisType: AnalysisType;
   overallScore: number;
-  qualitativeBadge: string;
   styleDescriptors: string[];
   categories: AnalysisCategoryRow[];
   feedback: AnalysisFeedbackRow[];
@@ -94,7 +93,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "date",
     analysisType: "completo",
     overallScore: 82,
-    qualitativeBadge: "Buen look",
     styleDescriptors: ["Casual chic", "Elegante"],
     categories: FEATURED_CATEGORIES,
     feedback: FEATURED_FEEDBACK,
@@ -105,7 +103,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "work",
     analysisType: "superior",
     overallScore: 74,
-    qualitativeBadge: "Para mejorar",
     styleDescriptors: ["Formal"],
     categories: buildCategories({ ocasion: 80, calzado: 70 }),
     feedback: [],
@@ -116,7 +113,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "gym",
     analysisType: "inferior",
     overallScore: 68,
-    qualitativeBadge: "Para mejorar",
     styleDescriptors: ["Deportivo"],
     categories: buildCategories({}),
     feedback: [],
@@ -127,7 +123,6 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     occasionId: "party",
     analysisType: "completo",
     overallScore: 91,
-    qualitativeBadge: "Excelente elección",
     styleDescriptors: ["Audaz"],
     categories: buildCategories({ ocasion: 95, colores: 92 }),
     feedback: [],
@@ -149,7 +144,6 @@ export function getDemoAnalysis(id: string): Analysis | null {
     analysisType: found.analysisType,
     validityStatus: "valid",
     overallScore: found.overallScore,
-    qualitativeBadge: found.qualitativeBadge,
     styleDescriptors: found.styleDescriptors,
     detectedPrendasSuperiores: [],
     detectedPrendasInferiores: [],
@@ -186,7 +180,6 @@ export function buildStubScoringResult(occasionLabel: string) {
       score: c.score,
       justification: c.justification,
     })),
-    qualitativeBadge: "Buen look",
     detected: {
       prendasSuperiores: ["Camisa blanca"],
       prendasInferiores: ["Pantalón negro"],
