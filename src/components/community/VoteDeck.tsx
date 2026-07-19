@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { loadMoreVoteCards } from "@/app/(app)/(tabs)/community/actions";
 import { relativeShortDate } from "@/lib/dates";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { ScoreRing } from "@/components/community/ScoreRing";
@@ -73,18 +74,52 @@ function CardPhoto({ url, children }: { url: string | null; children?: ReactNode
   );
 }
 
+// Cuántas cartas ya mostradas mandamos como "no repitas estas". Es una ventana,
+// no el historial completo: con el corpus chico, excluir todo dejaría la cola seca.
+const RECENT_WINDOW = 40;
+// Cuántas cartas sin consumir tienen que quedar para pedir la próxima tanda.
+const PREFETCH_AT = 4;
+
 export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   const { requireAuth } = useGuestGate();
+  const [cards, setCards] = useState(initialQueue);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState<{ bucket: VoteBucket; tally: VoteTally } | null>(null);
   const [voting, setVoting] = useState(false);
+  // Solo se prende si el servidor devuelve una tanda vacía: ahí no hay nada que
+  // votar en toda la comunidad y el deck sí puede terminar. Una cola inicial
+  // vacía ya significa eso (loadVoteQueue recicla antes de devolver nada).
+  const [exhausted, setExhausted] = useState(initialQueue.length === 0);
+  const loadingRef = useRef(false);
 
-  const card = initialQueue[index];
+  const topUp = useCallback(async (recent: string[]) => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    try {
+      const next = await loadMoreVoteCards(recent);
+      if (next.length === 0) setExhausted(true);
+      else setCards((prev) => [...prev, ...next]);
+    } catch {
+      // Sin red la tanda actual sigue siendo válida; se reintenta en el próximo next().
+    } finally {
+      loadingRef.current = false;
+    }
+  }, []);
+
+  const card = cards[index];
 
   if (!card) {
+    // Sin carta pero con tanda en vuelo: es un hueco momentáneo, no el final.
+    if (!exhausted) {
+      return (
+        <div className="flex flex-1 flex-col items-center justify-center px-[22px] py-20 text-center">
+          <p className="text-sm font-semibold text-muted">Buscando más looks…</p>
+        </div>
+      );
+    }
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-[22px] py-20 text-center">
-        <p className="text-lg font-extrabold text-ink">Por ahora votaste todo 👏</p>
+        <p className="text-lg font-extrabold text-ink">Todavía no hay looks para votar 👀</p>
         <p className="mt-1.5 text-sm font-semibold text-muted">Volvé más tarde o mirá a quién seguís.</p>
         <Link
           href="/community?tab=siguiendo"
@@ -126,7 +161,13 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
 
   function next() {
     setReveal(null);
-    setIndex((i) => i + 1);
+    const nextIndex = index + 1;
+    setIndex(nextIndex);
+    // Recarga anticipada: la próxima tanda se pide antes de tocar el fondo, así
+    // el usuario nunca ve el hueco.
+    if (!exhausted && cards.length - nextIndex <= PREFETCH_AT) {
+      void topUp(cards.slice(-RECENT_WINDOW).map((c) => c.postId));
+    }
   }
 
   const aiScore = card.overallScore;
