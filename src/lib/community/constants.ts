@@ -54,6 +54,17 @@ const BUCKET_MIDPOINT: Record<VoteBucket, number> = SCORE_LEVELS.reduce(
   {} as Record<VoteBucket, number>,
 );
 
+/**
+ * Rango [min, max] de un nivel, para dibujarlo como franja en la barra.
+ * El último nivel es abierto y su techo es 100.
+ */
+export function bucketRange(bucket: VoteBucket): { min: number; max: number } {
+  const i = SCORE_LEVELS.findIndex((l) => l.level === bucket);
+  const min = SCORE_LEVELS[i]?.min ?? 0;
+  const max = SCORE_LEVELS[i + 1] ? SCORE_LEVELS[i + 1].min - 1 : 100;
+  return { min, max };
+}
+
 export function bucketLabel(bucket: VoteBucket): string {
   return SCORE_LEVELS.find((l) => l.level === bucket)?.label ?? bucket;
 }

@@ -17,8 +17,8 @@ import {
   bucketLabel,
   bucketForScore,
   emptyTally,
-  communityScore,
   communityLevel,
+  bucketRange,
   type VoteBucket,
   type VoteTally,
 } from "@/lib/community/constants";
@@ -223,10 +223,11 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   }
 
   // ===== Revelado: la foto se reemplaza por el resultado, en el mismo lugar =====
-  // El número solo posiciona el punto en la barra; lo que se muestra es el nivel.
+  // El consenso se dibuja como FRANJA (el rango del nivel), no como punto: los
+  // votos son categóricos y un punto afirmaría una posición exacta que nadie votó.
   // Acá el tally siempre trae al menos el voto propio, así que nunca es null.
-  const comScore = communityScore(reveal.tally) ?? aiScore;
   const comLevel = communityLevel(reveal.tally);
+  const comRange = comLevel ? bucketRange(comLevel) : null;
   const correct = bucketForScore(aiScore) === reveal.bucket;
 
   return (
@@ -250,23 +251,31 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
           <div className="w-full">
             <span className="section-label">IA vs. Comunidad</span>
             <div className="relative mt-2.5 h-2 rounded-full" style={{ background: "var(--line)" }}>
+              {/* La franja va primero: el punto de la IA (que sí es un valor
+                  exacto) queda encima. */}
+              {comRange && (
+                <span
+                  className="absolute inset-y-0 rounded-full bg-coral opacity-40"
+                  style={{ left: `${comRange.min}%`, width: `${comRange.max - comRange.min}%` }}
+                />
+              )}
               <span
                 className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--green)]"
                 style={{ left: `${aiScore}%` }}
-              />
-              <span
-                className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-coral"
-                style={{ left: `${comScore}%` }}
               />
             </div>
             <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-semibold">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-[var(--green)]" /> IA <b className="text-ink">{aiScore}</b>
               </span>
-              {comLevel && (
+              {comLevel && comRange && (
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-coral" /> Comunidad{" "}
+                  {/* Swatch alargado, igual que la franja: no es un valor puntual. */}
+                  <span className="h-2 w-4 rounded-full bg-coral opacity-40" /> Comunidad{" "}
                   <b className="text-ink">{bucketLabel(comLevel)}</b>
+                  <span className="text-faint">
+                    {comRange.min}–{comRange.max}
+                  </span>
                 </span>
               )}
               <span className="flex items-center gap-1.5">
