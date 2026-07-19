@@ -1,0 +1,20 @@
+/* Andamiaje de pantalla: contenedor de alto completo, paddings estándar y
+   el header de pantalla con botón de volver. */
+.screen-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  gap: 14px;
+}
+.pad {
+  padding: 60px 22px 40px;
+}
+.pad-tab {
+  padding: 60px 22px 0;
+}
+.screen-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}

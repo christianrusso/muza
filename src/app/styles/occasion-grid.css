@@ -1,0 +1,28 @@
+/* Pantalla de nuevo análisis: la grilla de ocasiones seleccionables. */
+.occ {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 6px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line-strong);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+.occ .msym {
+  font-size: 26px;
+  color: var(--muted);
+}
+.occ.sel {
+  border: 2px solid var(--coral);
+  background: var(--coral-soft);
+  color: var(--coral);
+  box-shadow: 0 8px 18px -10px rgba(236, 90, 46, 0.5);
+}
+.occ.sel .msym {
+  color: var(--coral);
+}

@@ -36,6 +36,11 @@ yarn-error.log*
 # claude code local settings
 .claude/settings.local.json
 
+# claude code / agent skills instaladas localmente (tooling del entorno, no del producto)
+.claude/skills/
+.agents/
+skills-lock.json
+
 # vercel
 .vercel
 

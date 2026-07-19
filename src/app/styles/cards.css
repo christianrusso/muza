@@ -1,0 +1,114 @@
+/* Contenedores: la card base, las list-cards con filas, badges (pills de tipo
+   de análisis) y chips seleccionables. */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.list-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 16px;
+}
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+.row .msym {
+  font-size: 21px;
+  color: var(--muted);
+}
+.row .txt {
+  flex: 1;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+.row .chev {
+  font-size: 20px;
+  color: #c7c0b2;
+}
+.row .meta {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+/* ===== badges (pills de tipo de análisis) ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.badge--full {
+  background: var(--violet-soft);
+  color: var(--violet);
+}
+.badge--full .dot {
+  background: var(--violet);
+}
+.badge--top {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.badge--top .dot {
+  background: var(--green);
+}
+.badge--bottom {
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+}
+.badge--bottom .dot {
+  background: var(--amber-ink);
+}
+.badge--single {
+  background: var(--pink-soft);
+  color: var(--pink);
+}
+.badge--single .dot {
+  background: var(--pink);
+}
+
+/* ===== chips (filtros seleccionables) ===== */
+.chip {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 15px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1.5px solid var(--line-strong);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip.active {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+}
+.chip .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}

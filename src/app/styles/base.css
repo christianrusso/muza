@@ -1,0 +1,56 @@
+/* Reset base, tipografía global y helpers de fuente/ícono usados en toda la app. */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  /* Stop iOS Safari rubber-band overscroll from revealing the body
+     background behind full-screen (dark) pages like /welcome. */
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+}
+
+body {
+  background: var(--paper);
+  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.font-serif {
+  font-family: var(--font-instrument-serif), Georgia, serif;
+}
+
+.msym {
+  font-family: "Material Symbols Rounded";
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+.msym.filled {
+  font-variation-settings: "FILL" 1;
+}
+
+.section-label {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}

@@ -24,6 +24,20 @@ Requisito de [08-daily-challenge.md](../adaptive-scoring/08-daily-challenge.md#c
 
 Después de votar los 3 ítems, una pantalla corta (dentro del mismo `BottomSheet`) muestra el resumen: "Coincidiste con la comunidad en 2 de 3" + la racha actualizada. Nada de scores individuales de la IA en este resumen — mostrar "la IA le puso 72 y vos dijiste que no" reintroduce el mismo problema de anclaje que ya se evita en el diseño del reto (ver [08-daily-challenge.md](../adaptive-scoring/08-daily-challenge.md#cómo-se-arma-el-reto-de-cada-día)).
 
+## Estado de implementación (prototipo frontend)
+
+Existe un **prototipo funcional solo de frontend** en `src/components/dailyChallenge/` (`DailyChallengeLauncher`, `DailyChallengeSheet`, `DailyChallengeCompleteSheet`) + `src/lib/dailyChallenge.ts` y `src/lib/dailyChallengeStreak.ts` (con tests). Sirve para validar que la interacción engancha antes de construir el backend. Lo que es real y lo que está stubbeado / se desvía del diseño de arriba:
+
+| Aspecto | Estado en el prototipo |
+|---|---|
+| Punto de entrada `.fab` + BottomSheet | ✅ Como el diseño. El FAB usa variante violeta (`.fab--violet`) para diferenciarse del FAB coral de "nuevo análisis" — resuelve la open question de abajo. |
+| Ítems del reto | ⚠️ Vienen de posteos recientes de la comunidad (`loadCommunityFeed`), **no** de una cola de casos de mayor desacuerdo. Cuando exista el pipeline de [08-daily-challenge.md](../adaptive-scoring/08-daily-challenge.md), hay que cambiar la fuente. |
+| Racha | ⚠️ Se guarda en `localStorage`, no en una tabla `daily_challenge_responses`. La lógica (qué cuenta como seguir la racha) está aislada y testeada en `dailyChallengeStreak.ts`, lista para reusar cuando haya backend. |
+| Foto con cara oculta | ⚠️ Se recorta por CSS en el cliente (`.challenge-photo`, `object-position`). Esto **no** cumple el requisito de seguridad del diseño (la foto completa igual se descarga). El recorte real tiene que generarse en el server al armar el reto. |
+| El reveal | ⚠️ **Se desvía del diseño**: el prototipo muestra el score de la IA (anillo que cuenta hasta el valor) + "el X% coincidió con vos". El diseño de arriba dice **no** mostrar el score de la IA en el reveal (anclaje para votos futuros). Decisión pendiente: o se ajusta el prototipo, o se actualiza el diseño si se decidió que mostrarlo *después* de votar es aceptable. |
+
+Nada de esto consume el límite de análisis ni toca la base — es puramente cliente sobre datos que ya existen.
+
 ## Open questions
 
 - ¿El `.fab` del reto compite visualmente con el `.fab` que ya pueda existir para "nuevo análisis"? Si ya hay un FAB de captura en `home`, hace falta decidir cuál tiene prioridad o si conviven en posiciones distintas — requiere revisar el código actual de `home` antes de implementar, no asumido en este documento.

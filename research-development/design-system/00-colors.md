@@ -1,6 +1,6 @@
 # Colors
 
-Fuente única de verdad: variables CSS en `src/app/globals.css` (`:root`), expuestas a Tailwind vía `@theme inline` como `--color-*`. En componentes se usan como clases Tailwind (`bg-coral`, `text-ink`, etc.) o directo como `var(--coral)` en CSS.
+Fuente única de verdad: variables CSS en `src/app/styles/tokens.css` (`:root`), expuestas a Tailwind vía `@theme inline` como `--color-*`. En componentes se usan como clases Tailwind (`bg-coral`, `text-ink`, etc.) o directo como `var(--coral)` en CSS.
 
 ## Paleta base
 

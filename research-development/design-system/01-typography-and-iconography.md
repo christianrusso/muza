@@ -2,7 +2,7 @@
 
 ## Fuentes
 
-Dos familias, cargadas en `src/lib/fonts.ts` y expuestas como variables CSS (`--font-instrument-serif`, `--font-manrope`) consumidas en `globals.css` vía `@theme inline` (`--font-serif`, `--font-sans`):
+Dos familias, cargadas en `src/lib/fonts.ts` y expuestas como variables CSS (`--font-instrument-serif`, `--font-manrope`) consumidas en `src/app/styles/tokens.css` vía `@theme inline` (`--font-serif`, `--font-sans`):
 
 - **Manrope** — fuente por defecto de toda la UI (`body`, inputs, botones, texto general). Peso 600-800 predomina en textos cortos (labels, botones, badges) — la app tiende a texto bold/semibold, no hay uso visible de weight 400 en UI de interacción.
 - **Instrument Serif** — uso puntual, reservado para momentos de marca/editorial: el isotipo (`.mark .hole .m`, itálica) y headings destacados vía clase `.font-serif`. No se usa para texto de UI funcional (botones, forms, listas).
@@ -13,7 +13,7 @@ Fallbacks: `-apple-system, BlinkMacSystemFont, sans-serif` para Manrope; `Georgi
 
 ## Escala tipográfica (tal como aparece en el CSS, no hay una escala formal declarada)
 
-Tamaños en uso, de más chico a más grande: `10px` (labels de tab bar, texto de placeholder de fotos), `11-12px` (badges, chips, meta de listas, section labels), `13-14px` (texto de body, botones de tab de feed), `15-16px` (inputs, botones), `19-26px` (íconos). No hay tokens de tamaño (`--text-sm`, etc.) — los tamaños están inline en cada clase de `globals.css`. Si se agrega una nueva escala, considerar tokenizarla en vez de seguir hardcodeando px sueltos.
+Tamaños en uso, de más chico a más grande: `10px` (labels de tab bar, texto de placeholder de fotos), `11-12px` (badges, chips, meta de listas, section labels), `13-14px` (texto de body, botones de tab de feed), `15-16px` (inputs, botones), `19-26px` (íconos). No hay tokens de tamaño (`--text-sm`, etc.) — los tamaños están inline en cada clase de `src/app/styles/`. Si se agrega una nueva escala, considerar tokenizarla en vez de seguir hardcodeando px sueltos.
 
 `section-label` es el único patrón "tipográfico" reutilizable con nombre: `font-weight:700; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint)` — usarlo para encabezados de sección en vez de recrear el estilo.
 
