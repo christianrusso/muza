@@ -21,6 +21,11 @@ export interface ActivityItem {
   // agregados — el autor ve el resumen, nunca quién votó qué (decisión de
   // producto: mostrar votantes rompería la dinámica de "adiviná el score").
   voteCount: number | null;
+  // Posterior a profiles.last_seen_activity_at, o sea que el usuario todavía no
+  // lo vio. MarkActivitySeen pisa ese timestamp al montar la pantalla, así que
+  // esto solo es true en el primer render después de la novedad: al recargar, lo
+  // de recién ya cuenta como visto. Es el comportamiento esperado.
+  isNew: boolean;
   createdAt: string;
 }
 
@@ -50,6 +55,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
           postPhotoUrl: photoUrl,
           commentBody: null,
           voteCount: null,
+          isNew: false,
           createdAt: post.createdAt,
         });
       }
@@ -64,6 +70,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
           postPhotoUrl: photoUrl,
           commentBody: comment.body,
           voteCount: null,
+          isNew: false,
           createdAt: comment.createdAt,
         });
       }
@@ -76,6 +83,20 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return [];
+
+  // Hasta cuándo vio el usuario su actividad. Se lee ANTES de que
+  // MarkActivitySeen lo pise (corre en el cliente, al montar la pantalla), así
+  // que este render todavía sabe qué era novedad.
+  const { data: me } = await supabase
+    .from("profiles")
+    .select("last_seen_activity_at")
+    .eq("id", user.id)
+    .maybeSingle();
+  // Se parsea en vez de comparar strings: los timestamptz de Postgres vienen con
+  // distinta cantidad de decimales y no quiero depender de que el orden
+  // lexicográfico coincida con el cronológico.
+  const lastSeenMs = me?.last_seen_activity_at ? Date.parse(me.last_seen_activity_at) : null;
+  const isNewAt = (createdAt: string) => lastSeenMs !== null && Date.parse(createdAt) > lastSeenMs;
 
   // Mis posts + la foto de cada uno (para la miniatura del evento).
   const { data: myPosts } = await supabase
@@ -173,6 +194,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     postPhotoUrl: photoFor(r.post_id),
     commentBody: null,
     voteCount: null,
+    isNew: isNewAt(r.created_at),
     createdAt: r.created_at,
   }));
 
@@ -202,6 +224,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
       postPhotoUrl: photoFor(postId),
       commentBody: null,
       voteCount: totalVotesByPost.get(postId) ?? 0,
+      isNew: isNewAt(createdAt),
       createdAt,
     }))
     .filter((item) => (item.voteCount ?? 0) > 0);
@@ -216,6 +239,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     postPhotoUrl: photoFor(c.post_id),
     commentBody: c.body,
     voteCount: null,
+    isNew: isNewAt(c.created_at),
     createdAt: c.created_at,
   }));
 
@@ -229,6 +253,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
     postPhotoUrl: null,
     commentBody: null,
     voteCount: null,
+    isNew: isNewAt(f.created_at),
     createdAt: f.created_at,
   }));
 

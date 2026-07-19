@@ -28,7 +28,12 @@ function ActivityRow({ item }: { item: ActivityItem }) {
   const count = item.voteCount ?? 0;
 
   return (
-    <Link href={href} className="flex items-center gap-3">
+    <Link
+      href={href}
+      // Lo no visto se despega del resto con fondo suave y un punto coral: el
+      // badge de la tab avisa QUE hay algo, esto avisa QUÉ.
+      className={`flex items-center gap-3 ${item.isNew ? "-mx-2 rounded-xl bg-coral-soft px-2 py-2" : ""}`}
+    >
       <div className="relative flex-none">
         {isVotes ? (
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-coral-soft" aria-hidden>
@@ -68,8 +73,9 @@ function ActivityRow({ item }: { item: ActivityItem }) {
             )}
           </>
         )}
-        <span className="mt-0.5 block text-[11px] font-semibold text-faint">
+        <span className="mt-0.5 flex items-center gap-1.5 text-[11px] font-semibold text-faint">
           {relativeShortDate(item.createdAt)}
+          {item.isNew && <span className="h-1.5 w-1.5 rounded-full bg-coral" aria-label="Nuevo" />}
         </span>
       </div>
 

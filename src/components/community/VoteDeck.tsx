@@ -231,11 +231,16 @@ export function VoteDeck({ initialQueue }: { initialQueue: VoteCardData[] }) {
   const correct = bucketForScore(aiScore) === reveal.bucket;
 
   return (
-    <div className="flex flex-1 flex-col px-[22px] pb-4 pt-3">
-      <div className="flex flex-1 flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
+    // A diferencia del estado con foto, acá la carta NO se estira: el contenido
+    // del revelado es bastante más bajo y el flex-1 dejaba un hueco blanco entre
+    // el bloque de seguir y el botón. Se ajusta al contenido y se centra en el
+    // espacio sobrante; si no entra (pantalla corta) crece y scrollea la página,
+    // que es el contenedor con overflow (ver el layout de tabs).
+    <div className="flex flex-1 flex-col justify-center px-[22px] pb-4 pt-3">
+      <div className="flex flex-col rounded-[22px] border border-line bg-white p-4 shadow-[0_10px_30px_-18px_rgba(20,18,16,.4)]">
         {header}
 
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 py-1">
+        <div className="flex flex-col items-center gap-3.5 py-1">
           <ScoreRing score={aiScore} size={116} />
           <p className="text-center text-[15px] font-extrabold text-ink">
             {correct ? (
