@@ -12,14 +12,16 @@ import { PostVotePanel } from "@/components/community/PostVotePanel";
 import { CommentForm } from "@/components/community/CommentForm";
 import { DeletePostButton } from "@/components/community/DeletePostButton";
 import { GuestGateProvider } from "@/components/community/GuestGate";
+import { ReportComment } from "@/components/community/ReportComment";
 import { emptyTally, type VoteBucket, type VoteTally } from "@/lib/community/constants";
 import type { OccasionId } from "@/types/domain";
 
 interface PostDetail {
   post: PostCardData;
-  comments: { id: string; body: string; author: string }[];
+  comments: { id: string; body: string; author: string; authorId: string }[];
   isMine: boolean;
   isAuthed: boolean;
+  currentUserId: string | null;
   aiScore: number;
   myBucket: VoteBucket | null;
   tally: VoteTally;
@@ -53,9 +55,10 @@ async function loadPost(id: string): Promise<PostDetail | null> {
           commentCount: created.comments.length,
           myReaction: created.reactions.get(DEMO_USER.id) ?? null,
         },
-        comments: created.comments.map((c) => ({ id: c.id, body: c.body, author: DEMO_USER.full_name })),
+        comments: created.comments.map((c) => ({ id: c.id, body: c.body, author: DEMO_USER.full_name, authorId: DEMO_USER.id })),
         isMine: true,
         isAuthed: true,
+        currentUserId: DEMO_USER.id,
         aiScore,
         myBucket,
         tally,
@@ -80,9 +83,10 @@ async function loadPost(id: string): Promise<PostDetail | null> {
         commentCount: seeded.comment_count,
         myReaction: null,
       },
-      comments: [],
+        comments: id === "demo-post-1" && !getDemoStore().hiddenCommentIds.has("demo-comment-1") ? [{ id: "demo-comment-1", body: "Este look está buenísimo para una salida.", author: "Martina R.", authorId: "demo-martina" }] : [],
       isMine: false,
       isAuthed: true,
+      currentUserId: DEMO_USER.id,
       aiScore: seeded.overall_score,
       myBucket,
       tally,
@@ -112,6 +116,7 @@ async function loadPost(id: string): Promise<PostDetail | null> {
         .from("post_comments")
         .select("id, body, created_at, user_id, profiles(full_name)")
         .eq("post_id", id)
+        .is("hidden_at", null)
         .order("created_at", { ascending: true })
     : { data: [] };
 
@@ -152,9 +157,11 @@ async function loadPost(id: string): Promise<PostDetail | null> {
       id: c.id,
       body: c.body,
       author: (c as unknown as { profiles: { full_name: string } | null }).profiles?.full_name ?? "Usuario",
+      authorId: c.user_id,
     })),
     isMine,
     isAuthed: Boolean(user),
+    currentUserId: user?.id ?? null,
     aiScore,
     myBucket,
     tally: {
@@ -198,10 +205,11 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               {data.comments.map((c) => (
                 <div key={c.id} className="flex gap-2.5">
                   <div className="ph h-8 w-8 flex-none rounded-full" />
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <span className="block text-[13px] font-extrabold">{c.author}</span>
                     <span className="text-[13px] font-semibold text-ink">{c.body}</span>
                   </div>
+                  <ReportComment commentId={c.id} own={c.authorId === data.currentUserId} />
                 </div>
               ))}
               {data.comments.length === 0 && (

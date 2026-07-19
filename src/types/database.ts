@@ -213,6 +213,8 @@ export interface Database {
           user_id: string;
           body: string;
           created_at: string;
+          hidden_at: string | null;
+          hidden_by: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["post_comments"]["Row"]> & {
           post_id: string;
@@ -267,6 +269,26 @@ export interface Database {
           },
         ];
       };
+      comment_report_categories: {
+        Row: { id: string; slug: string; label: string; sort_order: number; is_active: boolean };
+        Insert: Database["public"]["Tables"]["comment_report_categories"]["Row"];
+        Update: Partial<Database["public"]["Tables"]["comment_report_categories"]["Row"]>;
+        Relationships: [];
+      };
+      comment_reports: {
+        Row: {
+          id: string; comment_id: string | null; reporter_id: string | null; category_id: string;
+          observations: string | null; status: "pending" | "confirmed" | "dismissed";
+          comment_body_snapshot: string; comment_author_id_snapshot: string;
+          comment_author_name_snapshot: string; reporter_name_snapshot: string;
+          post_id_snapshot: string; post_caption_snapshot: string | null;
+          comment_created_at_snapshot: string; admin_notes: string | null;
+          resolved_by: string | null; resolved_at: string | null; created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["comment_reports"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["comment_reports"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: {
       community_feed_view: {
@@ -303,6 +325,14 @@ export interface Database {
       unread_activity_count: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      create_comment_report: {
+        Args: { p_comment_id: string; p_category_id: string; p_observations?: string | null };
+        Returns: Json;
+      };
+      resolve_comment_report: {
+        Args: { p_report_id: string; p_status: string; p_admin_actor: string; p_admin_notes?: string | null };
+        Returns: Json;
       };
     };
     Enums: Record<string, never>;
