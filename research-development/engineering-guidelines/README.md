@@ -1,5 +1,7 @@
 # Engineering guidelines
 
+**En una frase**: qué hacer y qué evitar al programar en este repo, y cómo encaramos features nuevas (spec antes que código).
+
 Lineamientos para trabajar en este repo. Pensado para que alguien nuevo en el equipo lo lea y sepa qué hacer y qué evitar sin tener que redescubrirlo a los golpes.
 
 - [00-best-practices.md](./00-best-practices.md) — qué hacer, con el porqué.

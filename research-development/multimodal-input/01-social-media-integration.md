@@ -1,5 +1,7 @@
 # Conectar Instagram/TikTok/Facebook para entender el estilo del usuario
 
+> **En resumen**: no conviene construir esto. Instagram ya no permite acceso a cuentas personales desde fines de 2024 (solo cuentas Business/Creator), Facebook exige una revisión de Meta que puede tardar semanas y ser rechazada, y TikTok ya no es gratis para uso comercial. Una alternativa mucho más simple resuelve el mismo objetivo: dejar que el usuario importe fotos directo de su rollo de cámara, sin depender de ninguna API externa que puede cambiar de un día para el otro.
+
 Research hecho en julio 2026 contra el estado actual de cada API — este terreno cambia con frecuencia (Meta y TikTok modifican política de acceso seguido), re-verificar antes de construir nada acá.
 
 ## El hallazgo que cambia la conversación: Instagram ya no deja hacer esto para cuentas personales

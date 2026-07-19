@@ -1,5 +1,7 @@
 # Reto diario: cómo conseguir feedback de la comunidad sin que se sienta como trabajo
 
+> **En resumen**: cada día, la app muestra 3 outfits (priorizando los casos de mayor desacuerdo) para que el usuario opine 👍/👎, con la cara siempre recortada/difuminada para evitar el efecto halo. La recompensa es saber cómo tu opinión se comparó con la del resto, más una racha de días seguidos — sin leaderboard ni premio económico en la v1. Es, a la vez, un enganche de retención y el mecanismo principal para juntar volumen de feedback más rápido.
+
 Idea del equipo: un "reto diario" que invite a la gente a opinar sobre outfits, para juntar feedback de comunidad de forma constante. Este documento la conecta con lo ya investigado: es la forma de generar volumen para el **Camino 2** (ingeniería de datos automática) de [04-is-ml-the-right-answer.md](./04-is-ml-the-right-answer.md) — sin ningún panel humano decidiendo nada, el reto simplemente acelera que los clusters de [01-feedback-signal.md](./01-feedback-signal.md) crucen el piso mínimo estadístico más rápido, de forma que se sienta como un juego, no como trabajo de etiquetado gratis.
 
 ## Qué es, en una oración

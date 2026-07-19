@@ -1,5 +1,7 @@
 # Onboarding de preferencias y recomendación de qué puntuar
 
+> **En resumen**: pedir edad (por rango) y gustos de estilo en el onboarding, todo opcional — pero solo para decidir **qué outfits mostrarle a cada usuario para puntuar**, nunca para calcular el score de nadie (esa separación es la que evita sesgo/discriminación). Como esto implica mostrarle a la gente fotos de otras personas, reaparece el riesgo de efecto halo, con su propia mitigación. Una porción chica de contenido siempre es "sorpresa", para notar si los gustos de alguien cambiaron con el tiempo.
+
 Propuesta que surgió de una charla con Christian: un onboarding más completo (edad, gustos/estilo) para sugerirle a cada usuario **outfits de otras personas para puntuar o reaccionar**, en vez de un feed genérico. La idea tiene dos beneficios: mejor experiencia (mostramos cosas que le interesan a cada uno) y mejor señal de feedback (ver [01-feedback-signal.md](./01-feedback-signal.md)), porque quien puntúa está mirando algo que le importa, no contenido al azar.
 
 ## Importante: esto es un eje distinto al de calibrar el score

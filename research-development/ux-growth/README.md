@@ -1,5 +1,7 @@
 # UX Growth
 
+**En una frase**: cómo hacer que la gente vuelva a usar LookLab mañana — activación, retención y el reto diario — sin romper el sistema de diseño existente.
+
 Investigación (no implementada) sobre cómo evolucionar la experiencia de LookLab para retener más usuarios — sin romper el sistema de diseño que ya existe. Complementa a [adaptive-scoring/](../adaptive-scoring/), que resuelve el problema de fondo (el modelo mejora solo); esta carpeta resuelve "¿por qué alguien vuelve mañana?".
 
 Punto de partida obligatorio antes de proponer cualquier pantalla nueva: [design-system/](../design-system/) — documenta el sistema visual real (clases CSS semánticas + componentes finos, canvas mobile fijo de 430px, tab bar de 4 ítems). Cualquier propuesta acá tiene que encajar ahí, no inventar un lenguaje visual paralelo.

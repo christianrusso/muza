@@ -1,5 +1,7 @@
 # Calibrar las sugerencias de mejora, no solo el score
 
+> **En resumen**: las recomendaciones de mejora ("poné un cinturón") hoy no tienen ningún tipo de calibración — nadie audita si son buenas. Se proponen dos señales sin efecto halo: un 👍/👎 del propio usuario, y comparar automáticamente si su próxima foto refleja el cambio sugerido. Regla dura: nunca pedirle a un tercero que opine qué debería usar otra persona — es el juicio más expuesto al efecto halo de toda la iniciativa.
+
 ## Lo que ya existe y nadie está calibrando
 
 El schema de salida del scoring (`ScoringResultSchema`, ver [06-scoring-engine.md](../general-app-research/06-scoring-engine.md#schema-de-salida-srclibaischemats-zod)) ya devuelve, junto con el score, tres campos de texto libre: `strengths`, `improvements`, `recommendations` — la parte de la app que le dice a alguien qué le falta o qué se pondría distinto para mejorar su outfit.

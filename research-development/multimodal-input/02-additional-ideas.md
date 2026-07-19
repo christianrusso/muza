@@ -1,5 +1,7 @@
 # Otras fuentes de información para el perfil de estilo
 
+> **En resumen**: la idea con mejor relación costo/beneficio de toda la carpeta es el **guardarropa digital** (fotografiar cada prenda una vez, armar un catálogo personal) — barato, sin proveedores externos, y conecta directo con mejores recomendaciones. Importar fotos del rollo de cámara es la segunda prioridad. Pinterest, clima/calendario y "guardar look" quedan como ideas menores, para más adelante.
+
 Ideas adicionales a video y redes sociales, evaluadas con el mismo criterio: cuánto valor real agregan contra cuánto riesgo/costo/complejidad suman.
 
 ## Guardarropa digital (la idea con mejor relación costo/valor de todas)

@@ -1,5 +1,7 @@
 # Camino técnico: opciones evaluadas
 
+> **En resumen**: 4 caminos técnicos comparados. El plan es empezar por la Opción A (elegir mejores ejemplos para el prompt según feedback real — barato, bajo riesgo) como Fase 1, evaluar un ajuste estadístico liviano (Opción C) como Fase 2 si hace falta, y dejar un modelo propio entrenado desde cero (Opción B) como Fase 3 lejana, solo si el costo o volumen lo justifican. El fine-tuning gestionado (Opción B') es candidato a probar en paralelo, no al final.
+
 > **Actualización tras la revisión de [04-is-ml-the-right-answer.md](./04-is-ml-the-right-answer.md)**: sin panel de revisión humana (descartado por falta de tiempo del equipo), la Opción A de este documento (clustering + few-shot dinámico, 100% automática) pasa a ser el plan principal desde el arranque, no una segunda fase. La Opción B' (fine-tuning gestionado) queda candidata a probar en paralelo, no como última instancia — ver el detalle completo en ese documento.
 
 Contexto: hoy el scoring corre 100% en un LLM (`responses.parse()` de OpenAI, `temperature: 0`) más un banco de ejemplos manual — no hay modelo propio, no hay pipeline de entrenamiento, no hay infraestructura de ML en el repo (`package.json` no tiene librerías de entrenamiento ni `pgvector`, ver [01-tech-stack.md](../general-app-research/01-tech-stack.md)).

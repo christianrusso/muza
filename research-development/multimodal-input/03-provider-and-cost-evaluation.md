@@ -1,5 +1,7 @@
 # Proveedores evaluados y costos, por fase
 
+> **En resumen**: tabla consolidada de todo lo evaluado en esta carpeta. Ninguna idea prioritaria (guardarropa digital, importar fotos, multi-ángulo) necesita sumar un proveedor de pago ni pasar por revisión de ninguna plataforma — eso solo aplicaría si más adelante se evalúa video real (Gemini) o redes sociales (no recomendado).
+
 Consolida los proveedores externos que aparecen en esta carpeta, con el tipo de costo real de cada uno (no todos cobran en dólares por request — algunos cobran en tiempo de ingeniería y riesgo de rechazo). Todos los precios están sujetos a cambiar; re-verificar contra la documentación oficial de cada proveedor antes de presupuestar en serio.
 
 ## Los dos tipos de costo que no hay que mezclar

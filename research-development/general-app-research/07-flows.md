@@ -1,5 +1,7 @@
 # Flujos principales
 
+> **En resumen**: 4 flujos documentados con diagramas — auth (usuarios y admin, completamente separados), el flujo completo de análisis (foto → validación → scoring → resultado → publicación opcional), comunidad (feed con votos y comentarios) y gating de planes (hoy sin límites reales activos).
+
 ## Diagrama — routing de auth (`proxy.ts`)
 
 `proxy.ts` es el único punto de entrada: decide primero si la request es de `/admin` o del resto de la app, y cada rama tiene su propia lógica de sesión (ver detalle en las dos secciones de abajo).

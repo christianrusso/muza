@@ -1,5 +1,7 @@
 # Patrones recurrentes en el código
 
+> **En resumen**: convenciones a reusar al escribir código nuevo — `server-only` como guardrail de bundle, funciones `security definer` puntuales en vez de relajar RLS, scoring separado de la IA (la IA puntúa categorías, el código calcula el total), few-shot calibrado desde una tabla en vez de hardcodeado en el prompt, y gating de planes como funciones puras sobre un objeto de configuración.
+
 ## `server-only` como guardrail de bundle
 
 Módulos que tocan credenciales o lógica de servidor (`src/lib/ai/`, `src/lib/community/feed.ts`, etc.) importan `"server-only"` al principio del archivo. No es documentación, es un guardrail real: si algo los importa desde un client component, el build falla. Excepción intencional: `src/lib/admin/auth.ts` **no** importa `server-only` ni módulos de Node porque necesita correr también en el edge runtime (el proxy) — usa Web Crypto (`crypto.subtle`) en vez de las libs de Node para eso.

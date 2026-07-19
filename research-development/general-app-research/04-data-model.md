@@ -1,5 +1,7 @@
 # Data model
 
+> **En resumen**: `analyses` es la tabla central (foto, score, tags detectados), con `analysis_categories` (desglose por categoría) y `analysis_feedback` (fortalezas/mejoras/recomendaciones) colgando de ella. La comunidad (`community_posts`, `post_reactions`, `post_comments`, `follows`) es un capa social aparte que hoy no toca el cálculo del score. `scoring_examples` es el banco de ejemplos curado a mano que calibra la IA hoy.
+
 Fuente: `supabase/migrations/0001_init.sql` → `0014_admin_metrics.sql`. Para políticas RLS, storage y funciones ver [05-database.md](./05-database.md).
 
 ## Tablas núcleo de usuario

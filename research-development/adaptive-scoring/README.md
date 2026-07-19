@@ -1,5 +1,7 @@
 # Adaptive scoring & feedback loop
 
+**En una frase**: hacer que el motor de puntuación de outfits aprenda solo del feedback real de la comunidad, en vez de depender de que alguien etiquete fotos a mano.
+
 Investigación (todavía no implementada) sobre cómo hacer que el motor de scoring deje de depender 100% de que una persona etiquete cada foto a mano, y empiece a aprender de datos reales de uso.
 
 Punto de partida: [06-scoring-engine.md](../general-app-research/06-scoring-engine.md) (cómo puntúa hoy) y [04-data-model.md](../general-app-research/04-data-model.md) (comunidad: `community_posts`, `post_reactions`, `post_comments`).
@@ -43,4 +45,31 @@ Antes de escribir la primera spec en `specs/`, los 4 frenos de [10-acceptance-cr
 
 ## Estado
 
-Investigación en curso, todavía sin código ni migraciones. Nada de esto es una spec — cuando haya una fase priorizada, se abre una spec puntual en `specs/` siguiendo [02-spec-driven-development.md](../engineering-guidelines/02-spec-driven-development.md) (cambios en el motor de scoring y en el modelo de datos necesitan spec).
+### Resumen de implementación
+
+- **Fase 1A (señal de feedback)**: ❌ No iniciada
+  - No existe la tabla `score_feedback` para votos de usuario (de acuerdo/en desacuerdo)
+  - Sin mecanismo backend para recolectar feedback
+
+- **Fase 1B (UI del reto diario)**: ✅ Parcialmente hecha (prototipo de frontend)
+  - Componente implementado en `src/components/dailyChallenge/`
+  - Actualmente usa datos mockeados (`DEMO_COMMUNITY_POSTS`)
+  - Sin persistencia de datos en backend todavía
+  - Véase: `src/lib/dailyChallenge.ts`, `DailyChallengeCard.tsx`
+  - Desviación: revela score de IA + % de acuerdo (diseño dice que no)
+  - Seguridad: recorte de foto es CSS-only (no seguro para producción)
+
+- **Fase 1C (clustering)**: ❌ No iniciada
+  - No existe la tabla `outfit_clusters`
+  - Sin lógica de clustering (aglomeración TypeScript propuesta pero no codificada)
+
+- **Fase 1D (ajuste de few-shot)**: ❌ No iniciada
+  - `scoreOutfit.ts` sigue usando filtrado estático por ocasión
+  - Sin prompting dinámico few-shot
+
+- **Fase 1E (instrumentación)**: ❌ No iniciada
+  - Sin nuevas métricas en `admin_metrics()`
+
+### Próximos pasos
+
+Priorizar **Fase 1A (señal de feedback)** antes de escalar features de UI. La base de investigación está completa (véase documentos arriba) — cuando se inicie codificación de una fase, crear spec puntual en `specs/` siguiendo [02-spec-driven-development.md](../engineering-guidelines/02-spec-driven-development.md) (cambios en motor de scoring y modelo de datos necesitan spec).

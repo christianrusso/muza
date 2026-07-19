@@ -1,5 +1,7 @@
 # Multimodal input
 
+**En una frase**: de dónde podría venir más información sobre el estilo del usuario (video, redes sociales, guardarropa digital) — pospuesto hasta validar adaptive-scoring en producción.
+
 Investigación (no implementada) sobre sumar más fuentes de información al perfil de estilo del usuario y al scoring — video, redes sociales, guardarropa digital, y otras ideas. Complementa a [adaptive-scoring/](../adaptive-scoring/) (el motor de scoring en sí) y [ux-growth/](../ux-growth/) (retención) — esta carpeta evalúa **de dónde podría venir más información**, no cómo se calibra ni cómo se ve.
 
 Origen: pedido explícito de evaluar si un usuario podría grabarse en video para tener más señal de fit/caída de la ropa, y si conectar Instagram/TikTok/Facebook podría alimentar su perfil de estilo. Ambas ideas se evaluaron a fondo — la conclusión no es la que se esperaba en el pedido original, ver el detalle en cada documento.

@@ -1,5 +1,7 @@
 # Herramientas/skills de Claude Code para esta iniciativa
 
+> **En resumen**: no hay ningún skill de Claude Code dedicado a ML/ciencia de datos en este entorno — lo que existe (`engineering:*`) ayuda a ordenar el diseño y las pruebas, no a decidir criterio estadístico. Para la Fase 1 alcanza con el razonamiento ya escrito en esta carpeta; para la Fase 2/3 lo realista es sumar a alguien con experiencia real en ML, no un skill.
+
 Revisión de si hay algún skill instalable que ayude puntualmente a pensar o construir la parte de aprendizaje automático de esta iniciativa.
 
 ## Resultado: no hay ningún skill dedicado a ML/ciencia de datos disponible hoy
@@ -18,7 +20,7 @@ Se revisaron los skills disponibles en este entorno. Son, en su mayoría, de dos
 
 ## Qué falta que ningún skill de este entorno cubre
 
-Diseñar el clustering, el piso mínimo de confianza, y (si se llega a la Fase 2/3) el ajuste estadístico o el modelo propio, necesita criterio de ML/estadística aplicada que no viene empaquetado como skill acá — es conocimiento de dominio, no algo que un skill automatice. Para la Fase 1 alcanza con el razonamiento ya escrito en [01-feedback-signal.md](./01-feedback-signal.md) y [02-clustering.md](./02-clustering.md) más buen criterio de ingeniería (ahí ayudan los skills de `engineering:*`). Para la Fase 2/3, lo más realista es que haga falta sumar a alguien con experiencia real en ML o ciencia de datos, en el equipo o como consultor — ningún skill reemplaza eso (ver también la estimación de la Fase 3 en [03-fase-3-modelo-propio.md](./phases/03-fase-3-modelo-propio.md#fase-3--modelo-propio-opción-b-de-ml-roadmapmd)).
+Diseñar el clustering, el piso mínimo de confianza, y (si se llega a la Fase 2/3) el ajuste estadístico o el modelo propio, necesita criterio de ML/estadística aplicada que no viene empaquetado como skill acá — es conocimiento de dominio, no algo que un skill automatice. Para la Fase 1 alcanza con el razonamiento ya escrito en [01-feedback-signal.md](./01-feedback-signal.md) y [02-clustering.md](./02-clustering.md) más buen criterio de ingeniería (ahí ayudan los skills de `engineering:*`). Para la Fase 2/3, lo más realista es que haga falta sumar a alguien con experiencia real en ML o ciencia de datos, en el equipo o como consultor — ningún skill reemplaza eso (ver también la estimación de la Fase 3 en [03-phase-3-custom-model.md](./phases/03-phase-3-custom-model.md#fase-3--modelo-propio-opción-b-de-ml-roadmapmd)).
 
 ## Recomendación concreta
 

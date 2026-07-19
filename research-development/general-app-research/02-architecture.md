@@ -1,5 +1,7 @@
 # Arquitectura
 
+> **En resumen**: Server Components por defecto, con la lógica de negocio (scoring, gating) separada en `src/lib/` sin saber nada de IA ni de base de datos. Un proxy propio (`src/proxy.ts`, no el `middleware.ts` estándar) separa el panel admin del resto de la app. El "modo demo" es un fallback completo — sin credenciales de Supabase, toda la app corre en memoria, con un guard que impide que esto pase por accidente en producción.
+
 ## Capas de alto nivel
 
 ```

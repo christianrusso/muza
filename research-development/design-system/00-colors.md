@@ -1,5 +1,7 @@
 # Colors
 
+> **En resumen**: toda la paleta vive como variables CSS en `tokens.css` — nunca hardcodear un hex en un componente. Coral es el único color de marca/acción; los pares `*-soft` existen para fondos con buen contraste. Cada tipo de análisis tiene su propio par de color fijo.
+
 Fuente única de verdad: variables CSS en `src/app/styles/tokens.css` (`:root`), expuestas a Tailwind vía `@theme inline` como `--color-*`. En componentes se usan como clases Tailwind (`bg-coral`, `text-ink`, etc.) o directo como `var(--coral)` en CSS.
 
 ## Paleta base

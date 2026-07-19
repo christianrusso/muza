@@ -149,6 +149,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         />
         <ResultFeedbackSection title="Recomendaciones" variant="rec" items={recomendaciones} />
       </div>
+      </div>
     </TabScreenShell>
   );
 }

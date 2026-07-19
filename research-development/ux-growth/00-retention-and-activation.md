@@ -1,5 +1,7 @@
 # Retención y activación: qué se sabe, qué falta medir, qué vale la pena construir
 
+> **En resumen**: hoy no hay ningún dato real de cuánta gente completa el registro, sube su primera foto o vuelve al día siguiente — medir eso es el primer paso, antes de construir nada nuevo. El circuito principal (foto → score) ya funciona bien y no hay que interponerle fricción. El reto diario es la oportunidad más directa de retención; progressive profiling y notificaciones con propósito son mejoras baratas complementarias.
+
 ## Primero lo honesto: hoy no hay un embudo medido
 
 Existe PostHog (`posthog-js`, ver [01-tech-stack.md](../general-app-research/01-tech-stack.md)) y `admin_metrics()` agrega números de negocio, pero no hay documentado ningún dashboard de embudo de activación (cuánta gente llega a `/welcome`, cuánta completa el registro, cuánta sube su primera foto, cuánta vuelve al día siguiente). Proponer mejoras de retención sin ese dato es adivinar. **El primer paso, antes de construir nada de lo que sigue, es medir ese embudo** — probablemente ya hay suficientes eventos de PostHog para armarlo sin código nuevo, solo definiendo el reporte.

@@ -1,5 +1,7 @@
 # Estar listos para cobrar, sin cobrar todavía
 
+> **En resumen**: la parte difícil (medir cuánto usa cada usuario) ya está resuelta en código, solo desactivada. Activar los límites gratuitos que ya existen (`FREE_MONTHLY_ANALYSES_LIMIT`) toma ~0.5 semana-persona y se puede probar sin tener todavía un proveedor de pagos. Integrar un proveedor real depende de una decisión de negocio (cuál, para qué mercado) que todavía no está tomada — sin eso, no se puede estimar el resto.
+
 ## Lo que ya existe
 
 `08-open-decisions.md` ya documenta el estado real: `PLAN_LIMITS.free`/`.pro` están sin límite (`monthlyAnalyses: null`, `historyWindowDays: null`) desde julio de 2026, con constantes ya definidas pero sin usar (`FREE_MONTHLY_ANALYSES_LIMIT`, `FREE_HISTORY_WINDOW_DAYS`), y un placeholder de precio (`PRO_MONTHLY_PRICE_USD_PLACEHOLDER = 0`). No hay ningún proveedor de pagos integrado (ver [08-open-decisions.md](../general-app-research/08-open-decisions.md#pricing--monetización)).

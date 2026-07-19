@@ -1,5 +1,7 @@
 # Best practices
 
+> **En resumen**: los patrones a replicar al escribir código nuevo — server-only por defecto, lógica pura separada de IO, RLS con funciones acotadas en vez de policies abiertas, la IA solo puntúa (nunca agrega el score), y toda feature no trivial arranca con una spec, no con código.
+
 ## Arquitectura de código
 
 - **Server Components por defecto.** Marcá `"use client"` solo en componentes que necesitan interactividad real (cámara, forms, feed con scroll). Cuanto menos JS viaja al cliente, mejor performance en una app mobile.

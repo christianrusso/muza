@@ -1,5 +1,7 @@
 # Typography & iconography
 
+> **En resumen**: Manrope para toda la UI funcional, Instrument Serif solo para momentos de marca/editorial. Sin librería de íconos externa — todo pasa por Material Symbols vía nombre de string. No hay una escala tipográfica formal tokenizada todavía (tamaños hardcodeados en px).
+
 ## Fuentes
 
 Dos familias, cargadas en `src/lib/fonts.ts` y expuestas como variables CSS (`--font-instrument-serif`, `--font-manrope`) consumidas en `src/app/styles/tokens.css` vía `@theme inline` (`--font-serif`, `--font-sans`):

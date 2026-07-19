@@ -1,5 +1,7 @@
 # Estructura del CSS
 
+> **En resumen**: `globals.css` es solo un manifiesto de imports — las reglas viven en partials de `src/app/styles/`, un archivo por componente/pantalla. Nunca escribir CSS nuevo directo en `globals.css`; el orden de los imports importa para la cascada.
+
 Históricamente todo el CSS vivía en un único `src/app/globals.css` gigante. Hoy ese archivo es solo un **manifiesto de imports**: las reglas viven en `src/app/styles/`, un archivo por componente o pantalla.
 
 ## Cómo está organizado

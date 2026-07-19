@@ -1,5 +1,7 @@
 # Estado actual: cómo se calibra el scoring hoy
 
+> **En resumen**: hoy el motor de scoring aprende solo de fotos que alguien del equipo etiquetó a mano — nada de lo que hace la comunidad (likes, comentarios) toca el criterio de puntuación. Ese es el problema de fondo que motiva toda esta carpeta. Falta, además, un dato clave para diseñar bien la solución: cuántos usuarios/posts/reacciones hay por semana.
+
 ## Dos formas de hacerlo, ninguna conectada con la comunidad
 
 **1. `scoring_examples` (en producción)** — un banco de ejemplos que se carga a mano (ver [06-scoring-engine.md](../general-app-research/06-scoring-engine.md#el-prompt-srclibaipromptsscoringpromptts--scoreoutfitts)). Solo `service_role` puede escribir ahí (ver [05-database.md](../general-app-research/05-database.md)). Los ejemplos están filtrados por ocasión, y se le muestran a la IA antes de la foto real, como ejemplo de qué está `ADECUADO ✓` y qué `NO ADECUADO ✗`, con una nota de quien lo cargó. Es lo que hoy le "enseña" al modelo qué es un buen o mal outfit para cada ocasión.

@@ -1,5 +1,7 @@
 # ¿Se puede puntuar un outfit a partir de un video?
 
+> **En resumen**: sí se puede, pero conviene empezar por algo más simple y barato — pedir 2-3 fotos desde distintos ángulos (mismo proveedor, mismo costo aproximado, cero infraestructura nueva) en vez de video real. Video de verdad solo lo soporta bien Gemini, no OpenAI (el proveedor actual), y solo vale la pena sumarlo si las fotos multi-ángulo no alcanzan para capturar cómo cae la ropa en movimiento.
+
 Pregunta concreta: ¿las IA "leen" video? Research hecho en julio 2026 contra la documentación actual de los proveedores — importante porque este es un terreno que cambia rápido, y conviene re-verificar contra la documentación oficial al momento de implementar, no confiar en este documento como fuente definitiva más allá de unos meses.
 
 ## Sí, pero no todos los proveedores lo hacen igual

@@ -1,5 +1,7 @@
 # Tech stack
 
+> **En resumen**: Next.js 16 + React 19 + TypeScript estricto, Tailwind v4 con design system propio (sin librería de componentes externa), Supabase (Postgres/Auth/Storage), OpenAI para el scoring por imagen, PostHog para analítica, hosteado en Vercel São Paulo. Sin librerías de ML/entrenamiento en el stack hoy.
+
 ## Lenguaje
 
 TypeScript estricto (`strict: true` en `tsconfig.json`), alias `@/*` → `src/*`. Cero usos de `any` en `src/`.

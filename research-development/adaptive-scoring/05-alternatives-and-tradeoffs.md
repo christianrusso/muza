@@ -1,5 +1,7 @@
 # Alternativas evaluadas: ¿es este el mejor camino?
 
+> **En resumen**: revisión honesta de cada decisión de diseño de esta carpeta contra sus alternativas. Conclusión general: el plan de la Fase 1 es sólido y de bajo riesgo, pero no resuelve solo el problema que arrancó esta investigación (la diferencia cultural CABA/Beijing) — eso queda como brecha abierta, no resuelta. También quedan pendientes: la red de seguridad mientras no hay volumen suficiente, y vigilar el efecto halo apenas se sume feedback de terceros.
+
 Revisión crítica de cada decisión tomada en esta carpeta hasta ahora: qué se descartó, por qué, y qué señal debería hacernos reabrir la decisión. La idea es no quedarnos con la primera idea razonable solo porque fue la primera.
 
 ## 1. Señal de calibración: feedback explícito vs. alternativas

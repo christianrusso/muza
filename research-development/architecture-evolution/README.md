@@ -1,5 +1,7 @@
 # Architecture evolution
 
+**En una frase**: qué falta en código e infraestructura para escalar y para empezar a cobrar, sin sobre-construir un MVP que hoy no lo necesita.
+
 Investigación (no implementada) sobre mejoras de código e infraestructura, alternativas de arquitectura, y qué hace falta para estar listos para escalar y para cobrar — sin perder de vista que hoy el objetivo es un MVP, no un sistema para un millón de usuarios que todavía no existen.
 
 Punto de partida: [02-architecture.md](../general-app-research/02-architecture.md), [01-tech-stack.md](../general-app-research/01-tech-stack.md) y [09-risks.md](../general-app-research/09-risks.md) — documentan el estado real del código hoy. Esta carpeta propone cambios, no describe lo que ya existe.

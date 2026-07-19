@@ -1,5 +1,7 @@
 # Components & patterns
 
+> **En resumen**: cada componente visual es una clase CSS semántica (`.btn`, `.card`) + un wrapper de React fino que solo selecciona la clase. Antes de crear un estilo nuevo con utilities de Tailwind sueltas, buscar si ya existe la clase que lo cubre — es la regla que mantiene consistencia visual entre pantallas hechas en momentos distintos.
+
 ## El patrón: clases semánticas en CSS + wrapper de React fino
 
 LookLab no usa Tailwind utility-first puro ni una librería de componentes externa. El patrón real (confirmado en `src/app/styles/` + `src/components/ui/Button.tsx`) es:

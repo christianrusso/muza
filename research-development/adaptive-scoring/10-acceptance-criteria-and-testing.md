@@ -1,8 +1,10 @@
 # Criterios de aceptación, casos de prueba y guardrails
 
+> **En resumen**: 4 frenos no negociables bloquean cualquier fase hasta resolverse: política de privacidad actualizada, escala mínima conocida, interruptor de apagado, y auditoría de equidad. Cada sub-fase tiene sus propios criterios de aceptación y casos de prueba (incluidos casos donde alguien intenta hacer trampa). Al final hay una lista de números a mirar en el tiempo — la brújula real de si esto está funcionando, no solo si el código compila.
+
 Convierte el diseño de [01-feedback-signal.md](./01-feedback-signal.md), [02-clustering.md](./02-clustering.md) e [07-implementation-plan.md](./07-implementation-plan.md) en algo que se pueda chequear, no solo describir. Objetivo: que ninguna fase se declare "lista" por sensación, y que el rumbo (que el modelo mejore solo sin perder equidad ni control) no se pierda a mitad de camino.
 
-Sigue la numeración de sub-fases de [00-fase-1-feedback-clustering-fewshot.md](./phases/00-fase-1-feedback-clustering-fewshot.md).
+Sigue la numeración de sub-fases de [00-phase-1-feedback-clustering-fewshot.md](./phases/00-phase-1-feedback-clustering-fewshot.md).
 
 ## Guardrails que aplican a toda la iniciativa (no negociables)
 

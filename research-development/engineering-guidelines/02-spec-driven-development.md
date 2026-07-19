@@ -1,5 +1,7 @@
 # Spec-Driven Development (SDD)
 
+> **En resumen**: toda feature no trivial (pantalla nueva, cambio de modelo de datos, cambio en scoring/gating, cualquier cosa de auth) arranca con una spec corta en `specs/` antes de escribir código — no reemplaza a `research-development/` (que documenta criterio general), documenta una decisión puntual.
+
 Este proyecto adopta un flujo donde **toda feature no trivial arranca con una spec escrita, no con código**. El objetivo es pensar el problema (alcance, datos, flujos, casos borde) antes de comprometerse a una implementación, y dejar un registro de por qué se tomó cada decisión — algo que hoy el repo no tiene (ver [09-risks.md](../general-app-research/09-risks.md), no hay documentación de por qué existen ciertos placeholders/decisiones).
 
 ## Dónde viven las specs

@@ -1,5 +1,7 @@
 # Dónde vive el reto diario en la navegación
 
+> **En resumen**: sin agregar una quinta tab — el reto vive en un botón flotante + una tarjeta en el home, y se completa en un modal deslizable (`BottomSheet`), todo con componentes que ya existen. Ya hay un prototipo de frontend funcionando, pero con 3 desviaciones del diseño a resolver: usa datos de comunidad en vez de la cola real de desacuerdo, la racha vive en `localStorage` en vez de backend, el recorte de cara es solo visual (no seguro), y el resultado muestra el score de la IA cuando el diseño decía que no debía mostrarlo.
+
 Define el cómo se ve y dónde vive el [reto diario](../adaptive-scoring/08-daily-challenge.md), usando componentes y patrones que ya existen (ver [02-components-and-patterns.md](../design-system/02-components-and-patterns.md)) en vez de inventar un lenguaje visual nuevo.
 
 ## Decisión: no agregar una quinta tab

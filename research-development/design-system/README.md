@@ -1,5 +1,7 @@
 # Design system
 
+**En una frase**: el sistema visual real de LookLab — colores, tipografía, componentes y layout — para que cualquier pantalla nueva encaje sin inventar un estilo paralelo.
+
 Documentación del sistema visual de LookLab, extraída de `src/app/styles/`, `src/lib/fonts.ts` y `src/components/ui/`.
 
 - [00-colors.md](./00-colors.md) — paleta y su uso semántico.

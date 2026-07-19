@@ -1,5 +1,7 @@
 # Plan de implementación: fases, stack, infraestructura e impacto
 
+> **En resumen**: con 1 persona full-time, la parte central (Fase 1 + 1B) toma ~12-15 semanas (3-3.5 meses). Con el equipo real (2 personas, probablemente part-time), el tiempo de calendario esperado es **~6-9 meses**. No hace falta stack nuevo para la Fase 1/1B — todo corre con lo que ya existe (Next.js, Supabase, TypeScript). Fase 2 y 3 quedan sin estimar en detalle: dependen de resultados que todavía no existen.
+
 Baja [06-ml-roadmap.md](./06-ml-roadmap.md) a pasos concretos: tiempos estimados, qué lenguajes y prácticas hacen falta, qué infraestructura se necesita, y qué cambia en la app existente. Sigue siendo investigación — no es una spec, no hay fecha comprometida.
 
 El detalle de cada fase vive en [phases/](./phases/) — este documento es el índice: supuestos, un resumen corto de cada fase, y el tiempo total consolidado.
@@ -13,10 +15,10 @@ El detalle de cada fase vive en [phases/](./phases/) — este documento es el í
 
 ## Las fases
 
-- **[Fase 1 — Feedback explícito + clustering básico + few-shot dinámico](./phases/00-fase-1-feedback-clustering-fewshot.md)** (~5-7 semanas-persona): el motor de scoring automático en sí — la parte que reemplaza la curación 100% manual.
-- **[Fase 1B — Reto diario y feedback de recomendaciones](./phases/01-fase-1b-reto-diario-recomendaciones.md)** (~5.5-7 semanas-persona): depende de que 1.2 (clustering) ya exista. Reto diario + calibrar las sugerencias de mejora del outfit.
-- **[Fase 2 — Ajuste estadístico por cluster](./phases/02-fase-2-ajuste-estadistico.md)** (~3-5 semanas-persona): depende de los resultados de la Fase 1.
-- **[Fase 3 — Modelo propio](./phases/03-fase-3-modelo-propio.md)** (meses, no semanas): lejana, solo si la Fase 1/2 muestran que hace falta.
+- **[Fase 1 — Feedback explícito + clustering básico + few-shot dinámico](./phases/00-phase-1-feedback-clustering-fewshot.md)** (~5-7 semanas-persona): el motor de scoring automático en sí — la parte que reemplaza la curación 100% manual.
+- **[Fase 1B — Reto diario y feedback de recomendaciones](./phases/01-phase-1b-daily-challenge-recommendations.md)** (~5.5-7 semanas-persona): depende de que 1.2 (clustering) ya exista. Reto diario + calibrar las sugerencias de mejora del outfit.
+- **[Fase 2 — Ajuste estadístico por cluster](./phases/02-phase-2-statistical-adjustment.md)** (~3-5 semanas-persona): depende de los resultados de la Fase 1.
+- **[Fase 3 — Modelo propio](./phases/03-phase-3-custom-model.md)** (meses, no semanas): lejana, solo si la Fase 1/2 muestran que hace falta.
 
 ## Costo de las mejoras que no son parte del motor de scoring
 
@@ -29,8 +31,8 @@ Estas no bloquean nada de lo anterior y se pueden hacer en paralelo, intercalada
 
 | Bloque | Semanas-persona | Detalle |
 |---|---|---|
-| Fase 1 (motor de scoring automático) | 5-7 | [phases/00-fase-1-feedback-clustering-fewshot.md](./phases/00-fase-1-feedback-clustering-fewshot.md) |
-| Fase 1B (reto diario + recomendaciones) | 5.5-7 | [phases/01-fase-1b-reto-diario-recomendaciones.md](./phases/01-fase-1b-reto-diario-recomendaciones.md) |
+| Fase 1 (motor de scoring automático) | 5-7 | [phases/00-phase-1-feedback-clustering-fewshot.md](./phases/00-phase-1-feedback-clustering-fewshot.md) |
+| Fase 1B (reto diario + recomendaciones) | 5.5-7 | [phases/01-phase-1b-daily-challenge-recommendations.md](./phases/01-phase-1b-daily-challenge-recommendations.md) |
 | Mejoras de infraestructura + activar límites de plan | 1.5 | Sección anterior |
 | **Total con 1 desarrollador full-time** | **~12-15.5 semanas (3-3.5 meses)** | — |
 

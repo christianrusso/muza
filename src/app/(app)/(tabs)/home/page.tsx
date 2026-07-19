@@ -1,18 +1,18 @@
+import Link from "next/link";
 import { timed } from "@/lib/perf";
 import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { createClient } from "@/lib/supabase/server";
+import { signedPhotoUrl } from "@/lib/supabase/photos";
+import { greetingDate } from "@/lib/dates";
+import { occasionLabel } from "@/lib/occasions";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
 import type { AnalysisType, OccasionId } from "@/types/domain";
-import { loadHomeData, HOME_HEADLINE_TYPE } from "@/lib/home";
 import { loadDailyChallenge } from "@/lib/dailyChallenge";
-import { HomeGreeting } from "@/components/home/HomeGreeting";
-import { LatestAnalysisCard } from "@/components/home/LatestAnalysisCard";
-import { HomeStatsRow } from "@/components/home/HomeStatsRow";
-import { NewAnalysisCta } from "@/components/home/NewAnalysisCta";
-import { DailyChallengeLauncher } from "@/components/dailyChallenge/DailyChallengeLauncher";
+import { DailyChallengeCard } from "@/components/dailyChallenge/DailyChallengeCard";
 
 async function loadHomeData() {
   if (isDemoMode()) {
@@ -49,7 +49,7 @@ async function loadHomeData() {
   } = await supabase.auth.getUser();
 
   // Invitado: Home es visible pero no hay nada personal que traer. Cae en los
-  // mismos estados vacíos que un usuario recién registrado, y el CTA de abajo le
+  // mismos estados vacÃ­os que un usuario reciÃ©n registrado, y el CTA de abajo le
   // pide la cuenta (ver NewAnalysisCard).
   if (!user) {
     return {
@@ -78,10 +78,10 @@ async function loadHomeData() {
   const scores = all.map((a) => a.overall_score).filter((s): s is number => s !== null);
   const average = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
-  // El último análisis, sea del tipo que sea. Antes se pedía uno "completo"
-  // (cuerpo entero) y, si la persona solo había sacado fotos de torso, la tarjeta
-  // no aparecía nunca: quedaba el estado vacío de "todavía no hiciste ninguno"
-  // contradiciendo al contador de al lado, que sí los cuenta a todos.
+  // El Ãºltimo anÃ¡lisis, sea del tipo que sea. Antes se pedÃ­a uno "completo"
+  // (cuerpo entero) y, si la persona solo habÃ­a sacado fotos de torso, la tarjeta
+  // no aparecÃ­a nunca: quedaba el estado vacÃ­o de "todavÃ­a no hiciste ninguno"
+  // contradiciendo al contador de al lado, que sÃ­ los cuenta a todos.
   const latestAnalysis = all[0];
   const latest = latestAnalysis
     ? {
@@ -116,15 +116,15 @@ export default async function HomePage() {
               Hola, <span className="font-serif italic text-[32px] font-normal">{firstName}</span>
             </span>
           ) : (
-            // Invitado: no hay nombre a quién saludar. Va la propuesta de valor,
-            // que además es la que ya vio en la landing y en /welcome.
+            // Invitado: no hay nombre a quiï¿½n saludar. Va la propuesta de valor,
+            // que ademï¿½s es la que ya vio en la landing y en /welcome.
             <span className="font-serif italic leading-tight text-ink" style={{ fontSize: 32 }}>
               Tu outfit, evaluado
             </span>
           )}
         </div>
-        {/* Al invitado no le mostramos el círculo del avatar: no tiene cuenta, y
-            un placeholder vacío ahí no dice nada. */}
+        {/* Al invitado no le mostramos el cÃ­rculo del avatar: no tiene cuenta, y
+            un placeholder vacÃ­o ahÃ­ no dice nada. */}
         {firstName && (
           <div
             className="ph h-[46px] w-[46px] rounded-full border-2 border-white"
@@ -142,7 +142,7 @@ export default async function HomePage() {
         <div className="card p-4" style={{ boxShadow: "0 12px 30px -18px rgba(20,18,16,.25)" }}>
           <div className="mb-3.5 flex items-center justify-between">
             <AnalysisTypePill type={(latest.analysis_type as AnalysisType) ?? "completo"} />
-            <span className="section-label">Último Outfit Score</span>
+            <span className="section-label">Ãšltimo Outfit Score</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="ph relative flex h-[132px] w-[104px] flex-none items-end justify-center overflow-hidden rounded-2xl pb-2">
@@ -166,32 +166,32 @@ export default async function HomePage() {
                   {occasionLabel(latest.occasion_id as OccasionId)}
                 </span>
                 <span className="text-sm font-semibold text-muted">
-                  {latest.style_descriptors?.join(" · ")}
+                  {latest.style_descriptors?.join(" â€¢ ")}
                 </span>
               </div>
             </div>
           </div>
           <div className="my-3 h-px bg-line" />
           <Link href={`/analysis/${latest.id}/result`} className="flex items-center justify-between">
-            <span className="text-sm font-bold text-coral">Ver análisis completo</span>
+            <span className="text-sm font-bold text-coral">Ver anÃ¡lisis completo</span>
             <MaterialIcon name="chevron_right" size={20} className="text-coral" />
           </Link>
         </div>
       ) : (
         <div className="card p-4 text-center text-sm font-semibold text-muted">
-          Todavía no hiciste ningún análisis. ¡Sacate una foto de tu outfit para empezar!
+          TodavÃ­a no hiciste ningÃºn anÃ¡lisis. Â¡Sacate una foto de tu outfit para empezar!
         </div>
       )}
 
       <div className="flex gap-3">
         <div className="card flex-1 p-3.5">
-          <span className="section-label">Promedio histórico</span>
+          <span className="section-label">Promedio histÃ³rico</span>
           <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-[30px] font-extrabold">{average ?? "—"}</span>
+            <span className="text-[30px] font-extrabold">{average ?? "â€“"}</span>
           </div>
         </div>
         <div className="card flex-1 p-3.5">
-          <span className="section-label">Análisis</span>
+          <span className="section-label">AnÃ¡lisis</span>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-[30px] font-extrabold">{totalCount}</span>
             <span className="text-[11px] font-bold text-faint">en total</span>
@@ -201,7 +201,7 @@ export default async function HomePage() {
 
       <NewAnalysisCard />
 
-      {/* Próximamente: no es un botón — no navega ni se puede tocar. Está para
+      {/* PrÃ³ximamente: no es un botÃ³n â†’ no navega ni se puede tocar. EstÃ¡ para
           anticipar la feature (borde punteado + candado), no para usarse. */}
       <div
         className="flex items-center gap-3.5 rounded-[20px] border-2 border-dashed border-line-strong px-[18px] py-4"
@@ -214,17 +214,19 @@ export default async function HomePage() {
           <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
         </span>
         <span className="flex flex-1 flex-col items-start gap-0.5">
-          <span className="text-[17px] font-extrabold text-muted">Generar colorimetría</span>
-          <span className="text-xs font-semibold text-faint">Descubrí tu paleta ideal</span>
+          <span className="text-[17px] font-extrabold text-muted">Generar colorimetrÃ­a</span>
+          <span className="text-xs font-semibold text-faint">DescubrÃ­ tu paleta ideal</span>
         </span>
         <span
           className="flex flex-none items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide"
           style={{ background: "var(--violet-soft)", color: "var(--violet)" }}
         >
           <MaterialIcon name="lock" size={13} />
-          Próximamente
+          PrÃ³ximamente
         </span>
       </div>
+
+      <DailyChallengeCard items={challengeItems} />
     </div>
   );
 }

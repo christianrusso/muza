@@ -1,5 +1,7 @@
 # Mejoras de código e infraestructura
 
+> **En resumen**: mejoras baratas (CI/CD, tests, `.env.example`, monitoreo de errores) suman ~1 semana-persona en total y no dependen de nada más. La decisión de arquitectura que sí importa pensar bien desde ahora: dónde corren los procesos por lotes de adaptive-scoring (clustering, reto diario) — la recomendación firme es Vercel Cron + una API route, no un servicio de colas gestionado, mientras el volumen sea el de hoy.
+
 ## Dos categorías distintas: lo simple hoy, y lo que no se puede simplificar después
 
 Antes de la lista, una distinción que conviene tener clara para no aplicar "hagamos MVP" de forma pareja a todo:

@@ -1,5 +1,7 @@
 # General App Research
 
+**En una frase**: cómo está construida LookLab hoy — stack, arquitectura, base de datos, motor de scoring y flujos principales.
+
 Índice del research inicial de LookLab (Muza). Cada archivo cubre un tema puntual — son la base de conocimiento para seguir iterando sobre la app.
 
 - [00-objective-and-context.md](./00-objective-and-context.md) — qué es la app, para quién, modelo de negocio actual.

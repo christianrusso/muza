@@ -1,5 +1,7 @@
 # Objetivo y contexto
 
+> **En resumen**: LookLab es una app que puntúa outfits con IA para una ocasión concreta (no "¿queda bien?" en abstracto), con capa social e historial. Hoy está en lanzamiento gratis — los límites de plan pago ya existen en código pero están desactivados.
+
 ## Qué es
 
 LookLab (nombre interno del repo: "Muza") es una app mobile-first que analiza una foto de un outfit con IA y devuelve un puntaje (0-100) desglosado en 10 categorías, con fortalezas, aspectos a mejorar y recomendaciones concretas. Tiene una capa social (comunidad con feed, likes, comentarios) e historial personal de análisis.

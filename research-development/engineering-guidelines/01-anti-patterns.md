@@ -1,5 +1,7 @@
 # Anti-patterns — qué evitar
 
+> **En resumen**: cada anti-patrón acá viene de un incidente o riesgo real de este repo, no es una regla genérica — el más importante es no relajar una RLS policy para "arreglar" visibilidad (ya rompió el feed dos veces); usar una función `security definer` acotada en su lugar.
+
 Cada punto acá tiene un motivo concreto en este repo, no es una regla genérica. Si no entendés el porqué, seguí el link.
 
 ## No relajar una RLS policy para "arreglar" un problema de visibilidad

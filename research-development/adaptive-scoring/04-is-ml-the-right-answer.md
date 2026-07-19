@@ -1,5 +1,7 @@
 # ¿Es machine learning la solución? Una respuesta directa
 
+> **En resumen**: no hace falta un panel de personas revisando casos (nadie tiene tiempo) — así que la solución tiene que ser 100% automática desde el diseño. El plan principal es "ingeniería de datos automática" (agrupar feedback real y usarlo para elegir mejores ejemplos, sin entrenar ningún modelo) — es lo que el equipo actual puede construir y mantener sin dedicarle tiempo después. Aprendizaje automático real (entrenar un modelo) queda anotado desde ya como plan B, no descartado, por si el plan principal no alcanza para casos sutiles (ej. diferencias culturales).
+
 Pedido explícito: no defender lo ya escrito en esta carpeta solo porque ya está escrito. Esta es una revisión honesta de si hace falta aprendizaje automático de verdad, o si hay caminos más baratos y más seguros que resuelven el mismo problema.
 
 **Restricción explícita del equipo**: nadie tiene tiempo de operar un proceso donde una persona revisa casos a mano de forma recurrente — no es una preferencia, es una limitación real de un equipo de 2 personas. Cualquier camino que dependa de que alguien revise una cola cada semana **queda descartado de entrada**, sin importar qué tan barato o de bajo riesgo sea en el papel. Esto cambia la comparación de forma importante: ya no se trata de elegir la opción más barata entre varias viables, sino de encontrar la mejor opción **dentro del subconjunto que no necesita a nadie mirando casos uno por uno**.

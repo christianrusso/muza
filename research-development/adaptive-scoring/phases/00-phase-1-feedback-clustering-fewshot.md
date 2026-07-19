@@ -1,5 +1,7 @@
 # Fase 1 — Feedback explícito + clustering básico + few-shot dinámico
 
+> **En resumen**: 4 sub-fases (~5-7 semanas-persona en total): pedirle al usuario su opinión sobre el score (1.1), agrupar outfits parecidos (1.2), usar ese feedback agrupado para elegir mejores ejemplos en el prompt (1.3), y medir todo en `/admin` (1.4). Es el motor de scoring automático en sí — la parte que reemplaza la curación 100% manual.
+
 Parte de [07-implementation-plan.md](../07-implementation-plan.md) — ver ahí los supuestos de esta estimación (equipo, semanas-persona) y la tabla consolidada de tiempos totales.
 
 ### 1.1 Señal de feedback explícita (~1-1.5 semanas)

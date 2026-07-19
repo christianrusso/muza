@@ -1,6 +1,8 @@
 # Fase 1B — Reto diario y feedback de recomendaciones
 
-Parte de [07-implementation-plan.md](../07-implementation-plan.md). No depende de la Fase 2/3, pero sí de que 1.2 (clustering, ver [00-fase-1-feedback-clustering-fewshot.md](./00-fase-1-feedback-clustering-fewshot.md)) ya exista — ambas features reusan los mismos clusters para agregar su señal. Se pueden construir en paralelo entre sí una vez que 1.2 está lista.
+> **En resumen**: ~5.5-7 semanas-persona para construir el reto diario (backend + pantalla + racha) y calibrar las recomendaciones de mejora (👍/👎 + detectar automáticamente si alguien siguió un consejo). Depende de que el clustering de la Fase 1 ya exista, pero no de la Fase 2/3.
+
+Parte de [07-implementation-plan.md](../07-implementation-plan.md). No depende de la Fase 2/3, pero sí de que 1.2 (clustering, ver [00-phase-1-feedback-clustering-fewshot.md](./00-phase-1-feedback-clustering-fewshot.md)) ya exista — ambas features reusan los mismos clusters para agregar su señal. Se pueden construir en paralelo entre sí una vez que 1.2 está lista.
 
 ### 1.5 Reto diario (~3-4 semanas-persona)
 - Backend: 3 tablas nuevas (`daily_challenge`, `daily_challenge_items`, `daily_challenge_responses`, ver [08-daily-challenge.md](../08-daily-challenge.md#modelo-de-datos-propuesta-inicial-a-validar-en-la-spec)), el job diario que arma el reto (mismo batch job que el clustering), y el recorte/difuminado de cara en las fotos que se muestran — ~1.5-2 semanas.

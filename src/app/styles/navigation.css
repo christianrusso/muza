@@ -48,38 +48,6 @@
   font-weight: 700;
 }
 
-/* ===== floating action button ===== */
-.fab {
-  position: absolute;
-  right: 20px;
-  bottom: 100px;
-  height: 50px;
-  padding: 0 20px;
-  border-radius: 26px;
-  border: none;
-  background: var(--coral);
-  color: #fff;
-  font-weight: 800;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 12px 24px -8px rgba(236, 90, 46, 0.7);
-  z-index: 56;
-}
-.fab .msym {
-  font-size: 22px;
-}
-.fab--violet {
-  background: var(--violet);
-  box-shadow: 0 12px 24px -8px rgba(91, 79, 214, 0.6);
-}
-.fab--violet-done {
-  background: var(--violet-soft);
-  color: var(--violet);
-  box-shadow: 0 6px 16px -10px rgba(91, 79, 214, 0.35);
-}
-
 .bottom-cta {
   position: sticky;
   bottom: 0;

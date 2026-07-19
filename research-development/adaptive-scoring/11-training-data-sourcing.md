@@ -1,5 +1,7 @@
 # De dónde salen las fotos para entrenar o calibrar
 
+> **En resumen**: la mejor fuente de datos son las propias fotos y feedback de los usuarios reales — pero usarlas para calibrar el modelo (no solo para mostrar el resultado, como hoy) requiere primero actualizar la Política de Privacidad. Bancos de fotos externos (DeepFashion, Unsplash, etc.) quedan como plan B lejano, solo si hace falta más volumen para un modelo propio — casi todos tienen licencia académica, no comercial, y no resuelven el derecho de imagen de la persona fotografiada.
+
 ## Lo que ya se usa hoy, de forma informal
 
 `scripts/eval/labels.json` tiene fotos con nombres de archivo como `andrea-cipriani-RthWUusZL4Q-unsplash.jpg` — ese patrón de nombre muestra que se bajaron a mano de **Unsplash** para armar el set de prueba local del harness de evaluación (`scripts/eval/run.ts`). Se usan solo para probar el prompt/modelo en local, no en producción, y no para entrenar un modelo propio (hoy no existe un modelo propio, ver [06-ml-roadmap.md](./06-ml-roadmap.md)).

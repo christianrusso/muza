@@ -1,5 +1,7 @@
 # Open decisions
 
+> **En resumen**: cosas ya presentes en el código pero sin decisión de producto cerrada — cuándo activar los límites de plan pago (y con qué proveedor), qué es realmente la feature "Simulación IA" reservada en el modelo de datos, y que el panel admin hoy solo soporta un único usuario sin roles.
+
 Cosas que están modeladas en el código pero definidas a medias, con placeholders, o pendientes de una decisión de producto.
 
 ## Pricing / monetización

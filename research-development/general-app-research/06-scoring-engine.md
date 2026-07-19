@@ -1,5 +1,7 @@
 # Motor de scoring
 
+> **En resumen**: la IA puntúa 10 categorías con peso fijo (ocasión pesa más, 20%), y el servidor calcula el score final con una fórmula determinística — la IA nunca agrega el total. Un "techo de ocasión" evita que un outfit muy inadecuado para la ocasión saque un score alto sostenido por otras categorías. El banco `scoring_examples` es lo que hoy calibra el criterio, cargado a mano.
+
 Es el corazón funcional del producto: convierte una foto + contexto de ocasión en un puntaje 0-100 con justificación. Diseño deliberado: **la IA puntúa cada categoría, el server calcula el overall score** con una fórmula determinística — no le pedimos a la IA que agregue.
 
 ## Las 10 categorías y sus pesos (`src/lib/scoring/categories.ts`)

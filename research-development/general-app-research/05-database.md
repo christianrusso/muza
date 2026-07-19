@@ -1,5 +1,7 @@
 # Base de datos (Supabase)
 
+> **En resumen**: reglas de acceso (RLS) owner-only en casi todo, con selects abiertos para comunidad. Hay un historial real de 2 bugs de seguridad por combinar RLS con vistas/subqueries — antes de tocar cualquier policy o vista nueva, conviene leer ese historial para no repetirlo.
+
 Postgres gestionado por Supabase. Migraciones versionadas en `supabase/migrations/`, 14 archivos a la fecha de este research — se leen en orden, cada una es un paso incremental (incluye al menos dos migraciones que son fixes de bugs de seguridad sobre migraciones anteriores, ver abajo).
 
 ## Row Level Security (RLS)

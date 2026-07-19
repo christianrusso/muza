@@ -1,5 +1,7 @@
 # Legal y privacidad: hasta dónde llega lo que estamos proponiendo
 
+> **En resumen**: la Política de Privacidad actual no cubre usar datos de uso para mejorar el algoritmo (solo cubre generar el puntaje de una foto puntual) — hay que actualizarla antes de activar cualquier fase en producción. Puntos a resolver con un abogado: si hace falta pedir permiso explícito o alcanza con avisar, qué ley aplica según dónde estén los usuarios reales, y el riesgo de que el algoritmo discrimine sin querer por cluster. Esto es investigación técnica, no asesoramiento legal.
+
 > **Esto es investigación técnica, no asesoramiento legal.** El objetivo es mapear qué preguntas hay que llevarle a un abogado (mejor si es especializado en protección de datos) antes de tocar datos personales — no reemplaza esa consulta.
 
 ## Punto de partida: qué dice hoy la Política de Privacidad
@@ -61,4 +63,4 @@ Los Términos de Uso actuales ya piden *"subí solo fotos tuyas o de personas qu
 - ¿Conviene formar una empresa antes de manejar datos personales a este nivel? Hoy lo opera una persona física, según `/legal`.
 - ¿Dónde están de verdad los usuarios activos hoy (qué países)? De eso depende qué ley(es) aplican — es la primera pregunta a resolver, es de producto/datos, no legal.
 - ¿Hace falta una persona responsable de datos formal si crece el volumen?
-- Escribir, con un abogado, el texto actualizado de la Política de Privacidad **antes** de tocar código de la Fase 1 (ver [00-fase-1-feedback-clustering-fewshot.md](./phases/00-fase-1-feedback-clustering-fewshot.md#11-señal-de-feedback-explícita-1-15-semanas)).
+- Escribir, con un abogado, el texto actualizado de la Política de Privacidad **antes** de tocar código de la Fase 1 (ver [00-phase-1-feedback-clustering-fewshot.md](./phases/00-phase-1-feedback-clustering-fewshot.md#11-señal-de-feedback-explícita-1-15-semanas)).

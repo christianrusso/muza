@@ -1,5 +1,7 @@
 # Layout & responsiveness
 
+> **En resumen**: LookLab es mobile-first con un canvas fijo de 430px, sin rediseño de layout para desktop. Cualquier pantalla nueva se diseña para ese ancho, reusando el padding estandarizado (`.pad`/`.pad-tab`) y respetando el orden de z-index de la tab bar (55) y el FAB (56).
+
 ## Mobile-first, canvas fijo
 
 La app se diseña para un ancho de contenedor fijo (`max-w-[430px]`, aplicado en `src/app/(auth)/layout.tsx` y `src/app/(app)/layout.tsx`), centrado en pantallas más anchas. No hay un rediseño de layout para desktop/tablet — LookLab hoy es, deliberadamente, una experiencia mobile (o una web-app que simula un mobile canvas en desktop). Cualquier pantalla nueva debe diseñarse pensando en ese ancho, no en breakpoints responsive tradicionales.

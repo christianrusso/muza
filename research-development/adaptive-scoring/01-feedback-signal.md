@@ -1,5 +1,7 @@
 # Qué señal usar para calibrar, y cómo evitar que pocos usuarios la distorsionen
 
+> **En resumen**: no usar los likes/dislikes que ya existen (mezclan popularidad y atracción con si la ropa es adecuada). En su lugar, sumar un mecanismo nuevo y chico — "¿te parece justo este puntaje?" — que cada uno responde solo sobre su propio resultado, para minimizar el efecto halo (juzgar la ropa por cómo te cae la persona). Un piso mínimo de respuestas y un ajuste gradual evitan que 2 o 3 votos distorsionen el score de todos.
+
 ## El problema de fondo: un like no es lo mismo que "el score está bien"
 
 `community_posts` muestra la foto **junto con el `overall_score`** que ya se calculó. Cuando alguien da like o dislike, puede estar respondiendo a varias cosas distintas, todas mezcladas:

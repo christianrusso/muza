@@ -1,5 +1,7 @@
 # Riesgos y cuestiones a tener en cuenta
 
+> **En resumen**: los riesgos más grandes hoy son testing casi inexistente, sin CI/CD, y el historial ya probado de bugs de RLS al combinar policies con vistas. Menores pero reales: variables de entorno sin documentar, credenciales de admin sin rotación ni MFA, y dependencia de una versión de Next.js con convenciones no estándar.
+
 ## Testing casi inexistente
 
 Un solo archivo de test (`tests/scoring.test.ts`, runner nativo de Node + `tsx`), cubre solo la lógica pura de scoring/gating. No hay tests de componentes, de API routes (`src/app/api/`) ni E2E del flujo de captura→validación→scoring→resultado. Cualquier cambio en `src/lib/scoring/categories.ts`, en el prompt de IA, o en las RLS policies no tiene red de contención automatizada más allá de ese archivo.
