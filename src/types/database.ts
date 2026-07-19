@@ -20,6 +20,7 @@ export interface Database {
           created_at: string;
           last_seen_activity_at: string;
           blocked_at: string | null;
+          is_seed: boolean;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string; full_name: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -291,6 +292,7 @@ export interface Database {
           votes_bien: number;
           votes_muy_bueno: number;
           votes_impecable: number;
+          author_is_seed: boolean;
         };
         Relationships: [];
       };

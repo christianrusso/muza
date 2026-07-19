@@ -106,33 +106,65 @@ export async function loadVoteQueue(
     followingIds = new Set((following ?? []).map((f) => f.following_id));
   }
 
-  // Cuántos looks votables hay en total, para elegir dónde abrir la ventana.
-  let countQuery = db
-    .from("community_feed_view")
-    .select("post_id", { count: "exact", head: true });
-  if (user) countQuery = countQuery.neq("author_id", user.id);
-  const { count } = await countQuery;
-  const total = count ?? 0;
-  if (total === 0) return [];
-
-  // Offset al azar. El .order() sigue estando porque .range() necesita un orden
-  // estable para paginar; la aleatoriedad la ponen el offset y el shuffle de abajo.
-  const offset = Math.floor(Math.random() * Math.max(1, total - CANDIDATE_FETCH + 1));
-  let candidatesQuery = db
-    .from("community_feed_view")
-    .select("*")
-    .order("posted_at", { ascending: false })
-    .range(offset, offset + CANDIDATE_FETCH - 1);
   // Los looks propios no se votan. Un invitado no tiene.
-  if (user) candidatesQuery = candidatesQuery.neq("author_id", user.id);
-  const { data: candidates } = await candidatesQuery;
+  const notMine = <T extends { neq: (c: string, v: string) => T }>(q: T) =>
+    user ? q.neq("author_id", user.id) : q;
 
-  const pool = (candidates ?? []).filter((p) => !excluded.has(p.post_id));
-  const fresh = shuffle(pool.filter((p) => !votedPostIds.has(p.post_id)));
-  // Los ya votados van al final: solo se usan si los sin votar no llenan la tanda.
-  const recycled = shuffle(pool.filter((p) => votedPostIds.has(p.post_id)));
+  // Primero, TODO lo real. Son pocos por definición (los usuarios que publican
+  // son un puñado) contra cientos de posts semilla, así que acá no hace falta
+  // ventana al azar: entran todos y el shuffle los desordena. El tope está por
+  // las dudas de que algún día dejen de ser pocos.
+  const { data: realCandidates } = await notMine(
+    db
+      .from("community_feed_view")
+      .select("*")
+      .eq("author_is_seed", false)
+      .order("posted_at", { ascending: false })
+      .limit(CANDIDATE_FETCH),
+  );
 
-  const queue = [...fresh, ...recycled].slice(0, limit);
+  // Después, semilla para rellenar. Solo se consulta si lo real no alcanza a
+  // llenar la tanda: con la comunidad ya poblada, esta query deja de correr.
+  const realPool = (realCandidates ?? []).filter((p) => !excluded.has(p.post_id));
+  const realFresh = shuffle(realPool.filter((p) => !votedPostIds.has(p.post_id)));
+  const realRecycled = shuffle(realPool.filter((p) => votedPostIds.has(p.post_id)));
+
+  let seedFresh: typeof realPool = [];
+  let seedRecycled: typeof realPool = [];
+
+  if (realFresh.length < limit) {
+    // Cuánta semilla hay, para elegir dónde abrir la ventana.
+    const { count } = await notMine(
+      db
+        .from("community_feed_view")
+        .select("post_id", { count: "exact", head: true })
+        .eq("author_is_seed", true),
+    );
+    const total = count ?? 0;
+
+    if (total > 0) {
+      // Offset al azar. El .order() sigue estando porque .range() necesita un
+      // orden estable para paginar; la aleatoriedad la ponen el offset y el
+      // shuffle de abajo.
+      const offset = Math.floor(Math.random() * Math.max(1, total - CANDIDATE_FETCH + 1));
+      const { data: seedCandidates } = await notMine(
+        db
+          .from("community_feed_view")
+          .select("*")
+          .eq("author_is_seed", true)
+          .order("posted_at", { ascending: false })
+          .range(offset, offset + CANDIDATE_FETCH - 1),
+      );
+      const seedPool = (seedCandidates ?? []).filter((p) => !excluded.has(p.post_id));
+      seedFresh = shuffle(seedPool.filter((p) => !votedPostIds.has(p.post_id)));
+      seedRecycled = shuffle(seedPool.filter((p) => votedPostIds.has(p.post_id)));
+    }
+  }
+
+  // El orden es la regla entera: lo real sin votar primero, y recién cuando se
+  // agota entra la semilla. Los ya votados van al final de todo (el voto se pisa
+  // vía upsert) — un look semilla nuevo es mejor carta que un real repetido.
+  const queue = [...realFresh, ...seedFresh, ...realRecycled, ...seedRecycled].slice(0, limit);
   // La ventana al azar puede caer entera dentro de lo ya visto en esta sesión.
   // Reintentamos una vez sin `exclude` (que ya no puede volver a vaciarla) para
   // no devolver una tanda vacía teniendo corpus.
