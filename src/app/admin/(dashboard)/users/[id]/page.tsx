@@ -11,6 +11,20 @@ function fmt(n: number): string {
   return n.toLocaleString("es-AR");
 }
 
+// El gasto de IA por usuario son centavos: con 2 decimales casi todos se verían
+// como "US$ 0,00". Abajo de un dólar mostramos 3 para que se distinga a quién le
+// estamos gastando plata de verdad.
+function fmtUsd(n: number): string {
+  // Un gasto real que redondea a 0,000 se leería como "no gastó nada", que es
+  // justo lo contrario de lo que pasó.
+  if (n > 0 && n < 0.001) return "< US$ 0,001";
+  const decimals = n > 0 && n < 1 ? 3 : 2;
+  return `US$ ${n.toLocaleString("es-AR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`;
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-line bg-card p-4">
@@ -71,6 +85,10 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             {u.gender && ` · ${u.gender}`}
             {u.last_sign_in_at &&
               ` · último ingreso ${format(parseISO(u.last_sign_in_at), "dd/MM/yyyy HH:mm")}`}
+            {/* Junto al último ingreso a propósito: la distancia entre "entró" y
+                "subió una foto" es la señal de un usuario que mira y no usa. */}
+            {u.last_analysis_at &&
+              ` · última foto ${format(parseISO(u.last_analysis_at), "dd/MM/yyyy HH:mm")}`}
           </p>
           {u.blocked_at && (
             <p className="mt-1 text-xs text-red">
@@ -81,14 +99,29 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <BlockButton userId={u.id} name={u.full_name} blocked={Boolean(u.blocked_at)} />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      {/* Dos bloques en vez de una fila sola: con 11 métricas juntas no se
+          distingue qué mide el uso de la app y qué mide la vida social. */}
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-widest text-faint">
+        Actividad
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Fotos" value={fmt(u.analyses)} />
+        <Stat label="Fotos válidas" value={fmt(u.analyses_valid)} />
         <Stat label="Score prom." value={u.avg_score === null ? "—" : fmt(u.avg_score)} />
+        <Stat label="Costo IA" value={fmtUsd(u.ai_cost_usd)} />
+      </div>
+
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-widest text-faint">
+        Comunidad
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
         <Stat label="Posts" value={fmt(u.posts)} />
         <Stat label="Comentarios" value={fmt(u.comments)} />
         <Stat label="Votos" value={fmt(u.votes)} />
         <Stat label="♥ recibidos" value={fmt(u.likes_received)} />
+        <Stat label="♥ dados" value={fmt(u.likes_given)} />
         <Stat label="Seguidores" value={fmt(u.followers)} />
+        <Stat label="Siguiendo" value={fmt(u.following)} />
       </div>
 
       <h2 className="mb-4 mt-10 text-sm font-semibold uppercase tracking-widest text-faint">
