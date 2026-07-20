@@ -118,11 +118,14 @@ export default async function HomePage() {
             </span>
           )}
         </div>
-        {/* Al invitado no le mostramos el círculo del avatar: no tiene cuenta, y
-            un placeholder vacío ahí no dice nada. */}
+        {/* El avatar es la puerta al Perfil (ya no hay tab abajo). Al invitado no
+            le mostramos el círculo: no tiene cuenta, y un placeholder vacío ahí no
+            dice nada. */}
         {firstName && (
-          <div
-            className="ph h-[46px] w-[46px] rounded-full border-2 border-white"
+          <Link
+            href="/profile"
+            aria-label="Ver perfil"
+            className="ph h-[46px] w-[46px] flex-none rounded-full border-2 border-white"
             style={{
               boxShadow: "0 2px 8px rgba(0,0,0,.08)",
               ...(avatarUrl

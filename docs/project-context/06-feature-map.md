@@ -12,6 +12,7 @@
 | Comunidad | Implementado | `src/app/(app)/community`, `src/lib/community` | `02-domain-and-data.md` |
 | Actividad | Implementado | `src/app/(app)/community/activity` | `02-domain-and-data.md` |
 | Perfil/configuración | Implementado | `src/app/(app)/profile`, `src/components/profile` | `03-product-and-business.md` |
+| Placard (guardarropa) | UI mock, gateado por allowlist (`PLACARD_TESTERS`); resto ve "Próximamente" | `src/app/(app)/(tabs)/placard`, `src/app/(app)/placard`, `src/lib/placard/*` | — |
 | Modo invitado | Implementado | `src/components/community/GuestGate`, `src/lib/viewer` | `03-product-and-business.md`, marketing |
 | Modo demo | Implementado | `src/lib/demo*`, `src/lib/demoStore` | `01-architecture.md` |
 | Admin métricas | Implementado | `src/app/admin`, `src/lib/admin/metrics` | `01-architecture.md` |
