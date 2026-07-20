@@ -766,3 +766,125 @@ button {
 .react.on {
   color: var(--coral);
 }
+
+/* Reto diario: el backdrop y el bottom sheet, la foto recortada, los botones de
+   voto, el estado "pendiente" del anillo, y las animaciones de reveal/racha.
+   `.ring--pending` sobreescribe a `.ring` (definido más arriba). */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.55);
+  z-index: 65;
+  animation: backdropIn 0.22s ease both;
+}
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.challenge-sheet {
+  z-index: 66;
+  animation: sheetUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Deja aire para la barra de gestos del teléfono, así el último botón
+     (votar) nunca queda pegado al borde inferior ni tapado por el home bar. */
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.challenge-photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  aspect-ratio: 16 / 9;
+}
+.challenge-photo img {
+  position: absolute;
+  inset: 0;
+  height: 140%;
+  width: 100%;
+  object-fit: cover;
+  object-position: 50% 100%;
+}
+.challenge-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(20, 18, 16, 0.45), transparent 45%);
+}
+.vote-btn {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 0;
+  border-radius: 18px;
+  border: 1.5px solid var(--line-strong);
+  background: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--muted);
+  transition: transform 0.12s ease;
+}
+.vote-btn:active {
+  transform: scale(0.96);
+}
+.vote-btn--up:active,
+.vote-btn--up.picked {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+.vote-btn--down:active,
+.vote-btn--down.picked {
+  border-color: var(--red);
+  background: var(--red-soft);
+  color: var(--red);
+}
+.ring--pending {
+  --c: var(--line-strong);
+}
+.ring--pending .val {
+  color: var(--muted);
+}
+.streak-flame {
+  display: flex;
+  color: var(--coral);
+  animation: streakPulse 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+@keyframes streakPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-8deg);
+  }
+  70% {
+    transform: scale(1.1) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+.challenge-dots {
+  display: flex;
+  gap: 6px;
+}
+.challenge-dots span {
+  height: 5px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+.challenge-dots span.done {
+  background: var(--coral);
+}
