@@ -4,6 +4,7 @@ import { loadUserProfile } from "@/lib/community/profile";
 import { ScreenHead } from "@/components/navigation/TopBar";
 import { FollowButton } from "@/components/community/FollowButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { BlockUserButton } from "@/components/community/BlockUserButton";
 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
@@ -56,7 +57,12 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           <Stat value={profile.posts.length} label="Looks" />
         </div>
 
-        {!profile.isMe && <FollowButton userId={profile.userId} initialFollowing={profile.amIFollowing} />}
+        {!profile.isMe && (
+          <div className="flex items-center gap-2">
+            <FollowButton userId={profile.userId} initialFollowing={profile.amIFollowing} />
+            <BlockUserButton userId={profile.userId} userName={profile.name} />
+          </div>
+        )}
       </div>
 
       {profile.posts.length === 0 ? (

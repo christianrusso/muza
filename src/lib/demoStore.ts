@@ -1,5 +1,6 @@
 import "server-only";
 import type { Analysis, AnalysisType, OccasionId } from "@/types/domain";
+import { isBlockedBetween, setBlockHistory } from "@/lib/community/blockState";
 
 // In-memory store for analyses/posts created during a demo-mode session
 // (no real database). Kept on `globalThis` so it survives Next.js dev hot
@@ -51,6 +52,14 @@ interface DemoStore {
   follows: Set<string>;
   commentReports: Map<string, DemoCommentReport>;
   hiddenCommentIds: Set<string>;
+  blockHistory: DemoBlockHistory[];
+}
+
+export interface DemoBlockHistory {
+  blockerId: string;
+  blockedId: string;
+  blockedAt: string;
+  unblockedAt: string | null;
 }
 
 const globalForDemo = globalThis as unknown as { __muzaDemoStore?: DemoStore };
@@ -64,6 +73,7 @@ export function getDemoStore(): DemoStore {
       follows: new Set(),
       commentReports: new Map(),
       hiddenCommentIds: new Set(),
+      blockHistory: [],
     };
   }
   return globalForDemo.__muzaDemoStore;
@@ -180,3 +190,20 @@ export function resolveDemoCommentReport(id: string, status: "confirmed" | "dism
 }
 
 export type { DemoCreatedAnalysis, DemoCreatedPost };
+
+export function isDemoBlockedBetween(userA: string, userB: string): boolean {
+  return isBlockedBetween(getDemoStore().blockHistory, userA, userB);
+}
+
+export function setDemoUserBlocked(blockedId: string, blocked: boolean, actorId: string): boolean {
+  const store = getDemoStore();
+  const result = setBlockHistory(store.blockHistory, actorId, blockedId, blocked);
+  if (blocked) {
+    store.follows.delete(blockedId);
+  }
+  return result;
+}
+
+export function listDemoBlockedUsers(actorId: string): DemoBlockHistory[] {
+  return getDemoStore().blockHistory.filter((h) => h.blockerId === actorId && h.unblockedAt === null);
+}

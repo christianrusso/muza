@@ -91,6 +91,11 @@ export default async function SettingsPage() {
             <span className="txt">Notificaciones</span>
             <NotificationsToggle initialOn={notificationsEnabled} userId={userId} />
           </div>
+          <Link href="/profile/settings/blocked-users" className="row">
+            <MaterialIcon name="block" />
+            <span className="txt">Usuarios bloqueados</span>
+            <MaterialIcon name="chevron_right" className="chev" />
+          </Link>
         </div>
       </div>
 

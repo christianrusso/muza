@@ -102,17 +102,19 @@ async function loadPost(id: string): Promise<PostDetail | null> {
   // RLS de comunidad son "to authenticated", así que un visitante sin sesión no
   // podría leer nada. El community_feed_view es contenido público (posts ya
   // publicados), por eso es seguro exponerlo acá para abrir los links compartidos.
-  const admin = createAdminClient();
+  // Una sesión autenticada usa su cliente para que la vista y RLS apliquen el
+  // filtro de bloqueo. El cliente admin queda para el acceso público existente.
+  const db = user ? supabase : createAdminClient();
 
-  const { data: post } = await admin.from("community_feed_view").select("*").eq("post_id", id).single();
+  const { data: post } = await db.from("community_feed_view").select("*").eq("post_id", id).single();
   if (!post) return null;
 
-  const photoUrl = await signedPhotoUrl(admin, post.photo_path, "full");
+  const photoUrl = await signedPhotoUrl(db, post.photo_path, "full");
 
   // Los comentarios son solo para usuarios: al invitado ni se los traemos (ver
   // el render de abajo, que le muestra el conteo y el CTA).
   const { data: comments } = user
-    ? await admin
+    ? await supabase
         .from("post_comments")
         .select("id, body, created_at, user_id, profiles(full_name)")
         .eq("post_id", id)
