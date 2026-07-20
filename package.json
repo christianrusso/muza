@@ -14,6 +14,7 @@
     "eval:import": "tsx scripts/eval/import-to-supabase.ts",
     "scoring:gap": "tsx scripts/scoring-gap.ts",
     "scoring:curate": "tsx scripts/scoring-examples-from-community.ts",
+    "scoring:fewshot-eval": "NODE_OPTIONS='--conditions=react-server' tsx scripts/scoring-fewshot-eval.ts",
     "seed:community": "tsx scripts/seed-community.ts",
     "seed:migrate": "tsx scripts/seed-migrate.ts",
     "posthog:dashboard": "tsx scripts/posthog-dashboard.ts"
