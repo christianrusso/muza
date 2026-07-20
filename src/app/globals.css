@@ -3,8 +3,7 @@
  * No poner reglas acá directamente: cada grupo vive en su propio archivo dentro
  * de ./styles/, organizado por componente o pantalla. Este archivo solo importa,
  * en un orden que preserva la cascada (los overrides van después de lo que
- * sobreescriben — ej. daily-challenge después de analysis-result por
- * `.ring--pending`, y animations al final por la regla de reduced-motion).
+ * sobreescriben, y animations al final por la regla de reduced-motion).
  *
  * Los @import deben ir todos antes que cualquier otra regla (incluido @theme),
  * por eso los tokens también son un import y no van inline acá. */
@@ -788,5 +787,4 @@ button {
 @import "./styles/occasion-grid.css";
 @import "./styles/history.css";
 @import "./styles/community.css";
-@import "./styles/daily-challenge.css";
 @import "./styles/animations.css";

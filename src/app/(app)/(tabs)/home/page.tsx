@@ -12,8 +12,6 @@ import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
 import type { AnalysisType, OccasionId } from "@/types/domain";
-import { loadDailyChallenge } from "@/lib/dailyChallenge";
-import { DailyChallengeCard } from "@/components/dailyChallenge/DailyChallengeCard";
 
 async function loadHomeData() {
   if (isDemoMode()) {
@@ -101,11 +99,7 @@ async function loadHomeData() {
 }
 
 export default async function HomePage() {
-  const [homeData, challengeItems] = await Promise.all([
-    timed("home:data", loadHomeData),
-    timed("home:daily-challenge", loadDailyChallenge),
-  ]);
-  const { firstName, avatarUrl, latest, totalCount, average } = homeData;
+  const { firstName, avatarUrl, latest, totalCount, average } = await timed("home:data", loadHomeData);
 
   return (
     <div className="screen-body pad-tab" style={{ gap: 18 }}>
@@ -226,8 +220,6 @@ export default async function HomePage() {
           Próximamente
         </span>
       </div>
-
-      <DailyChallengeCard items={challengeItems} />
     </div>
   );
 }

@@ -22,14 +22,15 @@ Históricamente todo el CSS vivía en un único `src/app/globals.css` gigante. H
 | `occasion-grid.css` | `.occ*` (pantalla de nuevo análisis). |
 | `history.css` | `.gcard`, `.gbadge`, `.gscore`, `.gmeta`. |
 | `community.css` | `.feed-tab`, `.react`. |
-| `daily-challenge.css` | Reto diario: sheet, voto, racha, dots. |
 | `animations.css` | Primitivas compartidas (`.spinner`, `.fade-enter`) + la regla global de `prefers-reduced-motion`. Va último a propósito. |
+
+> El reto diario (sheet, voto, racha) se extrajo a la rama `feat/daily-challenge` — ver [ux-growth/01-daily-challenge-ui.md](../ux-growth/01-daily-challenge-ui.md) para el diseño.
 
 ## Reglas al agregar CSS
 
 - **No** escribir reglas nuevas en `globals.css` — va al partial que corresponda (o uno nuevo, importado en `globals.css`).
 - Los `@import` deben ir todos antes que cualquier otra regla CSS; por eso los tokens también son un import y no van inline en `globals.css`.
-- Si una clase sobreescribe a otra (ej. `.ring--pending` sobre `.ring`), su archivo se importa **después** del que define la base. `daily-challenge.css` va después de `analysis-result.css` por esto.
+- Si una clase sobreescribe a otra, su archivo se importa **después** del que define la base.
 - `animations.css` va último para que la regla de reduced-motion aplique sobre todo lo anterior.
 
 ## Por qué así y no CSS Modules
