@@ -20,6 +20,7 @@ export type AdminUser = {
   posts: number;
   comments: number;
   votes: number;
+  votes_received: number;
   likes_given: number;
   likes_received: number;
   followers: number;
