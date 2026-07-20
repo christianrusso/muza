@@ -224,7 +224,19 @@ async function main() {
     return;
   }
 
-  // 4) Aplicar. Opcional: limpiar antes las filas 'community' y sus fotos.
+  // 4) Aplicar. Asegurar el bucket (lo crea el service role; ver 0011). Sin esto
+  //    las subidas fallan con "Bucket not found" si nunca se pobló el banco.
+  const { data: buckets } = await supabase.storage.listBuckets();
+  if (!buckets?.some((b) => b.name === DST_BUCKET)) {
+    const { error } = await supabase.storage.createBucket(DST_BUCKET, { public: false });
+    if (error) {
+      console.error(`✖ No se pudo crear el bucket ${DST_BUCKET}: ${error.message}`);
+      process.exit(1);
+    }
+    console.log(`✔ bucket ${DST_BUCKET} creado`);
+  }
+
+  // Opcional: limpiar antes las filas 'community' y sus fotos.
   if (replace) {
     console.log(`\n--replace: borrando filas 'community' previas…`);
     const { data: old } = await supabase
