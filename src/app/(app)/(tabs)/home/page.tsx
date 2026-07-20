@@ -1,11 +1,11 @@
 import Link from "next/link";
+import { timed } from "@/lib/perf";
+import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
+import { getDemoStore } from "@/lib/demoStore";
 import { createClient } from "@/lib/supabase/server";
 import { signedPhotoUrl } from "@/lib/supabase/photos";
 import { greetingDate } from "@/lib/dates";
 import { occasionLabel } from "@/lib/occasions";
-import { timed } from "@/lib/perf";
-import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
-import { getDemoStore } from "@/lib/demoStore";
 import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
@@ -161,7 +161,7 @@ export default async function HomePage() {
                   {occasionLabel(latest.occasion_id as OccasionId)}
                 </span>
                 <span className="text-sm font-semibold text-muted">
-                  {latest.style_descriptors?.join(" · ")}
+                  {latest.style_descriptors?.join(" • ")}
                 </span>
               </div>
             </div>

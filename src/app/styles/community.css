@@ -1,0 +1,30 @@
+/* Pantalla de comunidad: las tabs del feed (Popular/Reciente) y los botones de
+   reacción (like/dislike/comentar). */
+.feed-tab {
+  background: none;
+  border: none;
+  padding: 0 0 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--faint);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1px;
+}
+.feed-tab.active {
+  color: var(--ink);
+  border-color: var(--coral);
+}
+.react {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0;
+  color: var(--muted);
+}
+.react.on {
+  color: var(--coral);
+}

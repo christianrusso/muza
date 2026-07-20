@@ -1,0 +1,52 @@
+/* Design tokens: paleta y mapeo a los tokens de color/fuente de Tailwind v4.
+   Cambiar un color de marca acá lo propaga a toda la app. */
+:root {
+  --coral: #ec5a2e;
+  --coral-soft: #fceee8;
+  --ink: #1a1712;
+  --ink-deep: #141210;
+  --paper: #f7f5f0;
+  --card: #ffffff;
+  --line: #ede9df;
+  --line-strong: #e7e3d9;
+  --muted: #6b655a;
+  --faint: #9a9488;
+  --green: #2fa36b;
+  --amber: #f5a524;
+  --red: #e5484d;
+  --violet: #5b4fd6;
+  --violet-soft: #eceafb;
+  --green-soft: #e1f1ec;
+  --amber-soft: #fbf0df;
+  --amber-ink: #b67816;
+  --pink: #c24c63;
+  --pink-soft: #fbe9ec;
+  --red-soft: #fbe7e8;
+}
+
+@theme inline {
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-ink: var(--ink);
+  --color-ink-deep: var(--ink-deep);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-score-high: var(--green);
+  --color-score-medium: var(--amber);
+  --color-score-low: var(--red);
+  --color-tag-completo: var(--violet);
+  --color-tag-completo-soft: var(--violet-soft);
+  --color-tag-superior: var(--green);
+  --color-tag-superior-soft: var(--green-soft);
+  --color-tag-inferior: var(--amber-ink);
+  --color-tag-inferior-soft: var(--amber-soft);
+  --color-tag-individual: var(--pink);
+  --color-tag-individual-soft: var(--pink-soft);
+
+  --font-serif: var(--font-instrument-serif);
+  --font-sans: var(--font-manrope);
+}

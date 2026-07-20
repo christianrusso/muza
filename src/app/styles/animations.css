@@ -1,0 +1,40 @@
+/* Primitivas de movimiento compartidas por varias pantallas: el spinner de
+   carga, la transición de entrada de página (`.fade-enter`, ver
+   PageTransition), y el respeto global a "reducir movimiento" del sistema.
+   Va último para que la regla de reduced-motion aplique sobre todo lo anterior. */
+.spinner {
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--coral);
+  animation: muzaspin 1s linear infinite;
+}
+@keyframes muzaspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fade-enter {
+  animation: fadeUp 0.32s ease both;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -2,6 +2,7 @@ import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { GuestGateProvider } from "@/components/community/GuestGate";
 import { unreadActivityCount } from "@/lib/community/activity";
 import { isViewerAuthed } from "@/lib/viewer";
+import { TabScreenShell } from "@/components/navigation/TabScreenShell";
 
 export default async function TabsLayout({ children }: { children: React.ReactNode }) {
   const [communityBadge, isAuthed] = await Promise.all([unreadActivityCount(), isViewerAuthed()]);

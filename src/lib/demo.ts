@@ -42,6 +42,7 @@ export interface DemoAnalysis {
   analysisType: AnalysisType;
   overallScore: number;
   styleDescriptors: string[];
+  detectedColores: string[];
   categories: AnalysisCategoryRow[];
   feedback: AnalysisFeedbackRow[];
   createdAt: string;
@@ -94,6 +95,7 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     analysisType: "completo",
     overallScore: 82,
     styleDescriptors: ["Casual chic", "Elegante"],
+    detectedColores: ["Blanco", "Negro", "Camel"],
     categories: FEATURED_CATEGORIES,
     feedback: FEATURED_FEEDBACK,
     createdAt: daysAgo(0),
@@ -104,8 +106,16 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     analysisType: "superior",
     overallScore: 74,
     styleDescriptors: ["Formal"],
+    detectedColores: ["Azul marino", "Blanco", "Gris"],
     categories: buildCategories({ ocasion: 80, calzado: 70 }),
-    feedback: [],
+    feedback: [
+      { kind: "fortaleza", text: "La camisa azul marino transmite seriedad sin ser aburrida", sortOrder: 0 },
+      { kind: "fortaleza", text: "Combinación de colores prolija para un contexto formal", sortOrder: 1 },
+      { kind: "aspecto_mejorar", text: "El cuello se ve algo arrugado, no está bien planchado", sortOrder: 0 },
+      { kind: "aspecto_mejorar", text: "Podría sumar un accesorio para no verse tan plano", sortOrder: 1 },
+      { kind: "recomendacion", text: "Plancha bien el cuello y los puños antes de salir", sortOrder: 0 },
+      { kind: "recomendacion", text: "Sumá un reloj o una corbata sutil para dar carácter", sortOrder: 1 },
+    ],
     createdAt: daysAgo(1),
   },
   {
@@ -114,8 +124,14 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     analysisType: "inferior",
     overallScore: 68,
     styleDescriptors: ["Deportivo"],
+    detectedColores: ["Negro", "Gris", "Verde militar"],
     categories: buildCategories({}),
-    feedback: [],
+    feedback: [
+      { kind: "fortaleza", text: "El calzado deportivo es el adecuado para entrenar", sortOrder: 0 },
+      { kind: "fortaleza", text: "La combinación de negro y gris es versátil y no distrae", sortOrder: 1 },
+      { kind: "aspecto_mejorar", text: "El verde militar corta un poco la paleta neutra del resto", sortOrder: 0 },
+      { kind: "recomendacion", text: "Probá un short o calza en el mismo tono que la parte de arriba", sortOrder: 0 },
+    ],
     createdAt: daysAgo(3),
   },
   {
@@ -124,8 +140,15 @@ export const DEMO_ANALYSES: DemoAnalysis[] = [
     analysisType: "completo",
     overallScore: 91,
     styleDescriptors: ["Audaz"],
+    detectedColores: ["Bordó", "Negro", "Dorado"],
     categories: buildCategories({ ocasion: 95, colores: 92 }),
-    feedback: [],
+    feedback: [
+      { kind: "fortaleza", text: "El bordó y el dorado hacen un contraste audaz y bien logrado", sortOrder: 0 },
+      { kind: "fortaleza", text: "Elección perfecta para la ocasión, sin quedar exagerado", sortOrder: 1 },
+      { kind: "fortaleza", text: "Los accesorios dorados atan toda la paleta", sortOrder: 2 },
+      { kind: "aspecto_mejorar", text: "Podría arriesgar un poco más con la textura del calzado", sortOrder: 0 },
+      { kind: "recomendacion", text: "Para la próxima, sumá un accesorio en cuero para variar la textura", sortOrder: 0 },
+    ],
     createdAt: daysAgo(4),
   },
 ];
@@ -149,7 +172,7 @@ export function getDemoAnalysis(id: string): Analysis | null {
     detectedPrendasInferiores: [],
     detectedCalzado: [],
     detectedAccesorios: [],
-    detectedColores: [],
+    detectedColores: found.detectedColores,
     detectedEstilo: null,
     createdAt: found.createdAt,
     categories: found.categories,

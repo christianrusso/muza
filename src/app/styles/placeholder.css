@@ -1,0 +1,43 @@
+/* Texturas de placeholder (mientras carga una foto) y el brand mark de LookLab. */
+.ph {
+  background: repeating-linear-gradient(48deg, #d6d1c4 0 14px, #dcd7ca 14px 28px);
+}
+.ph-2 {
+  background: repeating-linear-gradient(48deg, #cfc9bb 0 14px, #d5cfc1 14px 28px);
+}
+.ph-3 {
+  background: repeating-linear-gradient(48deg, #d2ccbe 0 14px, #d8d2c4 14px 28px);
+}
+.ph-dark {
+  background: repeating-linear-gradient(48deg, #4a443c 0 15px, #524b42 15px 30px);
+}
+.ph-cap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a39c8d;
+  font: 500 10px "Manrope", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mark {
+  border-radius: 50%;
+  background: conic-gradient(from -55deg, var(--coral) 0turn 0.72turn, #d8d2c4 0.72turn 1turn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.mark .hole {
+  border-radius: 50%;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mark .hole .m {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  color: var(--ink-deep);
+}
