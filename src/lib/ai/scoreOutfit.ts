@@ -7,6 +7,7 @@ import { ScoringResultSchema, type ScoringResult } from "./schema";
 import { assertAiBudget } from "./budgetGuard";
 import { logAiUsage } from "./usageLog";
 import { stripBodyMentions } from "./bodySafety";
+import { scoreLevelLabel } from "@/lib/scoring/categories";
 import type { FewShotExample } from "@/lib/scoring/knowledgeBase";
 import type { AnalysisType, UserGender } from "@/types/domain";
 
@@ -50,16 +51,27 @@ function buildScoringUserContent(
 ): ScoringContentPart[] {
   const content: ScoringContentPart[] = [];
   if (examples.length) {
+    // Dos clases de referencia coexisten: la del experto (verdict de adecuación a
+    // la ocasión) y la de la comunidad (nivel de score con el que la gente ya
+    // puntuó ese outfit a ciegas). La segunda calibra la ESCALA — es la que corrige
+    // que el modelo sea demasiado generoso.
+    const hasCommunity = examples.some((ex) => ex.source === "community");
     content.push({
       type: "input_text",
-      text: `Antes de puntuar, mirá estos ejemplos de referencia ya evaluados por un experto para la ocasión "${occasionLabel}". Reflejan el nivel de exigencia esperado: un outfit inadecuado para la ocasión debe puntuar bajo aunque esté bien armado en sí mismo.`,
+      text: hasCommunity
+        ? `Antes de puntuar, mirá estos outfits reales de la ocasión "${occasionLabel}" con el nivel que ya les asignó el consenso de usuarios. Úsalos para calibrar tu escala: si tendés a poner puntajes más altos que estos ejemplos comparables, ajustá hacia abajo.`
+        : `Antes de puntuar, mirá estos ejemplos de referencia ya evaluados por un experto para la ocasión "${occasionLabel}". Reflejan el nivel de exigencia esperado: un outfit inadecuado para la ocasión debe puntuar bajo aunque esté bien armado en sí mismo.`,
     });
     examples.forEach((ex, i) => {
-      const verdictTxt = ex.verdict === "good" ? "ADECUADO ✓" : "NO ADECUADO ✗";
-      content.push({
-        type: "input_text",
-        text: `Ejemplo ${i + 1} — ${verdictTxt} para "${occasionLabel}".${ex.note ? ` Nota del experto: "${ex.note}"` : ""}`,
-      });
+      let label: string;
+      if (ex.source === "community" && ex.communityLevel) {
+        const lvl = scoreLevelLabel(ex.communityScore ?? 0);
+        label = `Ejemplo ${i + 1} — la comunidad puntuó este outfit como "${lvl}" (${ex.communityScore}/100) para "${occasionLabel}".`;
+      } else {
+        const verdictTxt = ex.verdict === "good" ? "ADECUADO ✓" : "NO ADECUADO ✗";
+        label = `Ejemplo ${i + 1} — ${verdictTxt} para "${occasionLabel}".${ex.note ? ` Nota del experto: "${ex.note}"` : ""}`;
+      }
+      content.push({ type: "input_text", text: label });
       content.push({ type: "input_image", image_url: ex.imageUrl, detail: "low" });
     });
     content.push({

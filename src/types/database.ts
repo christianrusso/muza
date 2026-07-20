@@ -46,6 +46,13 @@ export interface Database {
           note: string | null;
           active: boolean;
           created_at: string;
+          // Auto-curación desde la comunidad (ver migración 0026).
+          source: "manual" | "community";
+          community_level: "mejorar" | "bien" | "muy_bueno" | "impecable" | null;
+          community_score: number | null;
+          vote_count: number | null;
+          source_analysis_id: string | null;
+          source_user_id: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["scoring_examples"]["Row"]> & {
           photo_path: string;
