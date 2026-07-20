@@ -74,6 +74,7 @@ function UserRow({ u }: { u: AdminUser }) {
       <Num value={u.posts} />
       <Num value={u.comments} />
       <Num value={u.votes} />
+      <Num value={u.votes_received} />
       <Num value={u.likes_received} />
       <Num value={u.followers} />
       <td className="px-3 py-3 text-sm text-muted">{date(u.last_analysis_at)}</td>
@@ -178,7 +179,7 @@ export default async function AdminUsersPage({
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-line bg-card">
-          <table className="w-full min-w-[1100px] border-collapse">
+          <table className="w-full min-w-[1200px] border-collapse">
             <thead className="border-b border-line">
               <tr>
                 <Th sticky>Usuario</Th>
@@ -188,7 +189,8 @@ export default async function AdminUsersPage({
                 <Th right>Score</Th>
                 <Th right>Posts</Th>
                 <Th right>Coment.</Th>
-                <Th right>Votos</Th>
+                <Th right>Votos emit.</Th>
+                <Th right>Votos recib.</Th>
                 <Th right>♥ recib.</Th>
                 <Th right>Seguid.</Th>
                 <Th>Últ. foto</Th>
