@@ -34,7 +34,8 @@ export type GuestAction =
   | "publish"
   | "score"
   | "history"
-  | "profile";
+  | "profile"
+  | "report";
 
 const COPY: Record<GuestAction, { title: string; body: string }> = {
   vote: {
@@ -72,6 +73,10 @@ const COPY: Record<GuestAction, { title: string; body: string }> = {
   profile: {
     title: "Creá tu perfil",
     body: "Tus looks publicados, tus seguidores y tu progreso, todo en un lugar.",
+  },
+  report: {
+    title: "Registrate para reportar",
+    body: "Ayudanos a mantener la comunidad cuidada y respetuosa.",
   },
 };
 

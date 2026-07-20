@@ -128,6 +128,7 @@ export async function loadActivity(limit = ACTIVITY_LIMIT): Promise<ActivityItem
         .from("post_comments")
         .select("id, post_id, user_id, body, created_at, profiles(full_name, avatar_url)")
         .in("post_id", postIds)
+        .is("hidden_at", null)
         .neq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(limit),
