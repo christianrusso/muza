@@ -21,6 +21,9 @@ export interface Database {
           last_seen_activity_at: string;
           blocked_at: string | null;
           is_seed: boolean;
+          // Digest de actividad por email (ver migración 0027).
+          last_activity_email_at: string;
+          unsubscribe_token: string;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string; full_name: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
