@@ -35,7 +35,7 @@ import { join, resolve, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { computeOverallScore, applicableCategories, scoreLevel, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, applicableCategories, scoreLevel, SCORE_CATEGORIES, SCORE_LEVELS } from "@/lib/scoring/categories";
 import type { AnalysisType, OccasionId, UserGender } from "@/types/domain";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -148,7 +148,10 @@ function sample<T>(arr: T[], min: number, max: number): T[] { return shuffle(arr
 const staggeredDate = () => new Date(Date.now() - randInt(1, SPREAD_DAYS) * 86400_000 - randInt(0, 82800) * 1000).toISOString();
 // timestamp posterior a `iso` (para engagement después del post), sin pasarse de ahora
 const afterDate = (iso: string) => new Date(Math.min(Date.now(), new Date(iso).getTime() + randInt(60, 72 * 3600) * 1000)).toISOString();
-const bucketForScore = (s: number) => (s < 40 ? "low" : s > 74 ? "high" : "mid");
+// Los votos son los 4 niveles de SCORE_LEVELS (misma escala que la app y que el
+// constraint de post_votes). scoreLevel() bucketiza el score real; la lista se usa
+// para el ruido (30% de votos "equivocados").
+const LEVELS = SCORE_LEVELS.map((l) => l.level);
 const stripAccents = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 // ---- clasificación de fotos ----
@@ -408,10 +411,10 @@ async function seedEngagement(
     const others = shuffle(userIds.filter((u) => u !== p.userId));
     for (const u of others.slice(0, randInt(0, 12))) likes.push({ post_id: p.postId, user_id: u, reaction: "like", created_at: afterDate(p.postedAt) });
     if (Math.random() < 0.35) for (const u of others.slice(0, randInt(1, 3))) comments.push({ post_id: p.postId, user_id: u, body: pick(COMMENTS), created_at: afterDate(p.postedAt) });
-    // votos: 4-12 votantes, sesgados hacia la franja real del score (con ruido)
-    const truth = bucketForScore(p.overall);
+    // votos: 4-12 votantes, sesgados hacia el nivel real del score (con ruido)
+    const truth = scoreLevel(p.overall);
     for (const u of others.slice(0, randInt(4, 12))) {
-      const b = Math.random() < 0.7 ? truth : pick(["low", "mid", "high"]);
+      const b = Math.random() < 0.7 ? truth : pick(LEVELS);
       votes.push({ post_id: p.postId, user_id: u, bucket: b, created_at: afterDate(p.postedAt) });
     }
   }

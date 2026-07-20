@@ -35,7 +35,7 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { buildScoringPrompt } from "@/lib/ai/prompts/scoring.prompt";
 import { ScoringResultSchema, type ScoringResult } from "@/lib/ai/schema";
-import { computeOverallScore, applicableCategories, SCORE_CATEGORIES } from "@/lib/scoring/categories";
+import { computeOverallScore, applicableCategories, scoreLevel, SCORE_CATEGORIES, SCORE_LEVELS } from "@/lib/scoring/categories";
 import { occasionLabel } from "@/lib/occasions";
 import type { OccasionId, UserGender } from "@/types/domain";
 
@@ -94,7 +94,10 @@ const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
 function shuffle<T>(a: T[]): T[] { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 // timestamp aleatorio dentro de los últimos SPREAD_DAYS
 const staggeredDate = () => new Date(Date.now() - randInt(1, SPREAD_DAYS) * 86400_000 - randInt(0, 82800) * 1000).toISOString();
-const bucketForScore = (s: number) => (s < 25 ? "low" : s > 75 ? "high" : "mid");
+// Los votos son los 4 niveles de SCORE_LEVELS (misma escala que la app y que el
+// constraint de post_votes). scoreLevel() bucketiza el score real; la lista se usa
+// para el ruido (30% de votos "equivocados").
+const LEVELS = SCORE_LEVELS.map((l) => l.level);
 
 interface SeedPhoto { absPath: string; fileName: string; occasionId: OccasionId; gender: UserGender; }
 
@@ -271,10 +274,10 @@ async function seedEngagement(
     for (const u of voters.slice(0, randInt(0, 9))) likes.push({ post_id: p.postId, user_id: u, reaction: "like", created_at: staggeredDate() });
     // comentarios: ~25% de los posts reciben 1-2
     if (Math.random() < 0.25) for (const u of voters.slice(0, randInt(1, 2))) comments.push({ post_id: p.postId, user_id: u, body: pick(COMMENTS), created_at: staggeredDate() });
-    // votos: 4-10 votantes, sesgados hacia la franja real del score (con ruido)
-    const truth = bucketForScore(p.overall);
+    // votos: 4-10 votantes, sesgados hacia el nivel real del score (con ruido)
+    const truth = scoreLevel(p.overall);
     for (const u of voters.slice(0, randInt(4, 10))) {
-      const b = Math.random() < 0.7 ? truth : pick(["low", "mid", "high"]);
+      const b = Math.random() < 0.7 ? truth : pick(LEVELS);
       votes.push({ post_id: p.postId, user_id: u, bucket: b, created_at: staggeredDate() });
     }
   }
