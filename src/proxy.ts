@@ -28,6 +28,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Rutas de API que se autentican SOLAS y no llevan sesión de Supabase: el cron
+  // (Bearer CRON_SECRET) y los links de email (token en la URL). Sin esta
+  // exención, updateSession las redirige a /welcome por no tener cookie —que es
+  // justo el "Redirecting" que rompía el cron del digest y el unsubscribe.
+  if (pathname.startsWith("/api/cron/") || pathname.startsWith("/api/email/")) {
+    return NextResponse.next();
+  }
+
   return updateSession(request);
 }
 
