@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signedPhotoUrls } from "@/lib/supabase/photos";
 import { isDemoMode, DEMO_COMMUNITY_POSTS, DEMO_USER } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { isBlockedWith } from "@/lib/community/blocks";
 
 export interface ProfilePost {
   postId: string;
@@ -25,6 +26,8 @@ export interface UserProfile {
 
 /** Perfil público de comunidad: portfolio de looks + contadores + estado de follow. */
 export async function loadUserProfile(userId: string): Promise<UserProfile | null> {
+  if (await isBlockedWith(userId)) return null;
+
   if (isDemoMode()) {
     const store = getDemoStore();
     const seeded = DEMO_COMMUNITY_POSTS.filter((p) => p.author_id === userId);

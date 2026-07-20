@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode, DEMO_USER } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { isPostBlocked } from "@/lib/community/blocks";
 
 const ReactSchema = z.object({ reaction: z.enum(["like", "dislike"]) });
 
@@ -14,6 +15,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (isDemoMode()) {
+    if (await isPostBlocked(id)) {
+      return NextResponse.json(
+        { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+        { status: 403 },
+      );
+    }
     const post = getDemoStore().posts.get(id);
     if (post) {
       const current = post.reactions.get(DEMO_USER.id);
@@ -32,6 +39,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "No autenticado." } }, { status: 401 });
+  }
+
+  if (await isPostBlocked(id)) {
+    return NextResponse.json(
+      { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+      { status: 403 },
+    );
   }
 
   const { data: existing } = await supabase

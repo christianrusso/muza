@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
+import { isPostBlocked } from "@/lib/community/blocks";
 
 const CommentSchema = z.object({ body: z.string().min(1) });
 
@@ -14,6 +15,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (isDemoMode()) {
+    if (await isPostBlocked(id)) {
+      return NextResponse.json(
+        { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+        { status: 403 },
+      );
+    }
     const post = getDemoStore().posts.get(id);
     const comment = { id: crypto.randomUUID(), body: body.data.body, createdAt: new Date().toISOString() };
     post?.comments.push(comment);
@@ -26,6 +33,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "No autenticado." } }, { status: 401 });
+  }
+
+  if (await isPostBlocked(id)) {
+    return NextResponse.json(
+      { error: { code: "BLOCKED_RELATION", message: "No podés interactuar con este usuario." } },
+      { status: 403 },
+    );
   }
 
   const { data: comment, error } = await supabase
