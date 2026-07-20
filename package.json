@@ -12,6 +12,8 @@
     "eval:ai": "tsx scripts/eval/run.ts",
     "eval:serve": "tsx scripts/eval/serve.ts",
     "eval:import": "tsx scripts/eval/import-to-supabase.ts",
+    "scoring:gap": "tsx scripts/scoring-gap.ts",
+    "scoring:curate": "tsx scripts/scoring-examples-from-community.ts",
     "seed:community": "tsx scripts/seed-community.ts",
     "seed:migrate": "tsx scripts/seed-migrate.ts",
     "posthog:dashboard": "tsx scripts/posthog-dashboard.ts"

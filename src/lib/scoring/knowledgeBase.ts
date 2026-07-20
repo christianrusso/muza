@@ -7,6 +7,11 @@ export interface FewShotExample {
   imageUrl: string;
   verdict: "good" | "bad";
   note: string | null;
+  // Origen del ejemplo. 'community' lleva además el nivel de consenso, que es lo
+  // que se le muestra al modelo (calibra la escala). 'manual' usa verdict/note.
+  source: "manual" | "community";
+  communityLevel: "mejorar" | "bien" | "muy_bueno" | "impecable" | null;
+  communityScore: number | null;
 }
 
 // El few-shot en scoring está APAGADO por defecto. Se prende con
@@ -35,7 +40,7 @@ export async function getFewShotExamples(
 
   const { data, error } = await supabase
     .from("scoring_examples")
-    .select("photo_path, verdict, note")
+    .select("photo_path, verdict, note, source, community_level, community_score")
     .eq("occasion_id", occasionId)
     .eq("active", true)
     .limit(50); // pool amplio; el balanceo 👍/👎 se hace en código
@@ -60,7 +65,14 @@ export async function getFewShotExamples(
       .from(EXAMPLES_BUCKET)
       .createSignedUrl(row.photo_path, SIGNED_URL_TTL);
     if (signed?.signedUrl) {
-      examples.push({ imageUrl: signed.signedUrl, verdict: row.verdict, note: row.note });
+      examples.push({
+        imageUrl: signed.signedUrl,
+        verdict: row.verdict,
+        note: row.note,
+        source: (row.source as FewShotExample["source"]) ?? "manual",
+        communityLevel: (row.community_level as FewShotExample["communityLevel"]) ?? null,
+        communityScore: row.community_score ?? null,
+      });
     }
   }
   return examples;

@@ -29,6 +29,19 @@ export async function POST() {
   }
   await admin.storage.from("avatars").remove([`${user.id}.jpg`]);
 
+  // Ejemplos few-shot curados desde outfits de este usuario (ver 0026): la fila de
+  // scoring_examples cascadea al borrar el usuario, pero la foto COPIADA al bucket
+  // scoring-examples no la cubre el cascade. La limpiamos a mano acá.
+  const { data: curated } = await admin
+    .from("scoring_examples")
+    .select("photo_path")
+    .eq("source", "community")
+    .eq("source_user_id", user.id);
+  if (curated?.length) {
+    const bucket = process.env.SCORING_EXAMPLES_BUCKET ?? "scoring-examples";
+    await admin.storage.from(bucket).remove(curated.map((c) => c.photo_path));
+  }
+
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) {
     return NextResponse.json({ error: { code: "DELETE_FAILED", message: error.message } }, { status: 500 });
