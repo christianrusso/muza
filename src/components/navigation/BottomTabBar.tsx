@@ -6,11 +6,12 @@ import { useGuestGate, type GuestAction } from "@/components/community/GuestGate
 import { Logo } from "@/components/brand/Logo";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
-// `guestAction` = qué muro abrir si el que toca es un invitado. Home y Comunidad
-// son navegables sin cuenta (el invitado mira y el muro salta recién al actuar).
-// Historial y Perfil son personales y no tendrían nada que mostrar, así que ahí
-// el muro reemplaza a la navegación: rebotar contra el middleware hasta /welcome
-// lo sacaría de la app de golpe.
+// `guestAction` = qué muro abrir si el que toca es un invitado. Home, Comunidad y
+// Placard (que hoy es un "próximamente" público) son navegables sin cuenta.
+// Historial es personal y no tendría nada que mostrar, así que ahí el muro
+// reemplaza a la navegación: rebotar contra el middleware hasta /welcome lo
+// sacaría de la app de golpe. El Perfil ya no vive acá: se entra desde el avatar
+// del encabezado de Home.
 const TABS: {
   href: string;
   icon: string;
@@ -20,7 +21,7 @@ const TABS: {
   { href: "/home", icon: "home", label: "Home", guestAction: null },
   { href: "/history", icon: "grid_view", label: "Historial", guestAction: "history" },
   { href: "/community", icon: "groups", label: "Comunidad", guestAction: null },
-  { href: "/profile", icon: "person", label: "Perfil", guestAction: "profile" },
+  { href: "/placard", icon: "checkroom", label: "Placard", guestAction: null },
 ];
 
 const CENTER_LABEL = "Nuevo análisis";

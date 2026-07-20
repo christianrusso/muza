@@ -88,6 +88,13 @@ No ejecutar seeds ni migraciones destructivas contra producción sin confirmaci�
 - `RATE_LIMIT_ANALYSES_PER_HOUR`
 - `PERF_LOG`
 
+### Feature flags
+
+- `PLACARD_TESTERS` — allowlist de emails (coma-separada) que ven el flujo real
+  del Placard mientras está mockeado; el resto ve "Próximamente". Vacío o sin
+  setear = nadie ve el flujo. Ver `src/lib/placard/access.ts`. Se quita al lanzar
+  el feature de verdad.
+
 Nunca documentar valores secretos reales. `.env.local` es sólo local y no debe entrar en commits.
 
 ## Flujo de cambios de base de datos
