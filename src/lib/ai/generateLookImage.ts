@@ -1,8 +1,17 @@
 import "server-only";
 import { assertAiBudget } from "./budgetGuard";
 import type { Colorimetry } from "@/types/colorimetry";
+import type { UserGender } from "@/types/domain";
 
 export class AILookImageError extends Error {}
+
+// El modelo de imagen, sin indicación, tira a moda femenina. Se lo fija según el
+// género declarado; "no_especifica"/null → unisex.
+function genderPhrase(gender?: UserGender | null): string {
+  if (gender === "masculino") return "menswear (men's) ";
+  if (gender === "femenino") return "womenswear (women's) ";
+  return "unisex ";
+}
 
 // Gemini genera las imágenes de looks; OpenAI sigue con el análisis de texto. Se
 // usa el modelo de imagen nativo (Nano Banana) vía generateContent —Imagen por
@@ -13,14 +22,18 @@ const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-i
 
 // Arma el prompt de un look: prendas planas (flat-lay) sobre fondo neutro, en los
 // colores de la paleta. SIN personas —evita lo uncanny y el tema de identidad.
-function buildLookImagePrompt(lookName: string, c: Colorimetry): string {
+function buildLookImagePrompt(lookName: string, c: Colorimetry, gender?: UserGender | null): string {
   const colors = c.bestColors.map((s) => `${s.name} (${s.hex})`).join(", ");
-  return `Vertical (portrait 3:4) fashion flat-lay outfit for "${lookName}". Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Editorial, soft even lighting, top-down view. Use ONLY this color palette: ${colors}. Cohesive, elegant, realistic garments.`;
+  return `Vertical (portrait 3:4) ${genderPhrase(gender)}fashion flat-lay outfit for "${lookName}". Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Editorial, soft even lighting, top-down view. Use ONLY this color palette: ${colors}. Cohesive, elegant, realistic garments.`;
 }
 
 // Genera UN look como imagen. Devuelve los bytes PNG (Gemini los manda en base64
 // dentro de inlineData).
-export async function generateLookImage(lookName: string, colorimetry: Colorimetry): Promise<Buffer> {
+export async function generateLookImage(
+  lookName: string,
+  colorimetry: Colorimetry,
+  gender?: UserGender | null,
+): Promise<Buffer> {
   await assertAiBudget();
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -28,7 +41,7 @@ export async function generateLookImage(lookName: string, colorimetry: Colorimet
     throw new AILookImageError("Falta GEMINI_API_KEY.");
   }
 
-  const prompt = buildLookImagePrompt(lookName, colorimetry);
+  const prompt = buildLookImagePrompt(lookName, colorimetry, gender);
   // Log de debug: exactamente qué se le manda a Gemini (borrar después).
   console.log(`[looklab] Gemini request → modelo=${GEMINI_IMAGE_MODEL}\n  prompt: ${prompt}`);
 

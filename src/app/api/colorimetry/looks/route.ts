@@ -53,12 +53,16 @@ export async function POST() {
     return NextResponse.json({ urls: await signPaths(supabase, colorimetry.lookImages) });
   }
 
+  // Género declarado: sin esto el modelo tira a moda femenina por defecto.
+  const { data: profile } = await supabase.from("profiles").select("gender").eq("id", user.id).single();
+  const gender = profile?.gender ?? null;
+
   try {
     // Cada look se genera y sube por separado; allSettled para no perder los que
     // salieron bien si uno falla. Los fallidos quedan como "" (placeholder en UI).
     const results = await Promise.allSettled(
       colorimetry.looks.map(async (look) => {
-        const png = await generateLookImage(look, colorimetry);
+        const png = await generateLookImage(look, colorimetry, gender);
         const path = `${user.id}/looks/${crypto.randomUUID()}.png`;
         const { error: upErr } = await supabase.storage
           .from(BUCKET)
