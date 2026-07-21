@@ -52,7 +52,8 @@ const trendsInsight = {
     source: {
       kind: "TrendsQuery",
       series: [{ kind: "EventsNode", event: "$pageview", name: "Llegó desde el email", math: "dau" }],
-      properties: { type: "AND", values: fromEmail },
+      // properties acepta una lista plana de filtros (no un grupo AND/OR anidado).
+      properties: fromEmail,
       interval: "day",
       dateRange: { date_from: "-30d" },
     },
