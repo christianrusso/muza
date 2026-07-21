@@ -41,8 +41,8 @@ export default async function ColorimetryResultPage() {
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
-      {/* pb generoso: la barra de acciones es fija y taparía el final del scroll. */}
-      <div className="flex-1 overflow-y-auto pb-[168px]">
+      {/* pb con margen para el safe area (ya no hay barra de acciones fija). */}
+      <div className="flex-1 overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div
           className="relative flex flex-col items-center justify-end pb-[52px]"
           style={{
@@ -162,36 +162,13 @@ export default async function ColorimetryResultPage() {
             ))}
           </div>
 
-          <p
-            className="mt-[26px] rounded-[18px] px-4 py-3.5 text-[14px] font-bold leading-snug text-[var(--violet)]"
+          <div
+            className="mt-[26px] flex items-center gap-2.5 rounded-[18px] px-4 py-3.5 text-[14px] font-bold leading-snug text-[var(--violet)]"
             style={{ background: "var(--violet-soft)" }}
           >
-            Guardá esta colorimetría en tu perfil para verla cuando quieras y generar más outfits
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="absolute inset-x-0 bottom-0 flex flex-col gap-2.5 px-[22px] pt-3"
-        style={{
-          paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
-          background:
-            "linear-gradient(to bottom, rgba(247,245,240,0), var(--paper) 22%, var(--paper))",
-        }}
-      >
-        <button type="button" className="btn btn-violet">
-          <MaterialIcon name="bookmark" size={20} />
-          Guardar en mi perfil
-        </button>
-        <div className="flex gap-3">
-          <button type="button" className="btn btn-outline flex-1 text-[15px]">
-            <MaterialIcon name="auto_awesome" size={20} />
-            Generar más outfits
-          </button>
-          <Link href="/colorimetry/new" className="btn btn-outline flex-1 text-[15px]">
-            <MaterialIcon name="refresh" size={20} />
-            Nueva foto
-          </Link>
+            <MaterialIcon name="check_circle" size={20} className="flex-none" />
+            <span>Tu colorimetría quedó guardada en tu perfil. Podés verla cuando quieras.</span>
+          </div>
         </div>
       </div>
     </div>
