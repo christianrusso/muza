@@ -15,6 +15,9 @@ export interface DigestRow {
   new_follows: number;
   new_vote_posts: number;
   new_votes: number;
+  // Look con más actividad, para linkear directo. Null si la única novedad es un
+  // follow (sin post): el mail cae a la solapa de actividad.
+  top_post_id: string | null;
 }
 
 export interface BuiltEmail {
@@ -61,7 +64,14 @@ function escapeHtml(s: string): string {
 
 export function buildDigestEmail(row: DigestRow): BuiltEmail {
   const base = siteUrl();
-  const activityUrl = `${base}/community/activity`;
+  // Link directo al look que recibió la actividad; si la única novedad es un
+  // follow (sin post), cae a la solapa de actividad. /community/post/ es pública
+  // (ver middleware), así que abre aunque el usuario no tenga sesión activa.
+  const hasPost = Boolean(row.top_post_id);
+  const targetUrl = hasPost
+    ? `${base}/community/post/${row.top_post_id}`
+    : `${base}/community/activity`;
+  const ctaLabel = hasPost ? "Ver tu look" : "Ver la actividad";
   const unsubscribeUrl = `${base}/api/email/unsubscribe?token=${row.unsubscribe_token}`;
   const firstName = row.full_name?.split(" ")[0] || "Hola";
   const { headline, parts } = summarize(row);
@@ -69,13 +79,13 @@ export function buildDigestEmail(row: DigestRow): BuiltEmail {
 
   const text =
     `${firstName}, ${body}.\n\n` +
-    `Mirá quién y qué en la app: ${activityUrl}\n\n` +
+    `${ctaLabel}: ${targetUrl}\n\n` +
     `Para dejar de recibir estos avisos: ${unsubscribeUrl}`;
 
   const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#1a1a1a">
   <h1 style="font-size:20px;margin:0 0 8px">${escapeHtml(headline)}</h1>
   <p style="font-size:15px;line-height:1.5;color:#444;margin:0 0 20px">${escapeHtml(firstName)}, ${escapeHtml(body)}.</p>
-  <a href="${activityUrl}" style="display:inline-block;background:#e5623a;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 22px;border-radius:10px">Ver la actividad</a>
+  <a href="${targetUrl}" style="display:inline-block;background:#e5623a;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 22px;border-radius:10px">${ctaLabel}</a>
   <p style="font-size:12px;color:#999;margin:28px 0 0">
     Recibís esto porque tenés las notificaciones activadas en LookLab.
     <a href="${unsubscribeUrl}" style="color:#999">Dejar de recibirlos</a>.
