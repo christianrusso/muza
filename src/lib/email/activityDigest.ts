@@ -17,7 +17,7 @@ export interface DigestResult {
 // los usuarios entre ellas evita que TODOS los mails salgan a la misma hora: se
 // ven menos robóticos y no generan un pico de envío. Si cambiás las horas del
 // cron, cambialas acá también.
-export const DIGEST_SLOT_HOURS_UTC = [13, 17, 21];
+export const DIGEST_SLOT_HOURS_UTC = [13, 20];
 
 /** Franja actual según la hora UTC, o null si no es una hora de cron (ej. curl manual). */
 export function currentDigestSlot(): { index: number; count: number } | null {
