@@ -5,6 +5,7 @@ import { BestColorsRow } from "@/components/colorimetry/BestColorsRow";
 import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { LookImages } from "@/components/colorimetry/LookImages";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { getUserColorimetry } from "@/lib/colorimetry/store";
@@ -12,8 +13,13 @@ import type { Colorimetry } from "@/types/colorimetry";
 
 export default async function ColorimetryResultPage() {
   let c: Colorimetry;
+  // URLs firmadas de las imágenes de looks (paralelo a c.looks; null si aún no
+  // se generaron). El componente cliente las genera on-demand si faltan.
+  let lookUrls: (string | null)[];
+
   if (isDemoMode()) {
     c = DEMO_COLORIMETRY;
+    lookUrls = c.looks.map(() => null);
   } else {
     const supabase = await createClient();
     const {
@@ -23,6 +29,14 @@ export default async function ColorimetryResultPage() {
     // Sin colorimetría guardada: no hay nada que mostrar → al inicio del flujo.
     if (!saved) redirect("/colorimetry");
     c = saved;
+    lookUrls = await Promise.all(
+      c.looks.map(async (_, i) => {
+        const path = c.lookImages?.[i];
+        if (!path) return null;
+        const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
+        return data?.signedUrl ?? null;
+      }),
+    );
   }
 
   return (
@@ -120,19 +134,7 @@ export default async function ColorimetryResultPage() {
           </div>
 
           <span className="section-label mb-3.5 mt-[30px] block">Looks que te quedan increíbles</span>
-          <div className="grid grid-cols-2 gap-3">
-            {c.looks.map((look, i) => (
-              <div
-                key={look}
-                className={`relative flex items-end rounded-[18px] p-3 ${
-                  i % 2 === 0 ? "ph" : "ph-2"
-                }`}
-                style={{ aspectRatio: "3 / 4" }}
-              >
-                <span className="text-[15px] font-semibold text-white/75">{look}</span>
-              </div>
-            ))}
-          </div>
+          <LookImages looks={c.looks} initialUrls={lookUrls} />
 
           <div className="mt-[30px] flex items-center gap-2">
             <MaterialIcon name="block" size={20} className="text-[var(--red)]" />

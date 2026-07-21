@@ -31,6 +31,9 @@ export type Colorimetry = {
   outfitGroups: ColorimetryOutfitGroup[];
   accessories: ColorimetryAccessory[];
   looks: string[];
+  /** Paths en storage de las imágenes de cada look (paralelo a `looks`). Se
+   *  generan aparte, después del análisis; vacío/ausente hasta que existan. */
+  lookImages?: string[];
   avoid: string[];
   combine: string[];
 };

@@ -15,3 +15,7 @@ export function getOpenAIClient(): OpenAI {
 
 // Swapping models (e.g. gpt-4o -> gpt-4.1) is a config change, not a code change.
 export const VISION_MODEL = process.env.OPENAI_VISION_MODEL ?? "gpt-4o";
+
+// Modelo de generación de imágenes (looks de colorimetría). gpt-image-1 por
+// defecto; overridable por env.
+export const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1";
