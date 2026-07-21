@@ -20,17 +20,18 @@ function genderPhrase(gender?: UserGender | null): string {
 //   GEMINI_IMAGE_MODEL    — default gemini-2.5-flash-image
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
 
-// Arma el prompt de un look: prendas planas (flat-lay) sobre fondo neutro, en los
-// colores de la paleta. SIN personas —evita lo uncanny y el tema de identidad.
-function buildLookImagePrompt(lookName: string, c: Colorimetry, gender?: UserGender | null): string {
+// Arma el prompt de un flat-lay. `subject` es el tema: el nombre de un look
+// ("Oficina otoñal") o la lista de prendas de un grupo ("Camisa terracota,
+// Pantalón oliva"). Prendas planas sobre fondo neutro, en la paleta, SIN personas.
+function buildFlatlayPrompt(subject: string, c: Colorimetry, gender?: UserGender | null): string {
   const colors = c.bestColors.map((s) => `${s.name} (${s.hex})`).join(", ");
-  return `Vertical (portrait 3:4) ${genderPhrase(gender)}fashion flat-lay outfit for "${lookName}". Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Editorial, soft even lighting, top-down view. Use ONLY this color palette: ${colors}. Cohesive, elegant, realistic garments.`;
+  return `Vertical (portrait 3:4) ${genderPhrase(gender)}fashion flat-lay outfit — ${subject}. Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Editorial, soft even lighting, top-down view. Use ONLY this color palette: ${colors}. Cohesive, elegant, realistic garments.`;
 }
 
-// Genera UN look como imagen. Devuelve los bytes PNG (Gemini los manda en base64
-// dentro de inlineData).
-export async function generateLookImage(
-  lookName: string,
+// Genera UN flat-lay como imagen. Devuelve los bytes PNG (Gemini los manda en
+// base64 dentro de inlineData).
+export async function generateFlatlayImage(
+  subject: string,
   colorimetry: Colorimetry,
   gender?: UserGender | null,
 ): Promise<Buffer> {
@@ -41,7 +42,7 @@ export async function generateLookImage(
     throw new AILookImageError("Falta GEMINI_API_KEY.");
   }
 
-  const prompt = buildLookImagePrompt(lookName, colorimetry, gender);
+  const prompt = buildFlatlayPrompt(subject, colorimetry, gender);
   // Log de debug: exactamente qué se le manda a Gemini (borrar después).
   console.log(`[looklab] Gemini request → modelo=${GEMINI_IMAGE_MODEL}\n  prompt: ${prompt}`);
 

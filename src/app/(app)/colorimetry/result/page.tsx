@@ -13,9 +13,10 @@ import type { Colorimetry } from "@/types/colorimetry";
 
 export default async function ColorimetryResultPage() {
   let c: Colorimetry;
-  // URLs firmadas de las imágenes de looks (paralelo a c.looks; null si aún no
-  // se generaron). El componente cliente las genera on-demand si faltan.
+  // URLs firmadas de las imágenes ya generadas (null = falta; el cliente las pide
+  // on-demand). Looks: paralelo a c.looks. Outfits: por id de grupo.
   let lookUrls: (string | null)[];
+  let outfitUrls: Record<string, string | null> = {};
 
   if (isDemoMode()) {
     c = DEMO_COLORIMETRY;
@@ -29,13 +30,14 @@ export default async function ColorimetryResultPage() {
     // Sin colorimetría guardada: no hay nada que mostrar → al inicio del flujo.
     if (!saved) redirect("/colorimetry");
     c = saved;
-    lookUrls = await Promise.all(
-      c.looks.map(async (_, i) => {
-        const path = c.lookImages?.[i];
-        if (!path) return null;
-        const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
-        return data?.signedUrl ?? null;
-      }),
+    const sign = async (path?: string | null) => {
+      if (!path) return null;
+      const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
+      return data?.signedUrl ?? null;
+    };
+    lookUrls = await Promise.all(c.looks.map((_, i) => sign(c.lookImages?.[i])));
+    outfitUrls = Object.fromEntries(
+      await Promise.all(c.outfitGroups.map(async (g) => [g.id, await sign(c.outfitImages?.[g.id])] as const)),
     );
   }
 
@@ -120,7 +122,7 @@ export default async function ColorimetryResultPage() {
           </div>
 
           <span className="section-label mb-3.5 mt-[30px] block">Ropa recomendada</span>
-          <OutfitGroupTabs groups={c.outfitGroups} />
+          <OutfitGroupTabs groups={c.outfitGroups} initialImages={outfitUrls} />
 
           <span className="section-label mb-3.5 mt-[30px] block">Accesorios recomendados</span>
           <div className="grid grid-cols-2 gap-3">

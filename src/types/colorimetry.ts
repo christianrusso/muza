@@ -32,8 +32,11 @@ export type Colorimetry = {
   accessories: ColorimetryAccessory[];
   looks: string[];
   /** Paths en storage de las imágenes de cada look (paralelo a `looks`). Se
-   *  generan aparte, después del análisis; vacío/ausente hasta que existan. */
+   *  generan on-demand (el usuario elige 2); "" en los que no se generaron. */
   lookImages?: string[];
+  /** Path de la imagen (flat-lay) de cada grupo de outfit, por id de grupo. Se
+   *  generan lazy: "Básicos" al abrir, el resto al tocar el tab. */
+  outfitImages?: Record<string, string>;
   avoid: string[];
   combine: string[];
 };
