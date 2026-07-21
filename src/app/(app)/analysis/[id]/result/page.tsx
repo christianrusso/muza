@@ -5,7 +5,7 @@ import { occasionFullLabel } from "@/lib/occasions";
 import { scoreLevelLabel, scoreBandColorVar } from "@/lib/scoring/categories";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
-import { CategoryBreakdownList } from "@/components/analysis/CategoryBreakdownList";
+import { CategoryBreakdownSection } from "@/components/analysis/CategoryBreakdownSection";
 import { PhotoLightbox } from "@/components/analysis/PhotoLightbox";
 import { ShareButton } from "@/components/analysis/ShareButton";
 import { ScoringInProgress } from "@/components/analysis/ScoringInProgress";
@@ -48,7 +48,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         analysisType={analysis.analysisType}
         overallScore={analysis.overallScore}
       />
-      <div className="flex-1 overflow-y-auto pb-[100px]">
+      <div className="flex-1 overflow-y-auto pb-[176px]">
       <div className="ph relative overflow-hidden" style={{ height: 266 }}>
         {analysis.photoUrl && (
           // Foto como fondo ambiental (borrosa): antes se veía nítida y quedaba
@@ -116,40 +116,6 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           </span>
         </div>
 
-        {communityPost ? (
-          <Link
-            href={`/community/post/${communityPost.postId}`}
-            className="card mt-[18px] flex items-center gap-3 p-4"
-          >
-            <MaterialIcon name="forum" size={22} className="text-coral" />
-            <div className="flex flex-1 flex-col">
-              <span className="text-sm font-extrabold">Publicado en la comunidad</span>
-              <span className="text-xs font-semibold text-muted">
-                {communityPost.commentCount === 0
-                  ? "Todavía sin comentarios — mirá los votos"
-                  : `${communityPost.commentCount} ${communityPost.commentCount === 1 ? "comentario" : "comentarios"}`}
-              </span>
-            </div>
-            <MaterialIcon name="chevron_right" size={22} className="text-muted" />
-          </Link>
-        ) : (
-          <div className="card mt-[18px] flex items-center gap-3 p-4">
-            <div className="flex flex-1 flex-col">
-              <span className="text-sm font-extrabold">Compartilo con la comunidad</span>
-              <span className="text-xs font-semibold text-muted">Recibí votos y comentarios de otros</span>
-            </div>
-            <PublishButton
-              analysisId={id}
-              label="Publicar"
-              buttonStyle={{ height: 40, padding: "0 20px", fontSize: 13 }}
-              goToPost
-            />
-          </div>
-        )}
-
-        <span className="section-label mb-3.5 mt-[26px] block px-1">Desglose por categoría</span>
-        <CategoryBreakdownList categories={analysis.categories} />
-
         {fortalezas.length > 0 && (
           <div className="mt-[26px]">
             <div className="mb-3 flex items-center gap-2">
@@ -186,7 +152,8 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
         {recomendaciones.length > 0 && (
           <div className="mt-[22px]">
-            <div className="mb-3 flex items-baseline justify-between">
+            <div className="mb-3 flex items-center gap-2">
+              <MaterialIcon name="auto_awesome" size={20} className="text-coral" />
               <span className="text-[15px] font-extrabold">Recomendaciones</span>
             </div>
             <div className="flex flex-col gap-2.5">
@@ -198,7 +165,39 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
         )}
+
+        <CategoryBreakdownSection categories={analysis.categories} />
       </div>
+      </div>
+
+      {/* CTA principal fijo sobre la barra de tabs: compartir/ver en la
+          comunidad. El degradado hacia --paper evita el corte seco con el
+          contenido que scrollea por detrás. */}
+      <div
+        className="absolute inset-x-0 px-[22px] pb-3 pt-6"
+        style={{
+          bottom: 86,
+          zIndex: 54,
+          background: "linear-gradient(to top, var(--paper) 62%, rgba(247,245,240,0))",
+        }}
+      >
+        {communityPost ? (
+          <Link
+            href={`/community/post/${communityPost.postId}`}
+            className="btn btn-primary"
+          >
+            <MaterialIcon name="groups" size={20} />
+            Ver en la comunidad
+          </Link>
+        ) : (
+          <PublishButton
+            analysisId={id}
+            label="Compartir en comunidad"
+            icon="groups"
+            buttonStyle={{}}
+            goToPost
+          />
+        )}
       </div>
       <BottomTabBar />
     </div>

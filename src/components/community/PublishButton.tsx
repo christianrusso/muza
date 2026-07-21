@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { track } from "@/lib/analytics";
 
 export function PublishButton({
@@ -12,6 +13,7 @@ export function PublishButton({
   className,
   buttonStyle = { width: 100, height: 40, fontSize: 13 },
   goToPost = false,
+  icon,
 }: {
   analysisId: string;
   label?: string;
@@ -21,6 +23,9 @@ export function PublishButton({
   // Al terminar, ir al detalle del post recién creado (para ver/compartir sus
   // comentarios) en vez de al feed general.
   goToPost?: boolean;
+  // Ícono Material opcional a la izquierda del label (ej. "groups" en el CTA
+  // de comunidad).
+  icon?: string;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +58,14 @@ export function PublishButton({
       onClick={handlePublish}
       disabled={submitting}
     >
-      {submitting ? "..." : label}
+      {submitting ? (
+        "..."
+      ) : (
+        <>
+          {icon && <MaterialIcon name={icon} size={20} />}
+          {label}
+        </>
+      )}
     </Button>
   );
 }
