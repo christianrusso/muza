@@ -17,7 +17,8 @@
     "scoring:fewshot-eval": "NODE_OPTIONS='--conditions=react-server' tsx scripts/scoring-fewshot-eval.ts",
     "seed:community": "tsx scripts/seed-community.ts",
     "seed:migrate": "tsx scripts/seed-migrate.ts",
-    "posthog:dashboard": "tsx scripts/posthog-dashboard.ts"
+    "posthog:dashboard": "tsx scripts/posthog-dashboard.ts",
+    "posthog:digest-insights": "tsx scripts/posthog-digest-insights.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
