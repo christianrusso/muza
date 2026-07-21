@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { validateColorimetryPhoto, AIColorimetryValidationError } from "@/lib/ai/validateColorimetryPhoto";
+import { generateColorimetry, AIColorimetryError } from "@/lib/ai/generateColorimetry";
+import { toColorimetry } from "@/lib/colorimetry/map";
+import { saveColorimetry } from "@/lib/colorimetry/store";
 import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { isDemoMode } from "@/lib/demo";
 
-// Valida una foto ya subida al bucket colorimetry-photos. Llama a OpenAI (visión
-// detail high); margen para que no lo corte el gateway de Vercel.
+// Genera la colorimetría desde la foto (ya validada) y la guarda. Visión detail
+// high + salida grande: margen amplio para el gateway de Vercel.
 export const maxDuration = 60;
 
 const BodySchema = z.object({ photoPath: z.string().min(1) });
@@ -18,9 +20,9 @@ export async function POST(request: Request) {
   }
   const { photoPath } = body.data;
 
-  // Demo: no gasta IA, siempre válida (para recorrer el flujo sin credenciales).
+  // Demo: no gasta IA; /result muestra la colorimetría demo.
   if (isDemoMode()) {
-    return NextResponse.json({ verdict: "valid", issues: [], reason: null });
+    return NextResponse.json({ ok: true });
   }
 
   const supabase = await createClient();
@@ -30,9 +32,6 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "No autenticado." } }, { status: 401 });
   }
-
-  // El path tiene que ser del propio usuario ({user_id}/...). El RLS del bucket ya
-  // lo scopea, pero no firmamos la ruta de otro por las dudas.
   if (!photoPath.startsWith(`${user.id}/`)) {
     return NextResponse.json({ error: { code: "FORBIDDEN", message: "Foto no válida." } }, { status: 403 });
   }
@@ -48,14 +47,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await validateColorimetryPhoto(signed.signedUrl, user.id);
-    // Log de debug para seguir los resultados mientras se prueba (borrar después).
-    console.log(
-      `[looklab] colorimetry validate → ${result.verdict}` +
-        (result.issues.length ? ` · issues: ${result.issues.join(" | ")}` : "") +
-        (result.reason ? ` · reason: ${result.reason}` : ""),
-    );
-    return NextResponse.json(result);
+    const result = await generateColorimetry(signed.signedUrl, user.id);
+    await saveColorimetry(supabase, user.id, photoPath, toColorimetry(result));
+    return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof AIBudgetExceededError) {
       return NextResponse.json(
@@ -63,8 +57,8 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
-    const message = err instanceof AIColorimetryValidationError ? err.message : "No se pudo validar la foto.";
-    console.error(`[looklab] colorimetry validate: ${message}`);
-    return NextResponse.json({ error: { code: "VALIDATION_FAILED", message } }, { status: 500 });
+    const message = err instanceof AIColorimetryError ? err.message : "No se pudo generar la colorimetría.";
+    console.error(`[looklab] colorimetry generate: ${message}`);
+    return NextResponse.json({ error: { code: "GENERATION_FAILED", message } }, { status: 500 });
   }
 }

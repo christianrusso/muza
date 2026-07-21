@@ -86,6 +86,13 @@ export function ColorimetryPhotoPicker() {
       const body = await res.json();
       if (!res.ok) throw new Error(body.error?.message ?? "No se pudo validar la foto.");
 
+      // Log de debug para ver el resultado mientras se prueba (borrar después).
+      console.log(
+        `%c[colorimetría] validación → ${body.verdict}`,
+        `font-weight:bold;color:${body.verdict === "valid" ? "#2fa36b" : "#e5484d"}`,
+        { verdict: body.verdict, issues: body.issues, reason: body.reason },
+      );
+
       if (body.verdict === "valid") {
         setPhotoPath(path);
         setStatus("valid");

@@ -1,12 +1,29 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { DEMO_COLORIMETRY } from "@/lib/colorimetry/demo";
 import { BestColorsRow } from "@/components/colorimetry/BestColorsRow";
 import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
+import { getUserColorimetry } from "@/lib/colorimetry/store";
+import type { Colorimetry } from "@/types/colorimetry";
 
-export default function ColorimetryResultPage() {
-  const c = DEMO_COLORIMETRY;
+export default async function ColorimetryResultPage() {
+  let c: Colorimetry;
+  if (isDemoMode()) {
+    c = DEMO_COLORIMETRY;
+  } else {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const saved = user ? await getUserColorimetry(supabase, user.id) : null;
+    // Sin colorimetría guardada: no hay nada que mostrar → al inicio del flujo.
+    if (!saved) redirect("/colorimetry");
+    c = saved;
+  }
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">

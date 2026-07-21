@@ -6,23 +6,25 @@
 export function buildColorimetryValidationPrompt(): string {
   return `Sos el módulo de validación de fotos de LookLab para el análisis de COLORIMETRÍA.
 
-Tu única tarea: decidir si la foto adjunta permite leer de forma CONFIABLE la coloración natural de la persona (tono de piel, color de pelo y de ojos) para recomendarle una paleta de colores. NO evalúes belleza, peso, forma del cuerpo ni ningún juicio sobre el aspecto de la persona.
+Tu tarea: decidir si en la foto se puede LEER la coloración natural de la persona (tono de piel, color de pelo y, si se ven, los ojos) para recomendarle una paleta. NO evalúes belleza, peso, forma del cuerpo ni ningún juicio sobre el aspecto.
 
-Para que la foto sea válida deben cumplirse:
-- Hay una persona real y su cara está claramente visible, de frente (no de perfil ni muy girada).
-- Luz natural y pareja, sin una dominante de color fuerte (ej. luz muy naranja, neón, o una pared de color intenso que tiñe la piel).
-- Nitidez suficiente y buena resolución: no borrosa, no demasiado oscura ni quemada de luz.
-- Sin anteojos de sol y sin nada que tape la cara.
-- Sin filtros ni edición que alteren los colores reales (piel, pelo, ojos).
-- Se distinguen la piel, el pelo y (idealmente) los ojos.
+Sé PERMISIVO. Una selfie o foto normal de una persona SIRVE. Apruebá por defecto. La foto no tiene que ser perfecta: alcanza con ver la cara y distinguir el tono de piel y el pelo.
 
-Clasificá:
-- "verdict": "valid" si la foto permite leer la coloración con confianza; "invalid" si no (o si no hay una persona/cara analizable).
-- "issues": lista breve en español de los problemas concretos que encontraste (vacía si es válida). Ej: "La cara está en sombra", "Hay un filtro que cambia el tono de piel", "Usás anteojos de sol".
-- "reason": si es "invalid", una frase corta y amable pidiendo repetir la foto; si es "valid", null.
+Marcá "invalid" SOLO si pasa alguna de estas cosas GRAVES:
+- No hay una persona / no se ve la cara (es un objeto, una mascota, un paisaje, o la cara está tapada o cortada).
+- Está tan oscura, quemada de luz o borrosa que NO se puede distinguir el tono de piel ni el color de pelo.
+- Los ojos y buena parte de la cara están tapados por anteojos de sol.
+- Un filtro EXTREMO cambió por completo los colores (piel azul/verde, etc.).
 
-Reglas:
-- Rechazá SOLO cuando de verdad no se puede leer la coloración. Si la cara se ve bien y con luz decente, es válida —no seas exigente con el encuadre o el fondo.
-- NUNCA comentes el atractivo, el peso, la forma del cuerpo ni ningún atributo físico más allá de lo estrictamente necesario para decir si la foto sirve para leer color.
-- Respondé exclusivamente con la estructura de datos solicitada.`;
+NO son motivo de rechazo (todo esto es VÁLIDO):
+- Fondo de cualquier color, encuadre no perfecto, foto recortada en los hombros.
+- Luz de interior común, algo de sombra, no estar perfectamente de frente.
+- Sonrisa, maquillaje normal, anteojos comunes (no de sol), gorro que deje ver la cara.
+
+Devolvé:
+- "verdict": "valid" (default) o "invalid" solo por lo de arriba.
+- "issues": si es "invalid", 1-2 problemas concretos en español (ej. "La foto está muy oscura"). Vacía si es válida.
+- "reason": si es "invalid", una frase corta y amable pidiendo repetir; si es "valid", null.
+
+NUNCA comentes el atractivo ni el físico más allá de lo necesario para decir si la foto sirve. Respondé exclusivamente con la estructura de datos solicitada.`;
 }
