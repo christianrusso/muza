@@ -22,7 +22,7 @@ Devolvé (todo en español de Argentina, tono cercano y claro):
 - "traits": 3 rasgos cortos que definan la temporada (ej. "Cálida", "Profunda", "Suave"), cada uno con un "hex" (#RRGGBB) representativo de ese rasgo.
 - "bestColors": 5 colores estrella para esta persona — nombre en español + "hex" real (#RRGGBB). Son los que más la iluminan.
 - "palette": 10 colores de su paleta completa (nombre + hex real), coherentes con la temporada. Podés incluir los 5 de bestColors y sumar 5 más.
-- "outfitGroups": 3 o 4 grupos ("Básicos", "Elevados", "Casual", "Formal") con 2 a 5 prendas sugeridas en los colores de su paleta.
+- "outfitGroups": exactamente 4 grupos con estos labels, en este orden: "Básicos", "Casual", "Trabajo", "Formal". Cada uno con 2 a 5 prendas sugeridas en los colores de su paleta.
 - "accessories": consejo concreto para cada categoría — "anteojos" (color de marcos), "calzado" (calzado y cinturones), "joyeria" (metales/tonos), "bufandas" (bufandas y gorros).
 - "looks": 3 a 5 ideas de looks con nombre corto (ej. "Oficina otoñal").
 - "avoid": 2 a 4 cosas a evitar cerca del rostro (colores/metales que la apagan), explicadas en una frase.
