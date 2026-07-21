@@ -68,9 +68,15 @@ export function buildDigestEmail(row: DigestRow): BuiltEmail {
   // follow (sin post), cae a la solapa de actividad. /community/post/ es pública
   // (ver middleware), así que abre aunque el usuario no tenga sesión activa.
   const hasPost = Boolean(row.top_post_id);
-  const targetUrl = hasPost
+  const rawTarget = hasPost
     ? `${base}/community/post/${row.top_post_id}`
     : `${base}/community/activity`;
+  // UTMs para que PostHog atribuya el retorno desde el email (los captura solo en
+  // el pageview). Solo en el CTA, NO en el unsubscribe. utm_content distingue si
+  // llegó al look o a la solapa.
+  const targetUrl =
+    `${rawTarget}?utm_source=email&utm_medium=activity_digest&utm_campaign=activity_digest` +
+    `&utm_content=${hasPost ? "look" : "actividad"}`;
   const ctaLabel = hasPost ? "Ver tu look" : "Ver la actividad";
   const unsubscribeUrl = `${base}/api/email/unsubscribe?token=${row.unsubscribe_token}`;
   const firstName = row.full_name?.split(" ")[0] || "Hola";
