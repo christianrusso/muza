@@ -170,6 +170,23 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["plan_usage"]["Row"]>;
         Relationships: [];
       };
+      colorimetries: {
+        Row: {
+          id: string;
+          user_id: string;
+          photo_path: string;
+          // Objeto Colorimetry (src/types/colorimetry.ts) serializado.
+          data: Json;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["colorimetries"]["Row"]> & {
+          user_id: string;
+          photo_path: string;
+          data: Json;
+        };
+        Update: Partial<Database["public"]["Tables"]["colorimetries"]["Row"]>;
+        Relationships: [];
+      };
       community_posts: {
         Row: {
           id: string;

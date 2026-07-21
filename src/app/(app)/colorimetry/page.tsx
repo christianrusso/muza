@@ -1,11 +1,24 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { BackButton } from "@/components/navigation/TopBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
+import { hasColorimetry } from "@/lib/colorimetry/store";
 
-// Estado vacío de colorimetría: todavía no hay ninguna generada. Cuando exista
-// persistencia, esta misma ruta muestra la última colorimetría y este bloque
-// queda solo para quien no tiene ninguna.
-export default function ColorimetryPage() {
+// La colorimetría es una por usuario. Si ya la tiene, esta ruta manda al
+// resultado ("ver colorimetría"); si no, muestra el estado vacío para generarla.
+export default async function ColorimetryPage() {
+  if (!isDemoMode()) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user && (await hasColorimetry(supabase, user.id))) {
+      redirect("/colorimetry/result");
+    }
+  }
+
   return (
     <div className="screen-body pad">
       <div className="screen-head">

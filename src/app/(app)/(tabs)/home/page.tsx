@@ -8,6 +8,8 @@ import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { hasColorimetry as userHasColorimetry } from "@/lib/colorimetry/store";
+import { canAccessColorimetry } from "@/lib/colorimetry/access";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
@@ -39,6 +41,7 @@ async function loadHomeData() {
       average: allScores.length
         ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
         : null,
+      hasColorimetry: false,
     };
   }
 
@@ -57,6 +60,7 @@ async function loadHomeData() {
       latest: null,
       totalCount: 0,
       average: null,
+      hasColorimetry: false,
     };
   }
 
@@ -95,11 +99,17 @@ async function loadHomeData() {
     latest,
     totalCount: all.length,
     average,
+    hasColorimetry: await userHasColorimetry(supabase, user.id),
   };
 }
 
 export default async function HomePage() {
-  const { firstName, avatarUrl, latest, totalCount, average } = await timed("home:data", loadHomeData);
+  const { firstName, avatarUrl, latest, totalCount, average, hasColorimetry } = await timed(
+    "home:data",
+    loadHomeData,
+  );
+  // Colorimetría gateada por allowlist mientras está en desarrollo (ver access.ts).
+  const colorimetryAllowed = await canAccessColorimetry();
 
   return (
     <div className="screen-body pad-tab" style={{ gap: 18 }}>
@@ -199,30 +209,53 @@ export default async function HomePage() {
 
       <NewAnalysisCard />
 
-      {/* Próximamente: no es un botón — no navega ni se puede tocar. Está para
-          anticipar la feature (borde punteado + candado), no para usarse. */}
-      <div
-        className="flex items-center gap-3.5 rounded-[20px] border-2 border-dashed border-line-strong px-[18px] py-4"
-        aria-disabled="true"
-      >
-        <span
-          className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl"
-          style={{ background: "var(--violet-soft)" }}
+      {/* Colorimetría. Gateada por allowlist (COLORIMETRY_TESTERS): los testers
+          ven el botón activo; el resto, "Próximamente" (no navega). */}
+      {colorimetryAllowed ? (
+        <Link
+          href="/colorimetry"
+          className="flex items-center gap-3.5 rounded-[20px] border-2 border-line-strong px-[18px] py-4 transition-colors hover:border-[var(--violet)]"
         >
-          <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
-        </span>
-        <span className="flex flex-1 flex-col items-start gap-0.5">
-          <span className="text-[17px] font-extrabold text-muted">Generar colorimetría</span>
-          <span className="text-xs font-semibold text-faint">Descubrí tu paleta ideal</span>
-        </span>
-        <span
-          className="flex flex-none items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide"
-          style={{ background: "var(--violet-soft)", color: "var(--violet)" }}
+          <span
+            className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl"
+            style={{ background: "var(--violet-soft)" }}
+          >
+            <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
+          </span>
+          <span className="flex flex-1 flex-col items-start gap-0.5">
+            <span className="text-[17px] font-extrabold text-ink">
+              {hasColorimetry ? "Ver colorimetría" : "Generar colorimetría"}
+            </span>
+            <span className="text-xs font-semibold text-faint">
+              {hasColorimetry ? "Tu paleta personal" : "Descubrí tu paleta ideal"}
+            </span>
+          </span>
+          <MaterialIcon name="chevron_right" size={22} className="flex-none text-muted" />
+        </Link>
+      ) : (
+        <div
+          className="flex items-center gap-3.5 rounded-[20px] border-2 border-dashed border-line-strong px-[18px] py-4"
+          aria-disabled="true"
         >
-          <MaterialIcon name="lock" size={13} />
-          Próximamente
-        </span>
-      </div>
+          <span
+            className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl"
+            style={{ background: "var(--violet-soft)" }}
+          >
+            <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
+          </span>
+          <span className="flex flex-1 flex-col items-start gap-0.5">
+            <span className="text-[17px] font-extrabold text-muted">Generar colorimetría</span>
+            <span className="text-xs font-semibold text-faint">Descubrí tu paleta ideal</span>
+          </span>
+          <span
+            className="flex flex-none items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide"
+            style={{ background: "var(--violet-soft)", color: "var(--violet)" }}
+          >
+            <MaterialIcon name="lock" size={13} />
+            Próximamente
+          </span>
+        </div>
+      )}
     </div>
   );
 }

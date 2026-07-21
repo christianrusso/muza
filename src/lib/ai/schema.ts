@@ -39,6 +39,46 @@ export const ValidationResultSchema = z.object({
 });
 export type ValidationResult = z.infer<typeof ValidationResultSchema>;
 
+// Validación de la foto de COLORIMETRÍA. A diferencia del outfit, acá la foto
+// tiene que servir para leer la coloración (cara, piel, pelo, ojos). No hay
+// "partial": o la foto permite un análisis confiable o no.
+export const ColorimetryValidationResultSchema = z.object({
+  verdict: z.enum(["valid", "invalid"]),
+  issues: z.array(z.string()),
+  reason: z.string().nullable(),
+});
+export type ColorimetryValidationResult = z.infer<typeof ColorimetryValidationResultSchema>;
+
+// Generación de la colorimetría. El modelo devuelve el contenido; los bits de UI
+// (íconos de accesorios) los fija el código al mapear a Colorimetry, así el modelo
+// no inventa nombres de íconos rotos. Los accesorios son 4 categorías fijas: el
+// modelo solo escribe el consejo de cada una.
+const ColorimetrySwatchSchema = z.object({ name: z.string(), hex: z.string() });
+
+export const ColorimetryResultSchema = z.object({
+  season: z.string(),
+  subtone: z.string(),
+  contrast: z.string(),
+  depth: z.string(),
+  // 3 rasgos que definen la temporada; hex = color del puntito de la píldora.
+  traits: z.array(z.object({ label: z.string(), hex: z.string() })).length(3),
+  bestColors: z.array(ColorimetrySwatchSchema).length(5),
+  palette: z.array(ColorimetrySwatchSchema).length(10),
+  // Grupos de outfit con prendas sugeridas (3-4 grupos).
+  outfitGroups: z.array(z.object({ label: z.string(), items: z.array(z.string()).min(2).max(5) })).min(3).max(4),
+  // Consejo por categoría de accesorio (el ícono y el título los pone el código).
+  accessories: z.object({
+    anteojos: z.string(),
+    calzado: z.string(),
+    joyeria: z.string(),
+    bufandas: z.string(),
+  }),
+  looks: z.array(z.string()).min(3).max(5),
+  avoid: z.array(z.string()).min(2).max(4),
+  combine: z.array(z.string()).min(2).max(4),
+});
+export type ColorimetryResult = z.infer<typeof ColorimetryResultSchema>;
+
 const categoryKeys = SCORE_CATEGORIES.map((c) => c.key) as [CategoryKey, ...CategoryKey[]];
 
 export const ScoringCategorySchema = z.object({

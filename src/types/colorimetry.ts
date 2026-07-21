@@ -31,6 +31,15 @@ export type Colorimetry = {
   outfitGroups: ColorimetryOutfitGroup[];
   accessories: ColorimetryAccessory[];
   looks: string[];
+  /** Paths en storage de las imágenes de cada look (paralelo a `looks`). Se
+   *  generan on-demand (el usuario elige 2); "" en los que no se generaron. */
+  lookImages?: string[];
+  /** Path de la imagen (flat-lay) de cada grupo de outfit, por id de grupo. Se
+   *  generan lazy: "Básicos" al abrir, el resto al tocar el tab. */
+  outfitImages?: Record<string, string>;
+  /** Look a medida: el usuario describe una ocasión y se genera UN outfit. Se
+   *  reemplaza al generar de nuevo. `looks` queda como chips de sugerencia. */
+  customLook?: { occasion: string; imagePath: string };
   avoid: string[];
   combine: string[];
 };

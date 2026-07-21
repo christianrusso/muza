@@ -1,21 +1,48 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
-
-// Espera simulada: todavía no hay llamada a la IA, así que la pantalla avanza
-// sola. Cuando exista el endpoint, este timeout se reemplaza por el fetch y el
-// router.replace pasa a depender del verdict, como en /analysis/[id]/validating.
-const FAKE_ANALYSIS_MS = 2600;
 
 export default function AnalyzingColorimetryPage() {
   const router = useRouter();
+  const params = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  // Evita doble disparo (StrictMode monta dos veces en dev).
+  const started = useRef(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => router.replace("/colorimetry/result"), FAKE_ANALYSIS_MS);
-    return () => clearTimeout(timer);
-  }, [router]);
+    if (started.current) return;
+    started.current = true;
+    const photoPath = params.get("photo");
+
+    (async () => {
+      try {
+        const res = await fetch("/api/colorimetry/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photoPath: photoPath ?? "demo" }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error?.message ?? "No se pudo generar la colorimetría.");
+        router.replace("/colorimetry/result");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Algo salió mal. Probá de nuevo.");
+      }
+    })();
+  }, [params, router]);
+
+  if (error) {
+    return (
+      <div className="screen-body pad flex flex-col items-center justify-center gap-4 text-center">
+        <MaterialIcon name="error_outline" size={48} className="text-[var(--red)]" />
+        <p className="text-[15px] font-semibold text-muted">{error}</p>
+        <button type="button" className="btn btn-violet" onClick={() => router.replace("/colorimetry/new")}>
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="ph-dark relative flex min-h-dvh flex-col items-center justify-center gap-[22px]">

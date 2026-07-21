@@ -1,17 +1,51 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { DEMO_COLORIMETRY } from "@/lib/colorimetry/demo";
 import { BestColorsRow } from "@/components/colorimetry/BestColorsRow";
 import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { CustomLookGenerator } from "@/components/colorimetry/CustomLookGenerator";
+import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
+import { getUserColorimetry } from "@/lib/colorimetry/store";
+import type { Colorimetry } from "@/types/colorimetry";
 
-export default function ColorimetryResultPage() {
-  const c = DEMO_COLORIMETRY;
+export default async function ColorimetryResultPage() {
+  let c: Colorimetry;
+  // URLs firmadas de las imágenes ya generadas (null = falta; el cliente las pide
+  // on-demand). Outfits: por id de grupo. customLook: el outfit a medida.
+  let outfitUrls: Record<string, string | null> = {};
+  let customLookInitial: { occasion: string; url: string | null } | null = null;
+
+  if (isDemoMode()) {
+    c = DEMO_COLORIMETRY;
+  } else {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const saved = user ? await getUserColorimetry(supabase, user.id) : null;
+    // Sin colorimetría guardada: no hay nada que mostrar → al inicio del flujo.
+    if (!saved) redirect("/colorimetry");
+    c = saved;
+    const sign = async (path?: string | null) => {
+      if (!path) return null;
+      const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
+      return data?.signedUrl ?? null;
+    };
+    outfitUrls = Object.fromEntries(
+      await Promise.all(c.outfitGroups.map(async (g) => [g.id, await sign(c.outfitImages?.[g.id])] as const)),
+    );
+    if (c.customLook) {
+      customLookInitial = { occasion: c.customLook.occasion, url: await sign(c.customLook.imagePath) };
+    }
+  }
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
-      {/* pb generoso: la barra de acciones es fija y taparía el final del scroll. */}
-      <div className="flex-1 overflow-y-auto pb-[168px]">
+      {/* pb con margen para el safe area (ya no hay barra de acciones fija). */}
+      <div className="flex-1 overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div
           className="relative flex flex-col items-center justify-end pb-[52px]"
           style={{
@@ -89,7 +123,7 @@ export default function ColorimetryResultPage() {
           </div>
 
           <span className="section-label mb-3.5 mt-[30px] block">Ropa recomendada</span>
-          <OutfitGroupTabs groups={c.outfitGroups} />
+          <OutfitGroupTabs groups={c.outfitGroups} initialImages={outfitUrls} />
 
           <span className="section-label mb-3.5 mt-[30px] block">Accesorios recomendados</span>
           <div className="grid grid-cols-2 gap-3">
@@ -102,20 +136,8 @@ export default function ColorimetryResultPage() {
             ))}
           </div>
 
-          <span className="section-label mb-3.5 mt-[30px] block">Looks que te quedan increíbles</span>
-          <div className="grid grid-cols-2 gap-3">
-            {c.looks.map((look, i) => (
-              <div
-                key={look}
-                className={`relative flex items-end rounded-[18px] p-3 ${
-                  i % 2 === 0 ? "ph" : "ph-2"
-                }`}
-                style={{ aspectRatio: "3 / 4" }}
-              >
-                <span className="text-[15px] font-semibold text-white/75">{look}</span>
-              </div>
-            ))}
-          </div>
+          <span className="section-label mb-3.5 mt-[30px] block">Generá un outfit para tu ocasión</span>
+          <CustomLookGenerator suggestions={c.looks} initial={customLookInitial} />
 
           <div className="mt-[30px] flex items-center gap-2">
             <MaterialIcon name="block" size={20} className="text-[var(--red)]" />
@@ -143,36 +165,13 @@ export default function ColorimetryResultPage() {
             ))}
           </div>
 
-          <p
-            className="mt-[26px] rounded-[18px] px-4 py-3.5 text-[14px] font-bold leading-snug text-[var(--violet)]"
+          <div
+            className="mt-[26px] flex items-center gap-2.5 rounded-[18px] px-4 py-3.5 text-[14px] font-bold leading-snug text-[var(--violet)]"
             style={{ background: "var(--violet-soft)" }}
           >
-            Guardá esta colorimetría en tu perfil para verla cuando quieras y generar más outfits
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="absolute inset-x-0 bottom-0 flex flex-col gap-2.5 px-[22px] pt-3"
-        style={{
-          paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
-          background:
-            "linear-gradient(to bottom, rgba(247,245,240,0), var(--paper) 22%, var(--paper))",
-        }}
-      >
-        <button type="button" className="btn btn-violet">
-          <MaterialIcon name="bookmark" size={20} />
-          Guardar en mi perfil
-        </button>
-        <div className="flex gap-3">
-          <button type="button" className="btn btn-outline flex-1 text-[15px]">
-            <MaterialIcon name="auto_awesome" size={20} />
-            Generar más outfits
-          </button>
-          <Link href="/colorimetry/new" className="btn btn-outline flex-1 text-[15px]">
-            <MaterialIcon name="refresh" size={20} />
-            Nueva foto
-          </Link>
+            <MaterialIcon name="check_circle" size={20} className="flex-none" />
+            <span>Tu colorimetría quedó guardada en tu perfil. Podés verla cuando quieras.</span>
+          </div>
         </div>
       </div>
     </div>
