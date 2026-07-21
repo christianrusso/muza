@@ -8,6 +8,7 @@ import { isDemoMode, DEMO_USER, DEMO_ANALYSES } from "@/lib/demo";
 import { getDemoStore } from "@/lib/demoStore";
 import { SCORED_VALIDITY_STATUSES, isScored } from "@/lib/validity";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { hasColorimetry as userHasColorimetry } from "@/lib/colorimetry/store";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
@@ -39,6 +40,7 @@ async function loadHomeData() {
       average: allScores.length
         ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
         : null,
+      hasColorimetry: false,
     };
   }
 
@@ -57,6 +59,7 @@ async function loadHomeData() {
       latest: null,
       totalCount: 0,
       average: null,
+      hasColorimetry: false,
     };
   }
 
@@ -95,11 +98,15 @@ async function loadHomeData() {
     latest,
     totalCount: all.length,
     average,
+    hasColorimetry: await userHasColorimetry(supabase, user.id),
   };
 }
 
 export default async function HomePage() {
-  const { firstName, avatarUrl, latest, totalCount, average } = await timed("home:data", loadHomeData);
+  const { firstName, avatarUrl, latest, totalCount, average, hasColorimetry } = await timed(
+    "home:data",
+    loadHomeData,
+  );
 
   return (
     <div className="screen-body pad-tab" style={{ gap: 18 }}>
@@ -211,8 +218,12 @@ export default async function HomePage() {
           <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
         </span>
         <span className="flex flex-1 flex-col items-start gap-0.5">
-          <span className="text-[17px] font-extrabold text-ink">Generar colorimetría</span>
-          <span className="text-xs font-semibold text-faint">Descubrí tu paleta ideal</span>
+          <span className="text-[17px] font-extrabold text-ink">
+            {hasColorimetry ? "Ver colorimetría" : "Generar colorimetría"}
+          </span>
+          <span className="text-xs font-semibold text-faint">
+            {hasColorimetry ? "Tu paleta personal" : "Descubrí tu paleta ideal"}
+          </span>
         </span>
         <MaterialIcon name="chevron_right" size={22} className="flex-none text-muted" />
       </Link>

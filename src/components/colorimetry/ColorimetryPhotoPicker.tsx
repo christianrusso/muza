@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
 const TIPS = [
-  { icon: "light_mode", text: "Con luz natural, de frente a una ventana" },
-  { icon: "face", text: "Rostro descubierto, sin maquillaje pesado" },
-  { icon: "checkroom", text: "Sin filtros ni ropa de colores muy saturados cerca de la cara" },
+  { icon: "light_mode", text: "Luz natural y pareja, de frente a una ventana" },
+  { icon: "face", text: "Cara y hombros a la vista, mirando de frente" },
+  { icon: "visibility", text: "Sin anteojos, sin filtros ni maquillaje pesado" },
+  { icon: "wallpaper", text: "Fondo neutro y ropa de color suave cerca de la cara" },
 ] as const;
 
 export function ColorimetryPhotoPicker() {
@@ -42,6 +43,13 @@ export function ColorimetryPhotoPicker() {
           </div>
         ))}
       </div>
+
+      {/* Encuadre de la promesa: la colorimetría es la única parte de la app que
+          lee la coloración de la persona, y solo para recomendar colores. */}
+      <p className="px-1 text-xs font-medium leading-relaxed text-faint">
+        Analizamos tu coloración —piel, pelo y ojos— solo para recomendarte los colores que mejor te
+        quedan. Nunca juzgamos tu aspecto.
+      </p>
 
       <input
         ref={selfieInputRef}
