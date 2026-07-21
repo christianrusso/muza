@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { runActivityDigest } from "@/lib/email/activityDigest";
+import { runActivityDigest, currentDigestSlot } from "@/lib/email/activityDigest";
 
-// Digest diario de actividad. Lo dispara el cron de Vercel (ver vercel.json).
+// Digest de actividad (cada ~2 días por usuario). Lo dispara el cron de Vercel en
+// varias franjas horarias (ver vercel.json); cada franja procesa su tercio de
+// usuarios, repartidos por hash, para no mandar todo a la misma hora.
 //
 // Protección: Vercel manda el header `Authorization: Bearer <CRON_SECRET>` si la
 // env CRON_SECRET está seteada. Exigimos ese secreto para que nadie más pueda
@@ -23,7 +25,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await runActivityDigest();
+    // ?all=1 procesa a todos sin filtrar por franja (para pruebas manuales,
+    // incluso durante una hora de cron). El cron normal filtra por franja.
+    const forceAll = new URL(request.url).searchParams.get("all") === "1";
+    const slot = forceAll ? null : currentDigestSlot();
+    const result = await runActivityDigest(slot);
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error desconocido";
