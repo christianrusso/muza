@@ -14,8 +14,8 @@ const BUCKET = "colorimetry-photos";
 const SIGNED_TTL = 600;
 
 const BodySchema = z.object({
-  target: z.enum(["look", "outfit"]),
-  key: z.string().min(1), // look: índice; outfit: id del grupo
+  target: z.enum(["look", "outfit", "custom"]),
+  key: z.string().min(1).max(200), // look: índice; outfit: id del grupo; custom: texto de la ocasión
 });
 
 export async function POST(request: Request) {
@@ -58,16 +58,20 @@ export async function POST(request: Request) {
     }
     subject = c.looks[lookIdx];
     existing = c.lookImages?.[lookIdx] || undefined;
-  } else {
+  } else if (target === "outfit") {
     const group = c.outfitGroups.find((g) => g.id === key);
     if (!group) {
       return NextResponse.json({ error: { code: "BAD_KEY", message: "Grupo inválido." } }, { status: 400 });
     }
     subject = group.items.join(", ");
     existing = c.outfitImages?.[key] || undefined;
+  } else {
+    // custom: la ocasión que describió el usuario ES el subject. Se regenera cada
+    // vez (no hay idempotencia: la idea es que pruebe distintas ocasiones).
+    subject = key.trim();
   }
 
-  // Idempotente: si ya está, la firmamos y listo.
+  // Idempotente (look/outfit): si ya está, la firmamos y listo.
   if (existing) {
     const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(existing, SIGNED_TTL);
     return NextResponse.json({ url: signed?.signedUrl ?? null });
@@ -89,8 +93,10 @@ export async function POST(request: Request) {
       while (arr.length < c.looks.length) arr.push("");
       arr[lookIdx] = path;
       next.lookImages = arr;
-    } else {
+    } else if (target === "outfit") {
       next.outfitImages = { ...(c.outfitImages ?? {}), [key]: path };
+    } else {
+      next.customLook = { occasion: subject, imagePath: path };
     }
     await supabase.from("colorimetries").update({ data: next }).eq("user_id", user.id);
 

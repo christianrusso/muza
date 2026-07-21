@@ -5,7 +5,7 @@ import { BestColorsRow } from "@/components/colorimetry/BestColorsRow";
 import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
-import { LookImages } from "@/components/colorimetry/LookImages";
+import { CustomLookGenerator } from "@/components/colorimetry/CustomLookGenerator";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { getUserColorimetry } from "@/lib/colorimetry/store";
@@ -14,13 +14,12 @@ import type { Colorimetry } from "@/types/colorimetry";
 export default async function ColorimetryResultPage() {
   let c: Colorimetry;
   // URLs firmadas de las imágenes ya generadas (null = falta; el cliente las pide
-  // on-demand). Looks: paralelo a c.looks. Outfits: por id de grupo.
-  let lookUrls: (string | null)[];
+  // on-demand). Outfits: por id de grupo. customLook: el outfit a medida.
   let outfitUrls: Record<string, string | null> = {};
+  let customLookInitial: { occasion: string; url: string | null } | null = null;
 
   if (isDemoMode()) {
     c = DEMO_COLORIMETRY;
-    lookUrls = c.looks.map(() => null);
   } else {
     const supabase = await createClient();
     const {
@@ -35,10 +34,12 @@ export default async function ColorimetryResultPage() {
       const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
       return data?.signedUrl ?? null;
     };
-    lookUrls = await Promise.all(c.looks.map((_, i) => sign(c.lookImages?.[i])));
     outfitUrls = Object.fromEntries(
       await Promise.all(c.outfitGroups.map(async (g) => [g.id, await sign(c.outfitImages?.[g.id])] as const)),
     );
+    if (c.customLook) {
+      customLookInitial = { occasion: c.customLook.occasion, url: await sign(c.customLook.imagePath) };
+    }
   }
 
   return (
@@ -135,8 +136,8 @@ export default async function ColorimetryResultPage() {
             ))}
           </div>
 
-          <span className="section-label mb-3.5 mt-[30px] block">Looks que te quedan increíbles</span>
-          <LookImages looks={c.looks} initialUrls={lookUrls} />
+          <span className="section-label mb-3.5 mt-[30px] block">Generá un outfit para tu ocasión</span>
+          <CustomLookGenerator suggestions={c.looks} initial={customLookInitial} />
 
           <div className="mt-[30px] flex items-center gap-2">
             <MaterialIcon name="block" size={20} className="text-[var(--red)]" />
