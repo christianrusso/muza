@@ -39,6 +39,16 @@ export const ValidationResultSchema = z.object({
 });
 export type ValidationResult = z.infer<typeof ValidationResultSchema>;
 
+// Validación de la foto de COLORIMETRÍA. A diferencia del outfit, acá la foto
+// tiene que servir para leer la coloración (cara, piel, pelo, ojos). No hay
+// "partial": o la foto permite un análisis confiable o no.
+export const ColorimetryValidationResultSchema = z.object({
+  verdict: z.enum(["valid", "invalid"]),
+  issues: z.array(z.string()),
+  reason: z.string().nullable(),
+});
+export type ColorimetryValidationResult = z.infer<typeof ColorimetryValidationResultSchema>;
+
 const categoryKeys = SCORE_CATEGORIES.map((c) => c.key) as [CategoryKey, ...CategoryKey[]];
 
 export const ScoringCategorySchema = z.object({
