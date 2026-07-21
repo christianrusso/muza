@@ -7,6 +7,8 @@ export interface DigestResult {
   candidates: number;
   sent: number;
   failed: number;
+  /** Razón del primer fallo, para diagnóstico rápido desde la respuesta del cron. */
+  firstError?: string;
 }
 
 /**
@@ -23,18 +25,20 @@ export async function runActivityDigest(): Promise<DigestResult> {
   const rows = (data ?? []) as unknown as DigestRow[];
   let sent = 0;
   let failed = 0;
+  let firstError: string | undefined;
 
   for (const row of rows) {
     const mail = buildDigestEmail(row);
-    const ok = await sendEmail({
+    const res = await sendEmail({
       to: row.email,
       subject: mail.subject,
       html: mail.html,
       text: mail.text,
       unsubscribeUrl: mail.unsubscribeUrl,
     });
-    if (!ok) {
+    if (!res.ok) {
       failed++;
+      if (!firstError) firstError = res.error;
       continue;
     }
     // Avanzar la marca de este usuario. now() del servidor: la actividad que
@@ -51,5 +55,5 @@ export async function runActivityDigest(): Promise<DigestResult> {
     sent++;
   }
 
-  return { candidates: rows.length, sent, failed };
+  return { candidates: rows.length, sent, failed, firstError };
 }

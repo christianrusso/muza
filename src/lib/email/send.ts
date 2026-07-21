@@ -19,12 +19,19 @@ export interface EmailMessage {
   unsubscribeUrl?: string;
 }
 
-export async function sendEmail(msg: EmailMessage): Promise<boolean> {
+export interface SendResult {
+  ok: boolean;
+  /** Razón del fallo, para diagnóstico. Ausente si ok. */
+  error?: string;
+}
+
+export async function sendEmail(msg: EmailMessage): Promise<SendResult> {
   const apiKey = process.env.SENDGRID_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) {
-    console.warn(`[looklab] email no enviado (falta SENDGRID_API_KEY/EMAIL_FROM): "${msg.subject}" → ${msg.to}`);
-    return false;
+    const missing = [!apiKey && "SENDGRID_API_KEY", !from && "EMAIL_FROM"].filter(Boolean).join(" y ");
+    console.warn(`[looklab] email no enviado (falta ${missing}): "${msg.subject}" → ${msg.to}`);
+    return { ok: false, error: `config faltante: ${missing}` };
   }
 
   const headers: Record<string, string> = {};
@@ -56,7 +63,7 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     console.error(`[looklab] SendGrid ${res.status} enviando a ${msg.to}: ${body.slice(0, 300)}`);
-    return false;
+    return { ok: false, error: `SendGrid ${res.status}: ${body.slice(0, 200)}` };
   }
-  return true;
+  return { ok: true };
 }
