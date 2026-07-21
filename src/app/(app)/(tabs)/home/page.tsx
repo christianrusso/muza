@@ -199,11 +199,10 @@ export default async function HomePage() {
 
       <NewAnalysisCard />
 
-      {/* Próximamente: no es un botón — no navega ni se puede tocar. Está para
-          anticipar la feature (borde punteado + candado), no para usarse. */}
-      <div
-        className="flex items-center gap-3.5 rounded-[20px] border-2 border-dashed border-line-strong px-[18px] py-4"
-        aria-disabled="true"
+      {/* Entrada a colorimetría. El flujo (subir foto → resultado) ya existe. */}
+      <Link
+        href="/colorimetry"
+        className="flex items-center gap-3.5 rounded-[20px] border-2 border-line-strong px-[18px] py-4 transition-colors hover:border-[var(--violet)]"
       >
         <span
           className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-2xl"
@@ -212,17 +211,11 @@ export default async function HomePage() {
           <MaterialIcon name="palette" size={26} className="text-[var(--violet)]" />
         </span>
         <span className="flex flex-1 flex-col items-start gap-0.5">
-          <span className="text-[17px] font-extrabold text-muted">Generar colorimetría</span>
+          <span className="text-[17px] font-extrabold text-ink">Generar colorimetría</span>
           <span className="text-xs font-semibold text-faint">Descubrí tu paleta ideal</span>
         </span>
-        <span
-          className="flex flex-none items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide"
-          style={{ background: "var(--violet-soft)", color: "var(--violet)" }}
-        >
-          <MaterialIcon name="lock" size={13} />
-          Próximamente
-        </span>
-      </div>
+        <MaterialIcon name="chevron_right" size={22} className="flex-none text-muted" />
+      </Link>
     </div>
   );
 }
