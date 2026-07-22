@@ -55,22 +55,17 @@ function UserRow({ u }: { u: AdminUser }) {
           </div>
         </div>
       </td>
-      <td className="px-3 py-3">
-        <span
-          className={
-            u.plan_tier === "pro"
-              ? "rounded bg-coral/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-coral"
-              : "text-xs text-faint"
-          }
-        >
-          {u.plan_tier}
-        </span>
-      </td>
       <td className="px-3 py-3 text-sm text-muted">{date(u.created_at)}</td>
-      <Num value={u.analyses} />
-      <td className="px-3 py-3 text-right text-sm tabular-nums text-muted">
-        {u.avg_score ?? <span className="text-faint">—</span>}
+      <td className="px-3 py-3">
+        {u.has_colorimetry ? (
+          <span className="rounded bg-coral/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-coral">
+            Sí
+          </span>
+        ) : (
+          <span className="text-xs text-faint">No</span>
+        )}
       </td>
+      <Num value={u.analyses} />
       <Num value={u.posts} />
       <Num value={u.comments} />
       <Num value={u.votes} />
@@ -183,10 +178,9 @@ export default async function AdminUsersPage({
             <thead className="border-b border-line">
               <tr>
                 <Th sticky>Usuario</Th>
-                <Th>Plan</Th>
                 <Th>Registro</Th>
+                <Th>Colorimetría</Th>
                 <Th right>Fotos</Th>
-                <Th right>Score</Th>
                 <Th right>Posts</Th>
                 <Th right>Coment.</Th>
                 <Th right>Votos emit.</Th>

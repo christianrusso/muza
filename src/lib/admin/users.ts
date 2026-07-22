@@ -26,6 +26,9 @@ export type AdminUser = {
   followers: number;
   following: number;
   ai_cost_usd: number;
+  // Se cuenta aparte de admin_users_list() (ver getAdminUsers) para no tocar la
+  // función SQL / migrar. Es una colorimetría por usuario, así que basta el bool.
+  has_colorimetry: boolean;
 };
 
 export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
@@ -37,7 +40,21 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
   if (error) {
     throw new Error(`admin_users_list falló: ${error.message}`);
   }
-  return (data ?? []) as unknown as AdminUser[];
+  const users = (data ?? []) as unknown as Omit<AdminUser, "has_colorimetry">[];
+  if (users.length === 0) return [];
+
+  // Quién de los usuarios listados tiene colorimetría (una consulta acotada a los
+  // ids en pantalla, no toda la tabla).
+  const { data: colorims } = await admin
+    .from("colorimetries")
+    .select("user_id")
+    .in(
+      "user_id",
+      users.map((u) => u.id),
+    );
+  const withColorimetry = new Set((colorims ?? []).map((c) => c.user_id));
+
+  return users.map((u) => ({ ...u, has_colorimetry: withColorimetry.has(u.id) }));
 }
 
 // ---------------------------------------------------------------------------
@@ -68,7 +85,7 @@ export type AdminUserAnalysis = {
 // 0021 los agrega, pero el tipo los deja opcionales igual: entre que se deploya
 // el código y se aplica la migración, la función vieja sigue viva. Marcarlos
 // opcionales obliga a manejar ese hueco en vez de confiar en que ya está.
-type DetailLateField = "analyses_valid" | "likes_given" | "last_analysis_at";
+type DetailLateField = "analyses_valid" | "likes_given" | "last_analysis_at" | "has_colorimetry";
 
 export type AdminUserDetailUser = Omit<AdminUser, DetailLateField> &
   Partial<Pick<AdminUser, DetailLateField>>;
