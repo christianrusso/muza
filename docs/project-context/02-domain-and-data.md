@@ -72,6 +72,10 @@ Generar la colorimetría tiene costo de IA, así que está detrás de un **gate 
 
 El share es un **gate blando**: compartir un score externo (WhatsApp/IG) no es verificable en el server, así que el flag `first_shared_at` lo setea el cliente vía `POST /api/me/shared` cuando el usuario toca compartir en el resultado (idempotente: solo la primera vez). La intención es empujar shares reales, no impedir el bypass. Antes el gate pedía además subir un post y comentar; se sacaron para bajar fricción y medir demanda real de colorimetría.
 
+### Reto del día
+
+`daily_challenges` es un reto **global por día** (`challenge_date` PK): 3 looks de la comunidad de la misma ocasión (`look_ids`, orden barajado) y el `winner_post_id` (el de mayor score IA). Se genera on-demand con service-role la primera vez que alguien lo abre en el día; lectura pública (el invitado juega). `challenge_attempts` guarda la respuesta del usuario (`picked_post_id`, `correct`), única por `(user, challenge_date)`, sin update. Los scores no se guardan: se leen de `community_feed_view` al revelar. Racha = días jugados consecutivos. Ver [`specs/feat-3-reto-del-dia/`](../../specs/feat-3-reto-del-dia/README.md).
+
 ### Planes
 
 `profiles.plan_tier` distingue `free` y `pro`. En el lanzamiento ambos tienen análisis e historial ilimitados desde `src/lib/plans/limits.ts`; los valores de límites y precio son placeholders para monetización futura.
@@ -105,6 +109,8 @@ ocultamiento público de comentarios mediante `hidden_at`.
 Las migraciones `0031_colorimetries.sql` y `0032_colorimetry_photos.sql` agregan la
 colorimetría (una por usuario) y sus fotos. `0033_profile_first_shared.sql` agrega
 `profiles.first_shared_at` para el gate blando de colorimetría por share.
+`0034_daily_challenges.sql` agrega el Reto del día (`daily_challenges` global +
+`challenge_attempts` por usuario).
 
 ## Storage
 

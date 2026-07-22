@@ -12,6 +12,7 @@ import { hasColorimetry as userHasColorimetry } from "@/lib/colorimetry/store";
 import { ScoreRing } from "@/components/analysis/ScoreRing";
 import { AnalysisTypePill } from "@/components/analysis/AnalysisTypePill";
 import { NewAnalysisCard } from "@/components/analysis/NewAnalysisCard";
+import { ChallengeCard } from "@/components/challenge/ChallengeCard";
 import type { AnalysisType, OccasionId } from "@/types/domain";
 
 async function loadHomeData() {
@@ -142,6 +143,8 @@ export default async function HomePage() {
           />
         )}
       </div>
+
+      <ChallengeCard />
 
       {latest ? (
         <div className="card p-4" style={{ boxShadow: "0 12px 30px -18px rgba(20,18,16,.25)" }}>

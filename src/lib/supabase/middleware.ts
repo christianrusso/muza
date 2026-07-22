@@ -35,6 +35,12 @@ function isPublicPath(pathname: string): boolean {
   // valor). El muro salta recién al tocar "nuevo análisis" — /analysis/new sigue
   // privada porque ahí arranca el flujo que termina en una llamada paga a la IA.
   if (pathname === "/home") return true;
+  // Reto del día: el invitado puede jugarlo entero (es el gancho de adquisición).
+  // El muro salta recién al querer guardar la racha (ver ChallengeGame). El POST
+  // de respuesta revela sin persistir para invitados, así que también es público:
+  // sin esto, el fetch del invitado se redirige a /welcome y el juego no revela.
+  if (pathname === "/challenge") return true;
+  if (pathname === "/api/challenge/answer") return true;
   // Ojo: /community/user/<id> NO es pública. El perfil muestra el portfolio de
   // looks con sus scores, así que dejar entrar a un invitado le permitiría
   // saltearse el juego del deck ("adiviná el score") sin votar. Los links a

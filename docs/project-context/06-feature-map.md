@@ -14,6 +14,7 @@
 | Perfil/configuración | Implementado | `src/app/(app)/profile`, `src/components/profile` | `03-product-and-business.md` |
 | Placard (guardarropa) | UI mock, gateado por allowlist (`PLACARD_TESTERS`); resto ve "Próximamente" | `src/app/(app)/(tabs)/placard`, `src/app/(app)/placard`, `src/lib/placard/*` | — |
 | Colorimetría | Implementado, gateado por participación (compartir un look + 5 votos) | `src/app/(app)/colorimetry`, `src/lib/colorimetry/*`, `src/app/api/colorimetry` | `02-domain-and-data.md` |
+| Reto del día | Implementado (retención): juego diario "¿a cuál le dio mejor score la IA?" | `src/app/(app)/challenge`, `src/lib/challenge/*`, `src/components/challenge/*` | `specs/feat-3-reto-del-dia/` |
 | Modo invitado | Implementado | `src/components/community/GuestGate`, `src/lib/viewer` | `03-product-and-business.md`, marketing |
 | Modo demo | Implementado | `src/lib/demo*`, `src/lib/demoStore` | `01-architecture.md` |
 | Admin métricas | Implementado | `src/app/admin`, `src/lib/admin/metrics` | `01-architecture.md` |
@@ -24,6 +25,7 @@
 ## Specs SDD
 
 - [Feature 1 — Reportar comentarios](../../specs/feat-1-report-comment/README.md)
+- [Feature 3 — Reto del día](../../specs/feat-3-reto-del-dia/README.md)
 
 ## Documentos históricos o especializados
 

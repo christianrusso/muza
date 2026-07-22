@@ -73,7 +73,7 @@ export default async function ColorimetryResultPage() {
         >
           <div className="absolute left-5 right-5 top-[58px] flex items-center justify-between">
             <Link
-              href="/colorimetry"
+              href="/home"
               className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/25 backdrop-blur-sm"
               aria-label="Volver"
             >
