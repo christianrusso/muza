@@ -1,13 +1,23 @@
 name: Activity digest email
 
+# Dispara el digest de actividad pegando al endpoint del cron en producción.
+# Reemplaza al cron de Vercel, que en el plan Hobby corre como mucho 1 vez/día a
+# una hora impredecible (no sirve para las 2 franjas). GitHub Actions sí respeta
+# el horario. El endpoint valida el header Authorization: Bearer <CRON_SECRET>.
+#
+# Requiere en el repo (Settings → Secrets and variables → Actions):
+#   Secret   CRON_SECRET       — el mismo valor que en las env vars de Vercel
+#   Variable DIGEST_BASE_URL   — URL de prod sin barra final (ej: https://looklab.io)
+
 on:
   schedule:
-    - cron: "0 13 * * *"  # 13:00 UTC (10:00 AR)
-    - cron: "0 20 * * *"  # 20:00 UTC (17:00 AR)
+    # NOTA: cron de GitHub Actions es SIEMPRE en UTC. Coincide con vercel.json.
+    - cron: "0 13 * * *" # 13:00 UTC (10:00 AR) — franja 1
+    - cron: "0 20 * * *" # 20:00 UTC (17:00 AR) — franja 2
   workflow_dispatch:
     inputs:
       all:
-        description: "Procesar TODOS los candidatos sin filtrar por franja"
+        description: "Procesar TODOS los candidatos sin filtrar por franja (útil para envío manual inmediato)"
         type: boolean
         default: false
 
@@ -26,12 +36,22 @@ jobs:
           FORCE_ALL: ${{ github.event.inputs.all }}
         run: |
           set -euo pipefail
-          if [ -z "${CRON_SECRET:-}" ]; then echo "::error::Falta CRON_SECRET"; exit 1; fi
-          if [ -z "${BASE_URL:-}" ]; then echo "::error::Falta DIGEST_BASE_URL"; exit 1; fi
+          if [ -z "${CRON_SECRET:-}" ]; then echo "::error::Falta el secret CRON_SECRET"; exit 1; fi
+          if [ -z "${BASE_URL:-}" ]; then echo "::error::Falta la variable DIGEST_BASE_URL"; exit 1; fi
+
           URL="${BASE_URL%/}/api/cron/activity-digest"
+          # En dispatch manual con all=true se saltea el filtro de franja.
           if [ "${FORCE_ALL:-false}" = "true" ]; then URL="${URL}?all=1"; fi
           echo "→ GET ${URL}"
+
           BODY=$(mktemp)
-          CODE=$(curl -sS -o "$BODY" -w "%{http_code}" -H "Authorization: Bearer ${CRON_SECRET}" "${URL}")
-          echo "HTTP ${CODE}"; cat "$BODY"; echo
-          if [ "${CODE}" -lt 200 ] || [ "${CODE}" -ge 300 ]; then echo "::error::HTTP ${CODE}"; exit 1; fi
+          CODE=$(curl -sS -o "$BODY" -w "%{http_code}" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${URL}")
+
+          echo "HTTP ${CODE}"
+          echo "Respuesta:"; cat "$BODY"; echo
+          # 2xx = ok. Cualquier otra cosa marca el run como fallido.
+          if [ "${CODE}" -lt 200 ] || [ "${CODE}" -ge 300 ]; then
+            echo "::error::El endpoint devolvió ${CODE}"; exit 1
+          fi
