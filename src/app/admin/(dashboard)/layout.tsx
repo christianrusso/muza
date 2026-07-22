@@ -18,7 +18,7 @@ export default async function AdminDashboardLayout({
   return (
     <div className="min-h-full flex-1 bg-paper">
       <header className="sticky top-0 z-10 border-b border-line bg-paper/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
           <div className="flex items-baseline gap-2">
             <span className="text-xs font-semibold uppercase tracking-widest text-coral">
               LookLab
@@ -31,7 +31,7 @@ export default async function AdminDashboardLayout({
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-[1600px] px-6 py-8">{children}</main>
     </div>
   );
 }
