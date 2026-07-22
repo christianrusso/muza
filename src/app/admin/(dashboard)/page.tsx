@@ -201,6 +201,16 @@ function Dashboard({ m }: { m: AdminMetrics }) {
         </div>
       </Section>
 
+      <Section title="Colorimetría">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCard
+            label="Con colorimetría"
+            value={fmt(m.colorimetry.users)}
+            hint={`${pct(m.colorimetry.users, m.users.total)} de los registrados`}
+          />
+        </div>
+      </Section>
+
       <Section title="Embudo de activación">
         <div className="rounded-2xl border border-line bg-card p-5">
           <div className="space-y-3">

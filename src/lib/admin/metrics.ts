@@ -25,14 +25,21 @@ export type AdminMetrics = {
     distinct_posters: number;
   };
   top_posts: { name: string; caption: string | null; likes: number; created_at: string }[];
+  // Cuánta gente completó su colorimetría (una por usuario → filas de la tabla).
+  // Se cuenta aparte de admin_metrics() para no tocar la función SQL / migrar.
+  colorimetry: { users: number };
 };
 
 export async function getAdminMetrics(): Promise<AdminMetrics> {
   const admin = createAdminClient();
   // admin_metrics no está en los tipos generados de la DB; cast puntual.
-  const { data, error } = await admin.rpc("admin_metrics" as never);
-  if (error) {
-    throw new Error(`admin_metrics falló: ${error.message}`);
+  const [metricsRes, colorimetryRes] = await Promise.all([
+    admin.rpc("admin_metrics" as never),
+    admin.from("colorimetries").select("*", { count: "exact", head: true }),
+  ]);
+  if (metricsRes.error) {
+    throw new Error(`admin_metrics falló: ${metricsRes.error.message}`);
   }
-  return data as unknown as AdminMetrics;
+  const metrics = metricsRes.data as unknown as AdminMetrics;
+  return { ...metrics, colorimetry: { users: colorimetryRes.count ?? 0 } };
 }

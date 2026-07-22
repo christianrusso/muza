@@ -28,7 +28,11 @@ export type FunnelEvent =
   | "shared"
   | "published"
   | "voted"
-  | "followed";
+  | "followed"
+  // Colorimetría: cuánta gente quiso generarla pero cayó en el muro de requisitos
+  // de comunidad. El denominador (los que abrieron /colorimetry) sale del
+  // $pageview que PostHog captura solo. Las props llevan cuánto les faltaba.
+  | "colorimetry_blocked";
 
 export function track(event: FunnelEvent, properties?: Record<string, unknown>) {
   try {

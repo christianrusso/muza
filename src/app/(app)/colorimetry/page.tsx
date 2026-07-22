@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BackButton } from "@/components/navigation/TopBar";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { ProfileAvatarLink } from "@/components/colorimetry/ProfileAvatarLink";
+import { ColorimetryBlockedTracker } from "@/components/colorimetry/ColorimetryBlockedTracker";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
 import { hasColorimetry } from "@/lib/colorimetry/store";
@@ -88,6 +89,7 @@ function ColorimetryGate({ eligibility }: { eligibility: ColorimetryEligibility 
 
   return (
     <>
+      <ColorimetryBlockedTracker progress={eligibility.progress} />
       <div className="flex flex-1 flex-col justify-center">
         <div className="text-center">
           <span
