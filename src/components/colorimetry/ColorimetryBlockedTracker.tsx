@@ -4,23 +4,22 @@ import { useEffect, useRef } from "react";
 import { track } from "@/lib/analytics";
 
 type Progress = {
-  posts: { have: number; need: number };
-  comments: { have: number; need: number };
+  shares: { have: number; need: number };
   votes: { have: number; need: number };
 };
 
 // Dispara `colorimetry_blocked` una sola vez cuando se le muestra el muro de
 // requisitos al usuario. No renderiza nada; va dentro del muro (server component).
+// Las props dicen cuánto le faltaba de cada requisito (compartir / votar), para
+// ver qué muro convierte y qué queda como cuello de botella.
 export function ColorimetryBlockedTracker({ progress }: { progress: Progress }) {
   const fired = useRef(false);
   useEffect(() => {
     if (fired.current) return;
     fired.current = true;
     track("colorimetry_blocked", {
-      posts_have: progress.posts.have,
-      posts_need: progress.posts.need,
-      comments_have: progress.comments.have,
-      comments_need: progress.comments.need,
+      shares_have: progress.shares.have,
+      shares_need: progress.shares.need,
       votes_have: progress.votes.have,
       votes_need: progress.votes.need,
     });

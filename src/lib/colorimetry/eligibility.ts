@@ -4,57 +4,49 @@ import type { createClient } from "@/lib/supabase/server";
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 // Generar la colorimetría tiene costo (IA de visión + imágenes). Para abrirla al
-// público sin fundirnos, pedimos participación mínima en la comunidad: es un
-// "pagás ayudando a la comunidad". Como la colorimetría es una sola por usuario,
-// el chequeo va al momento de generarla; una vez que la tiene, la ve siempre.
+// público sin fundirnos, pedimos dos cosas: COMPARTIR un look (trae gente nueva —
+// es el "pagás trayendo") y una participación mínima votando en la comunidad.
+// Antes pedíamos también subir un post y comentar; los sacamos para bajar la
+// fricción y por fin medir demanda real de colorimetría. Como es una sola por
+// usuario, el chequeo va al momento de generarla; una vez que la tiene, la ve
+// siempre.
 export const COLORIMETRY_REQUIREMENTS = {
-  posts: 1, // fotos subidas a la comunidad
-  comments: 1, // comentarios hechos
+  shares: 1, // compartir un look al menos una vez (gate blando: profiles.first_shared_at)
   votes: 5, // votos dados
 } as const;
 
 export type ColorimetryEligibility = {
   eligible: boolean;
   progress: {
-    posts: { have: number; need: number };
-    comments: { have: number; need: number };
+    shares: { have: number; need: number };
     votes: { have: number; need: number };
   };
 };
 
 /**
- * Cuenta la participación del usuario en la comunidad y la compara contra los
- * requisitos. Devuelve el progreso por requisito para poder mostrar el checklist.
+ * Cuenta la participación del usuario y la compara contra los requisitos.
+ * `shares` sale del flag first_shared_at del perfil (0/1); `votes` cuenta filas.
+ * Devuelve el progreso por requisito para poder mostrar el checklist.
  */
 export async function getColorimetryEligibility(
   supabase: SupabaseServerClient,
   userId: string,
 ): Promise<ColorimetryEligibility> {
-  const [postsRes, commentsRes, votesRes] = await Promise.all([
-    supabase.from("community_posts").select("*", { count: "exact", head: true }).eq("user_id", userId),
-    // Los comentarios ocultos (soft-delete) no cuentan.
-    supabase
-      .from("post_comments")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .is("hidden_at", null),
+  const [profileRes, votesRes] = await Promise.all([
+    supabase.from("profiles").select("first_shared_at").eq("id", userId).single(),
     supabase.from("post_votes").select("*", { count: "exact", head: true }).eq("user_id", userId),
   ]);
 
-  const posts = postsRes.count ?? 0;
-  const comments = commentsRes.count ?? 0;
+  const shares = profileRes.data?.first_shared_at ? 1 : 0;
   const votes = votesRes.count ?? 0;
 
   const eligible =
-    posts >= COLORIMETRY_REQUIREMENTS.posts &&
-    comments >= COLORIMETRY_REQUIREMENTS.comments &&
-    votes >= COLORIMETRY_REQUIREMENTS.votes;
+    shares >= COLORIMETRY_REQUIREMENTS.shares && votes >= COLORIMETRY_REQUIREMENTS.votes;
 
   return {
     eligible,
     progress: {
-      posts: { have: posts, need: COLORIMETRY_REQUIREMENTS.posts },
-      comments: { have: comments, need: COLORIMETRY_REQUIREMENTS.comments },
+      shares: { have: shares, need: COLORIMETRY_REQUIREMENTS.shares },
       votes: { have: votes, need: COLORIMETRY_REQUIREMENTS.votes },
     },
   };

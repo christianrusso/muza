@@ -79,13 +79,22 @@ export default async function ColorimetryPage() {
 }
 
 // Muro "ayudanos primero": el servicio es gratis, pero para desbloquearlo pedimos
-// una participación mínima en la comunidad. Checklist con progreso en vivo.
+// compartir un look (trae gente nueva) y votar en la comunidad. Checklist con
+// progreso en vivo. El CTA apunta a lo que le falta: si le falta compartir, lo
+// mandamos a elegir un análisis y compartirlo; si no, a votar en la comunidad.
 function ColorimetryGate({ eligibility }: { eligibility: ColorimetryEligibility }) {
+  const { shares, votes } = eligibility.progress;
+  const sharesDone = shares.have >= shares.need;
   const items: { icon: string; label: string; have: number; need: number }[] = [
-    { icon: "photo_camera", label: "Subir fotos a la comunidad", ...eligibility.progress.posts },
-    { icon: "chat_bubble", label: "Comentar publicaciones", ...eligibility.progress.comments },
-    { icon: "favorite", label: "Votar looks de otros", ...eligibility.progress.votes },
+    { icon: "ios_share", label: "Compartí un look tuyo", ...shares },
+    { icon: "favorite", label: "Votar looks de otros", ...votes },
   ];
+
+  // Si lo único que falta es compartir, guiamos al home a elegir y compartir un
+  // análisis; si todavía faltan votos, el camino es la comunidad.
+  const cta = !sharesDone
+    ? { href: "/home", icon: "ios_share", label: "Compartí tu look" }
+    : { href: "/community", icon: "groups", label: "Ir a la comunidad" };
 
   return (
     <>
@@ -103,8 +112,8 @@ function ColorimetryGate({ eligibility }: { eligibility: ColorimetryEligibility 
           </h1>
           <p className="mt-3 text-[15px] font-semibold leading-relaxed text-muted">
             Este servicio es <span className="text-ink">totalmente gratis</span>. Solo te
-            pedimos que primero nos des una mano en la comunidad. Cuando completes esto, se
-            desbloquea:
+            pedimos compartir un look y sumar unos votos en la comunidad. Cuando completes
+            esto, se desbloquea:
           </p>
         </div>
 
@@ -139,9 +148,9 @@ function ColorimetryGate({ eligibility }: { eligibility: ColorimetryEligibility 
         </div>
       </div>
 
-      <Link href="/community" className="btn btn-violet">
-        <MaterialIcon name="groups" size={20} />
-        Ir a la comunidad
+      <Link href={cta.href} className="btn btn-violet">
+        <MaterialIcon name={cta.icon} size={20} />
+        {cta.label}
       </Link>
     </>
   );
