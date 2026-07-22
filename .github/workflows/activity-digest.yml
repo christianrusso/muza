@@ -1,0 +1,37 @@
+name: Activity digest email
+
+on:
+  schedule:
+    - cron: "0 13 * * *"  # 13:00 UTC (10:00 AR)
+    - cron: "0 20 * * *"  # 20:00 UTC (17:00 AR)
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Procesar TODOS los candidatos sin filtrar por franja"
+        type: boolean
+        default: false
+
+concurrency:
+  group: activity-digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger digest endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BASE_URL: ${{ vars.DIGEST_BASE_URL }}
+          FORCE_ALL: ${{ github.event.inputs.all }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then echo "::error::Falta CRON_SECRET"; exit 1; fi
+          if [ -z "${BASE_URL:-}" ]; then echo "::error::Falta DIGEST_BASE_URL"; exit 1; fi
+          URL="${BASE_URL%/}/api/cron/activity-digest"
+          if [ "${FORCE_ALL:-false}" = "true" ]; then URL="${URL}?all=1"; fi
+          echo "→ GET ${URL}"
+          BODY=$(mktemp)
+          CODE=$(curl -sS -o "$BODY" -w "%{http_code}" -H "Authorization: Bearer ${CRON_SECRET}" "${URL}")
+          echo "HTTP ${CODE}"; cat "$BODY"; echo
+          if [ "${CODE}" -lt 200 ] || [ "${CODE}" -ge 300 ]; then echo "::error::HTTP ${CODE}"; exit 1; fi
