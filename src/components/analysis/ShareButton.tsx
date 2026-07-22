@@ -5,12 +5,34 @@ import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { Spinner } from "@/components/ui/Spinner";
 import { track } from "@/lib/analytics";
 
-// Botón de compartir del header del resultado. Comparte la TARJETA del score como
-// imagen (PNG generado en /api/analyses/<id>/share-card): en mobile abre el share
-// sheet nativo con la imagen adjunta, así se puede mandar directo a WhatsApp o a
-// una historia de Instagram. En desktop (sin Web Share de archivos) descarga la
-// imagen para guardarla y postearla a mano.
-export function ShareButton({ analysisId }: { analysisId: string }) {
+// Marca el gate blando de colorimetría: el usuario compartió al menos una vez.
+// Fire-and-forget: si falla, el share ya sucedió y no queremos molestar. Idempotente
+// del lado del server (solo escribe la primera vez).
+function markShared() {
+  try {
+    void fetch("/api/me/shared", { method: "POST" });
+  } catch {
+    // no-op
+  }
+}
+
+// Botón de compartir del resultado. Comparte la TARJETA del score como imagen
+// (PNG generado en /api/analyses/<id>/share-card): en mobile abre el share sheet
+// nativo con la imagen adjunta, así se puede mandar directo a WhatsApp o a una
+// historia de Instagram. En desktop (sin Web Share de archivos) descarga la imagen
+// para guardarla y postearla a mano.
+//
+// variant:
+//   "icon" — el iconito del header (compacto).
+//   "full" — botón grande con label, para hacerlo visible en la tarjeta del score
+//            (compartir movía apenas 1 de 77; el iconito pasaba desapercibido).
+export function ShareButton({
+  analysisId,
+  variant = "icon",
+}: {
+  analysisId: string;
+  variant?: "icon" | "full";
+}) {
   const [toast, setToast] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -36,6 +58,7 @@ export function ShareButton({ analysisId }: { analysisId: string }) {
         try {
           await navigator.share({ files: [file], title: "LookLab.io — Mi Outfit Score" });
           track("shared", { method: "native_share" });
+          markShared();
         } catch {
           // el usuario canceló el share sheet — nada que hacer
         }
@@ -52,6 +75,7 @@ export function ShareButton({ analysisId }: { analysisId: string }) {
       a.remove();
       URL.revokeObjectURL(url);
       track("shared", { method: "download" });
+      markShared();
       flash("Imagen descargada");
     } catch {
       flash("No se pudo generar la imagen");
@@ -62,16 +86,28 @@ export function ShareButton({ analysisId }: { analysisId: string }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleShare}
-        disabled={busy}
-        aria-label="Compartir"
-        className="flex h-[38px] w-[38px] items-center justify-center rounded-full disabled:opacity-90"
-        style={{ background: "rgba(247,245,240,.9)" }}
-      >
-        {busy ? <Spinner size={18} /> : <MaterialIcon name="ios_share" size={20} />}
-      </button>
+      {variant === "full" ? (
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={busy}
+          className="btn btn-outline w-full disabled:opacity-90"
+        >
+          {busy ? <Spinner size={18} /> : <MaterialIcon name="ios_share" size={20} />}
+          Compartí tu Outfit Score
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={busy}
+          aria-label="Compartir"
+          className="flex h-[38px] w-[38px] items-center justify-center rounded-full disabled:opacity-90"
+          style={{ background: "rgba(247,245,240,.9)" }}
+        >
+          {busy ? <Spinner size={18} /> : <MaterialIcon name="ios_share" size={20} />}
+        </button>
+      )}
       {toast && (
         <div
           className="fixed inset-x-0 bottom-8 z-50 flex justify-center"

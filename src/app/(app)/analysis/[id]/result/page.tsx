@@ -114,6 +114,14 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             <MaterialIcon name="verified" size={15} />
             {scoreLevelLabel(analysis.overallScore)}
           </span>
+
+          {/* Share externo (imagen para WhatsApp/IG) prominente: el iconito del
+              header pasaba desapercibido (movía 1 de 77). Acá, justo debajo del
+              score, es el momento de máximo orgullo para compartir. Además
+              desbloquea el gate de colorimetría. */}
+          <div className="mt-5 w-full">
+            <ShareButton analysisId={id} variant="full" />
+          </div>
         </div>
 
         {fortalezas.length > 0 && (

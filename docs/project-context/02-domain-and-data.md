@@ -4,7 +4,7 @@
 
 ### Perfil y autenticación
 
-Supabase Auth es la fuente de identidad. `public.profiles` se crea mediante trigger al crear un usuario y contiene nombre, avatar, género, preferencias, plan y estado de bloqueo.
+Supabase Auth es la fuente de identidad. `public.profiles` se crea mediante trigger al crear un usuario y contiene nombre, avatar, género, preferencias, plan, estado de bloqueo y `first_shared_at` (primera vez que compartió un look; alimenta el gate de colorimetría).
 
 El onboarding guarda una de estas preferencias:
 
@@ -61,6 +61,17 @@ La comunidad tiene lectura pública de posts/fotos mediante views y Storage; com
 
 La actividad se deriva de likes, comentarios y follows sobre los posts del usuario. `profiles.activity_seen_at` y `unread_activity_count()` sostienen el badge de no leídas.
 
+### Colorimetría
+
+`colorimetries` es **una por usuario** (`unique(user_id)`): describe la coloración natural (temporada, subtono, paleta, recomendaciones) guardada como `jsonb`. Regenerarla hace upsert, no acumula. Las fotos de origen viven en `colorimetry_photos` (bucket privado).
+
+Generar la colorimetría tiene costo de IA, así que está detrás de un **gate de participación** (`src/lib/colorimetry/eligibility.ts`). Requisitos actuales para desbloquearla:
+
+- **Compartir un look** al menos una vez (`profiles.first_shared_at` no nulo).
+- **5 votos** en la comunidad (`post_votes`).
+
+El share es un **gate blando**: compartir un score externo (WhatsApp/IG) no es verificable en el server, así que el flag `first_shared_at` lo setea el cliente vía `POST /api/me/shared` cuando el usuario toca compartir en el resultado (idempotente: solo la primera vez). La intención es empujar shares reales, no impedir el bypass. Antes el gate pedía además subir un post y comentar; se sacaron para bajar fricción y medir demanda real de colorimetría.
+
 ### Planes
 
 `profiles.plan_tier` distingue `free` y `pro`. En el lanzamiento ambos tienen análisis e historial ilimitados desde `src/lib/plans/limits.ts`; los valores de límites y precio son placeholders para monetización futura.
@@ -91,6 +102,9 @@ Las migraciones son acumulativas y se aplican en orden numérico. Resumen:
 Una nueva feature de datos debe agregar una migración nueva, nunca editar una migración histórica ya aplicada.
 La migración `0022_comment_reports.sql` agrega reportes, categorías, RPCs atómicas y
 ocultamiento público de comentarios mediante `hidden_at`.
+Las migraciones `0031_colorimetries.sql` y `0032_colorimetry_photos.sql` agregan la
+colorimetría (una por usuario) y sus fotos. `0033_profile_first_shared.sql` agrega
+`profiles.first_shared_at` para el gate blando de colorimetría por share.
 
 ## Storage
 

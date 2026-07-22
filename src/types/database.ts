@@ -24,6 +24,8 @@ export interface Database {
           // Digest de actividad por email (ver migración 0027).
           last_activity_email_at: string;
           unsubscribe_token: string;
+          // Primera vez que compartió un look; gate blando de colorimetría (migración 0033).
+          first_shared_at: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string; full_name: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
