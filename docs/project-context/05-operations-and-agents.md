@@ -97,6 +97,13 @@ No ejecutar seeds ni migraciones destructivas contra producción sin confirmaci�
 
 Nunca documentar valores secretos reales. `.env.local` es sólo local y no debe entrar en commits.
 
+## Runbooks
+
+- [Email digest de actividad](./runbooks/activity-digest-email.md) — cómo se envía
+  el digest de retención: lo agenda **GitHub Actions** (`.github/workflows/activity-digest.yml`),
+  no el cron de Vercel; gate de 44h; cómo dispararlo a mano; `CRON_SECRET` /
+  `DIGEST_BASE_URL`; troubleshooting.
+
 ## Flujo de cambios de base de datos
 
 1. Crear una migración numerada nueva en `supabase/migrations/`.
