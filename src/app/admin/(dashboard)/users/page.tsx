@@ -72,6 +72,7 @@ function UserRow({ u }: { u: AdminUser }) {
       <Num value={u.votes_received} />
       <Num value={u.likes_received} />
       <Num value={u.followers} />
+      <Num value={u.challenges} />
       <td className="px-3 py-3 text-sm text-muted">{date(u.last_analysis_at)}</td>
       <td className="px-3 py-3 text-right text-xs tabular-nums text-faint">
         ${Number(u.ai_cost_usd).toFixed(2)}
@@ -174,7 +175,7 @@ export default async function AdminUsersPage({
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-line bg-card">
-          <table className="w-full min-w-[1200px] border-collapse">
+          <table className="w-full min-w-[1320px] border-collapse">
             <thead className="border-b border-line">
               <tr>
                 <Th sticky>Usuario</Th>
@@ -187,6 +188,7 @@ export default async function AdminUsersPage({
                 <Th right>Votos recib.</Th>
                 <Th right>♥ recib.</Th>
                 <Th right>Seguid.</Th>
+                <Th right>Retos</Th>
                 <Th>Últ. foto</Th>
                 <Th right>Costo IA</Th>
                 <Th right>Acción</Th>
