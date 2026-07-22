@@ -224,7 +224,14 @@ export function ChallengeGame({
                 Guardá tu racha
               </button>
             )}
-            <p className="mt-1 text-center text-xs font-semibold text-faint">
+            <Link
+              href="/home"
+              className="mt-1 flex items-center justify-center gap-1.5 py-1.5 text-sm font-bold text-ink"
+            >
+              <MaterialIcon name="close" size={18} />
+              Cerrar
+            </Link>
+            <p className="text-center text-xs font-semibold text-faint">
               Mañana hay un reto nuevo.
             </p>
           </div>

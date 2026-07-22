@@ -145,6 +145,18 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <Stat label="Siguiendo" value={fmt(u.following)} />
       </div>
 
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-widest text-faint">
+        Reto del día
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat label="Retos jugados" value={fmt(u.challenges)} />
+        <Stat label="Aciertos" value={fmt(u.challenges_correct)} />
+        <Stat
+          label="% acierto"
+          value={u.challenges ? `${Math.round((u.challenges_correct / u.challenges) * 100)}%` : "—"}
+        />
+      </div>
+
       <h2 className="mb-4 mt-10 text-sm font-semibold uppercase tracking-widest text-faint">
         Fotos
         {u.analyses > ADMIN_DETAIL_PHOTO_LIMIT && (

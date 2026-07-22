@@ -29,7 +29,32 @@ export type AdminUser = {
   // Se cuenta aparte de admin_users_list() (ver getAdminUsers) para no tocar la
   // función SQL / migrar. Es una colorimetría por usuario, así que basta el bool.
   has_colorimetry: boolean;
+  // Reto del día: se cuenta aparte también (mismo motivo que has_colorimetry).
+  // challenges = intentos totales; challenges_correct = cuántos acertó.
+  challenges: number;
+  challenges_correct: number;
 };
+
+// Cuenta intentos del Reto del día (total y aciertos) por usuario, acotado a un
+// set de ids. Aparte de la RPC para no migrar la función SQL.
+async function countChallenges(
+  admin: ReturnType<typeof createAdminClient>,
+  userIds: string[],
+): Promise<Map<string, { total: number; correct: number }>> {
+  const agg = new Map<string, { total: number; correct: number }>();
+  if (userIds.length === 0) return agg;
+  const { data } = await admin
+    .from("challenge_attempts")
+    .select("user_id, correct")
+    .in("user_id", userIds);
+  for (const a of data ?? []) {
+    const cur = agg.get(a.user_id) ?? { total: 0, correct: 0 };
+    cur.total += 1;
+    if (a.correct) cur.correct += 1;
+    agg.set(a.user_id, cur);
+  }
+  return agg;
+}
 
 export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
   const admin = createAdminClient();
@@ -54,7 +79,14 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
     );
   const withColorimetry = new Set((colorims ?? []).map((c) => c.user_id));
 
-  return users.map((u) => ({ ...u, has_colorimetry: withColorimetry.has(u.id) }));
+  const challenges = await countChallenges(admin, users.map((u) => u.id));
+
+  return users.map((u) => ({
+    ...u,
+    has_colorimetry: withColorimetry.has(u.id),
+    challenges: challenges.get(u.id)?.total ?? 0,
+    challenges_correct: challenges.get(u.id)?.correct ?? 0,
+  }));
 }
 
 // ---------------------------------------------------------------------------
@@ -121,13 +153,15 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
   // las de cualquier usuario. `thumb` para la grilla y `full` para el visor, en
   // paralelo (cada firma es un round-trip a Storage).
   const paths = rows.map((a) => a.photo_path);
-  const [thumbs, fulls] = await Promise.all([
+  const [thumbs, fulls, challenges] = await Promise.all([
     signedPhotoUrls(admin, paths, "thumb"),
     signedPhotoUrls(admin, paths, "full"),
+    countChallenges(admin, [userId]),
   ]);
+  const ch = challenges.get(userId) ?? { total: 0, correct: 0 };
 
   return {
-    user: detail.user,
+    user: { ...detail.user, challenges: ch.total, challenges_correct: ch.correct },
     analyses: rows.map((a) => ({
       ...a,
       thumbUrl: thumbs.get(a.photo_path) ?? null,
