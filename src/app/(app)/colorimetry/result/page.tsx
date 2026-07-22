@@ -6,8 +6,12 @@ import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { CustomLookGenerator } from "@/components/colorimetry/CustomLookGenerator";
+import { BottomTabBar } from "@/components/navigation/BottomTabBar";
+import { GuestGateProvider } from "@/components/community/GuestGate";
 import { createClient } from "@/lib/supabase/server";
 import { isDemoMode } from "@/lib/demo";
+import { unreadActivityCount } from "@/lib/community/activity";
+import { isViewerAuthed } from "@/lib/viewer";
 import { getUserColorimetry } from "@/lib/colorimetry/store";
 import type { Colorimetry } from "@/types/colorimetry";
 
@@ -42,11 +46,16 @@ export default async function ColorimetryResultPage() {
     }
   }
 
+  // La barra de menú inferior (igual que el layout de tabs): colorimetría vive
+  // fuera del grupo (tabs), así que la traemos acá para no dejar al usuario sin
+  // navegación al terminar el flujo.
+  const [communityBadge, isAuthed] = await Promise.all([unreadActivityCount(), isViewerAuthed()]);
+
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden">
-      {/* pb con margen para el safe area (ya no hay barra de acciones fija). */}
-      <div className="flex-1 overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom))]">
-        <div
+    <GuestGateProvider isAuthed={isAuthed}>
+      <div className="relative flex h-dvh flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-[100px]">
+          <div
           className="relative flex flex-col items-center justify-end pb-[52px]"
           style={{
             height: 300,
@@ -173,7 +182,9 @@ export default async function ColorimetryResultPage() {
             <span>Tu colorimetría quedó guardada en tu perfil. Podés verla cuando quieras.</span>
           </div>
         </div>
+        </div>
+        <BottomTabBar communityBadge={communityBadge} />
       </div>
-    </div>
+    </GuestGateProvider>
   );
 }

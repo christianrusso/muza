@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 
+// Cuántos outfits a medida puede generar el usuario por sesión antes de bloquearse.
+const MAX_GENERATIONS = 2;
+
 // El usuario describe una ocasión y se genera UN outfit en su paleta (más barato
 // y más personal que elegir de una lista). Los `looks` del análisis quedan como
 // chips de sugerencia para prellenar el input.
@@ -18,10 +21,15 @@ export function CustomLookGenerator({
   const [shownOccasion, setShownOccasion] = useState<string | null>(initial?.occasion ?? null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Generar imágenes cuesta plata (~US$0.04 c/u): topamos a MAX_GENERATIONS por
+  // sesión. Es un contador de cliente (se reinicia al recargar), no una garantía
+  // dura; alcanza para frenar el uso repetido en una misma visita.
+  const [count, setCount] = useState(0);
+  const limitReached = count >= MAX_GENERATIONS;
 
   async function generate() {
     const text = occasion.trim();
-    if (!text || generating) return;
+    if (!text || generating || limitReached) return;
     setGenerating(true);
     setError(null);
     try {
@@ -35,6 +43,7 @@ export function CustomLookGenerator({
       setUrl(body.url ?? null);
       setShownOccasion(text);
       setOccasion("");
+      setCount((n) => n + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo salió mal. Probá de nuevo.");
     } finally {
@@ -75,13 +84,13 @@ export function CustomLookGenerator({
         type="text"
         value={occasion}
         onChange={(e) => setOccasion(e.target.value)}
-        placeholder="Describime tu ocasión…"
+        placeholder="Ej: cena con amigos un viernes a la noche"
         maxLength={200}
-        disabled={generating}
+        disabled={generating || limitReached}
         onKeyDown={(e) => {
           if (e.key === "Enter") generate();
         }}
-        className="w-full rounded-[14px] border-2 border-line-strong bg-transparent px-4 py-3 text-[15px] font-semibold outline-none focus:border-[var(--violet)]"
+        className="w-full rounded-[14px] border-2 border-line-strong bg-transparent px-4 py-3 text-[15px] font-semibold outline-none focus:border-[var(--violet)] disabled:opacity-60"
       />
 
       {/* Chips de sugerencia: prellenan el input. */}
@@ -91,8 +100,8 @@ export function CustomLookGenerator({
             key={s}
             type="button"
             onClick={() => setOccasion(s)}
-            disabled={generating}
-            className="rounded-full px-3 py-1.5 text-[13px] font-semibold text-[var(--violet)]"
+            disabled={generating || limitReached}
+            className="rounded-full px-3 py-1.5 text-[13px] font-semibold text-[var(--violet)] disabled:opacity-60"
             style={{ background: "var(--violet-soft)" }}
           >
             {s}
@@ -102,15 +111,25 @@ export function CustomLookGenerator({
 
       {error && <p className="mt-2.5 px-1 text-sm font-semibold text-[var(--red)]">{error}</p>}
 
-      <button
-        type="button"
-        className="btn btn-violet mt-3"
-        onClick={generate}
-        disabled={!occasion.trim() || generating}
-      >
-        <MaterialIcon name={generating ? "hourglass_top" : "auto_awesome"} size={20} />
-        {generating ? "Generando…" : url ? "Generar otro" : "Generar mi outfit"}
-      </button>
+      {limitReached ? (
+        <div
+          className="mt-3 flex items-center gap-2.5 rounded-[14px] px-4 py-3.5 text-[14px] font-bold leading-snug text-[var(--violet)]"
+          style={{ background: "var(--violet-soft)" }}
+        >
+          <MaterialIcon name="lock" size={20} className="flex-none" />
+          <span>Llegaste al límite de {MAX_GENERATIONS} outfits por ahora. Volvé más tarde para generar otro.</span>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="btn btn-violet mt-3"
+          onClick={generate}
+          disabled={!occasion.trim() || generating}
+        >
+          <MaterialIcon name={generating ? "hourglass_top" : "auto_awesome"} size={20} />
+          {generating ? "Generando…" : url ? "Generar otro" : "Generar mi outfit"}
+        </button>
+      )}
     </>
   );
 }
