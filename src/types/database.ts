@@ -335,6 +335,49 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["comment_reports"]["Row"]>;
         Relationships: [];
       };
+      daily_challenges: {
+        Row: {
+          challenge_date: string;
+          occasion_id: string;
+          look_ids: string[];
+          winner_post_id: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["daily_challenges"]["Row"]> & {
+          challenge_date: string;
+          occasion_id: string;
+          look_ids: string[];
+          winner_post_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["daily_challenges"]["Row"]>;
+        Relationships: [];
+      };
+      challenge_attempts: {
+        Row: {
+          id: string;
+          user_id: string;
+          challenge_date: string;
+          picked_post_id: string;
+          correct: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["challenge_attempts"]["Row"]> & {
+          user_id: string;
+          challenge_date: string;
+          picked_post_id: string;
+          correct: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["challenge_attempts"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "challenge_attempts_challenge_date_fkey";
+            columns: ["challenge_date"];
+            isOneToOne: false;
+            referencedRelation: "daily_challenges";
+            referencedColumns: ["challenge_date"];
+          },
+        ];
+      };
     };
     Views: {
       community_feed_view: {

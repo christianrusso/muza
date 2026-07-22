@@ -44,7 +44,14 @@ export type FunnelEvent =
   //   colorimetry_custom_limit_reached  — agotó el tope de outfits a medida por
   //                                        sesión. Señal de demanda: querría más.
   | "colorimetry_image_generated"
-  | "colorimetry_custom_limit_reached";
+  | "colorimetry_custom_limit_reached"
+  // Reto del día ("¿a cuál le dio mejor score la IA?"). Retención: da una razón de
+  // volver sin necesitar un outfit nuevo. `challenge_viewed` al abrirlo,
+  // `challenge_answered` al responder (con correct, streak, occasion),
+  // `challenge_shared` al compartir el resultado.
+  | "challenge_viewed"
+  | "challenge_answered"
+  | "challenge_shared";
 
 export function track(event: FunnelEvent, properties?: Record<string, unknown>) {
   try {

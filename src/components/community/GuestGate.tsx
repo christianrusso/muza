@@ -35,7 +35,8 @@ export type GuestAction =
   | "score"
   | "history"
   | "profile"
-  | "report";
+  | "report"
+  | "streak";
 
 const COPY: Record<GuestAction, { title: string; body: string }> = {
   vote: {
@@ -77,6 +78,10 @@ const COPY: Record<GuestAction, { title: string; body: string }> = {
   report: {
     title: "Registrate para reportar",
     body: "Ayudanos a mantener la comunidad cuidada y respetuosa.",
+  },
+  streak: {
+    title: "No pierdas tu racha",
+    body: "Creá tu cuenta para guardar tu racha del reto diario y competir con la comunidad.",
   },
 };
 
