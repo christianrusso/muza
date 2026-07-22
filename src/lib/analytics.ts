@@ -32,7 +32,19 @@ export type FunnelEvent =
   // Colorimetría: cuánta gente quiso generarla pero cayó en el muro de requisitos
   // de comunidad. El denominador (los que abrieron /colorimetry) sale del
   // $pageview que PostHog captura solo. Las props llevan cuánto les faltaba.
-  | "colorimetry_blocked";
+  | "colorimetry_blocked"
+  // Colorimetría generada con éxito. Cierra el funnel de recuperación
+  // `colorimetry_blocked → colorimetry_generated`: de los que chocaron con el
+  // muro, cuántos volvieron y la desbloquearon (vs. los que abandonaron).
+  | "colorimetry_generated"
+  // Dentro del resultado el usuario puede generar imágenes (cuestan ~US$0.04 c/u).
+  //   colorimetry_image_generated       — imagen generada con éxito. La prop
+  //                                        `target` distingue "outfit" (ropa
+  //                                        recomendada) de "custom" (a medida).
+  //   colorimetry_custom_limit_reached  — agotó el tope de outfits a medida por
+  //                                        sesión. Señal de demanda: querría más.
+  | "colorimetry_image_generated"
+  | "colorimetry_custom_limit_reached";
 
 export function track(event: FunnelEvent, properties?: Record<string, unknown>) {
   try {

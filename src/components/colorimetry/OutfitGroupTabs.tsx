@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn, downloadImage } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { ColorimetryOutfitGroup } from "@/types/colorimetry";
 
@@ -33,7 +34,10 @@ export function OutfitGroupTabs({
         body: JSON.stringify({ target: "outfit", key: id }),
       });
       const body = await res.json();
-      if (res.ok && body.url) setImages((prev) => ({ ...prev, [id]: body.url }));
+      if (res.ok && body.url) {
+        setImages((prev) => ({ ...prev, [id]: body.url }));
+        track("colorimetry_image_generated", { target: "outfit", key: id });
+      }
     } catch {
       // Silencioso: queda el texto; puede reintentar.
     } finally {
