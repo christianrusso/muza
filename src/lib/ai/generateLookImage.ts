@@ -25,7 +25,7 @@ const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-i
 // Pantalón oliva"). Prendas planas sobre fondo neutro, en la paleta, SIN personas.
 function buildFlatlayPrompt(subject: string, c: Colorimetry, gender?: UserGender | null): string {
   const colors = c.bestColors.map((s) => `${s.name} (${s.hex})`).join(", ");
-  return `Vertical (portrait 3:4) ${genderPhrase(gender)}fashion flat-lay outfit — ${subject}. Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Editorial, soft even lighting, top-down view. Use ONLY this color palette: ${colors}. Cohesive, elegant, realistic garments.`;
+  return `Vertical (portrait 3:4) ${genderPhrase(gender)}fashion flat-lay outfit — ${subject}. Clothing pieces neatly arranged on a plain light neutral background (no person, no mannequin, no face). Soft even lighting, top-down view. Casual, everyday, wearable real-life style — relaxed and approachable, the kind of clothes people actually wear day to day, NOT overly formal, business or runway. Avoid suits, blazers, ties and pocket squares unless the occasion clearly calls for it; keep accessories minimal. Use ONLY this color palette: ${colors}. Cohesive and realistic garments.`;
 }
 
 // Genera UN flat-lay como imagen. Devuelve los bytes PNG (Gemini los manda en
@@ -43,8 +43,6 @@ export async function generateFlatlayImage(
   }
 
   const prompt = buildFlatlayPrompt(subject, colorimetry, gender);
-  // Log de debug: exactamente qué se le manda a Gemini (borrar después).
-  console.log(`[looklab] Gemini request → modelo=${GEMINI_IMAGE_MODEL}\n  prompt: ${prompt}`);
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`,

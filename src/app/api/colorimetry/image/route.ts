@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { generateFlatlayImage, AILookImageError } from "@/lib/ai/generateLookImage";
 import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
@@ -82,8 +83,14 @@ export async function POST(request: Request) {
 
   try {
     const png = await generateFlatlayImage(subject, c, profile?.gender ?? null);
-    const path = `${user.id}/colorimetry-imgs/${crypto.randomUUID()}.png`;
-    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, png, { contentType: "image/png" });
+    // Gemini devuelve PNG ~1.8MB. Re-encode a WebP (~10x más liviano) para no
+    // inflar storage ni el ancho de banda del usuario; calidad visual intacta.
+    const webp = await sharp(png)
+      .resize(1080, 1440, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    const path = `${user.id}/colorimetry-imgs/${crypto.randomUUID()}.webp`;
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, webp, { contentType: "image/webp" });
     if (upErr) throw upErr;
 
     // Guardar el path en el slot correcto, preservando el resto del objeto.
@@ -101,7 +108,6 @@ export async function POST(request: Request) {
     await supabase.from("colorimetries").update({ data: next }).eq("user_id", user.id);
 
     const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
-    console.log(`[looklab] colorimetry image → ${target}:${key} generada`);
     return NextResponse.json({ url: signed?.signedUrl ?? null });
   } catch (err) {
     if (err instanceof AIBudgetExceededError) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, downloadImage } from "@/lib/utils";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import type { ColorimetryOutfitGroup } from "@/types/colorimetry";
 
@@ -69,6 +69,16 @@ export function OutfitGroupTabs({
             <div className="absolute inset-0 flex items-center justify-center bg-black/45">
               <div className="spinner" style={{ width: 30, height: 30, borderTopColor: "var(--violet)" }} />
             </div>
+          )}
+          {url && !isGen && (
+            <button
+              type="button"
+              aria-label="Descargar imagen"
+              onClick={() => downloadImage(url, `look-${active?.id ?? "colorimetria"}.webp`).catch(() => {})}
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm transition-colors hover:bg-black/60"
+            >
+              <MaterialIcon name="download" size={20} className="text-white" />
+            </button>
           )}
         </div>
       )}

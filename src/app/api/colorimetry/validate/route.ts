@@ -49,12 +49,6 @@ export async function POST(request: Request) {
 
   try {
     const result = await validateColorimetryPhoto(signed.signedUrl, user.id);
-    // Log de debug para seguir los resultados mientras se prueba (borrar después).
-    console.log(
-      `[looklab] colorimetry validate → ${result.verdict}` +
-        (result.issues.length ? ` · issues: ${result.issues.join(" | ")}` : "") +
-        (result.reason ? ` · reason: ${result.reason}` : ""),
-    );
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof AIBudgetExceededError) {

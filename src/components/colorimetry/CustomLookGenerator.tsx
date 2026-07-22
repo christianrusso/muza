@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { downloadImage } from "@/lib/utils";
 
 // Cuántos outfits a medida puede generar el usuario por sesión antes de bloquearse.
 const MAX_GENERATIONS = 2;
@@ -76,6 +77,20 @@ export function CustomLookGenerator({
             >
               {shownOccasion}
             </span>
+          )}
+          {url && !generating && (
+            <button
+              type="button"
+              aria-label="Descargar imagen"
+              onClick={() =>
+                downloadImage(url, `look-${(shownOccasion ?? "colorimetria").slice(0, 40)}.webp`).catch(() =>
+                  setError("No se pudo descargar la imagen."),
+                )
+              }
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm transition-colors hover:bg-black/60"
+            >
+              <MaterialIcon name="download" size={20} className="text-white" />
+            </button>
           )}
         </div>
       )}

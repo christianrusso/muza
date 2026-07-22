@@ -6,6 +6,7 @@ import { OutfitGroupTabs } from "@/components/colorimetry/OutfitGroupTabs";
 import { ShareColorimetryButton } from "@/components/colorimetry/ShareColorimetryButton";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
 import { CustomLookGenerator } from "@/components/colorimetry/CustomLookGenerator";
+import { ProfileAvatarLink } from "@/components/colorimetry/ProfileAvatarLink";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { GuestGateProvider } from "@/components/community/GuestGate";
 import { createClient } from "@/lib/supabase/server";
@@ -21,6 +22,7 @@ export default async function ColorimetryResultPage() {
   // on-demand). Outfits: por id de grupo. customLook: el outfit a medida.
   let outfitUrls: Record<string, string | null> = {};
   let customLookInitial: { occasion: string; url: string | null } | null = null;
+  let avatarUrl: string | null = null;
 
   if (isDemoMode()) {
     c = DEMO_COLORIMETRY;
@@ -33,6 +35,12 @@ export default async function ColorimetryResultPage() {
     // Sin colorimetría guardada: no hay nada que mostrar → al inicio del flujo.
     if (!saved) redirect("/colorimetry");
     c = saved;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", user!.id)
+      .single();
+    avatarUrl = profile?.avatar_url ?? null;
     const sign = async (path?: string | null) => {
       if (!path) return null;
       const { data } = await supabase.storage.from("colorimetry-photos").createSignedUrl(path, 600);
@@ -71,7 +79,10 @@ export default async function ColorimetryResultPage() {
             >
               <MaterialIcon name="chevron_left" size={22} className="text-white" />
             </Link>
-            <ShareColorimetryButton season={c.season} />
+            <div className="flex items-center gap-2.5">
+              <ShareColorimetryButton season={c.season} />
+              <ProfileAvatarLink avatarUrl={avatarUrl} glass />
+            </div>
           </div>
 
           <span className="section-label text-white/70">Tu temporada</span>

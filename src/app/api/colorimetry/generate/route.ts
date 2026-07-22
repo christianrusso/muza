@@ -6,6 +6,8 @@ import { toColorimetry } from "@/lib/colorimetry/map";
 import { saveColorimetry } from "@/lib/colorimetry/store";
 import { AIBudgetExceededError } from "@/lib/ai/budgetGuard";
 import { isDemoMode } from "@/lib/demo";
+import { hasColorimetry } from "@/lib/colorimetry/store";
+import { getColorimetryEligibility } from "@/lib/colorimetry/eligibility";
 
 // Genera la colorimetría desde la foto (ya validada) y la guarda. Visión detail
 // high + salida grande: margen amplio para el gateway de Vercel.
@@ -34,6 +36,18 @@ export async function POST(request: Request) {
   }
   if (!photoPath.startsWith(`${user.id}/`)) {
     return NextResponse.json({ error: { code: "FORBIDDEN", message: "Foto no válida." } }, { status: 403 });
+  }
+
+  // Gate por comunidad (donde se gasta la IA): solo generamos si el usuario cumple
+  // los requisitos. Quien ya tiene su colorimetría no vuelve a pasar por el muro.
+  if (!(await hasColorimetry(supabase, user.id))) {
+    const { eligible } = await getColorimetryEligibility(supabase, user.id);
+    if (!eligible) {
+      return NextResponse.json(
+        { error: { code: "COMMUNITY_REQUIREMENTS", message: "Completá los requisitos de la comunidad para generar tu colorimetría." } },
+        { status: 403 },
+      );
+    }
   }
 
   const { data: signed } = await supabase.storage
