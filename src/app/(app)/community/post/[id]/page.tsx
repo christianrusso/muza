@@ -182,7 +182,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <GuestGateProvider isAuthed={data.isAuthed}>
-      <div className="screen-body pad">
+      <div className="flex min-h-full flex-col gap-[14px] px-[22px] pt-[60px]">
         <ScreenHead title="Publicación" backHref="/community" />
 
         {/* En el detalle el score no va sobre la foto: lo revela el panel de abajo. */}
