@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { track } from "@/lib/analytics";
 import { downloadImage } from "@/lib/utils";
 
 // Cuántos outfits a medida puede generar el usuario por sesión antes de bloquearse.
@@ -44,7 +45,12 @@ export function CustomLookGenerator({
       setUrl(body.url ?? null);
       setShownOccasion(text);
       setOccasion("");
-      setCount((n) => n + 1);
+      track("colorimetry_image_generated", { target: "custom" });
+      // Solo una generación corre a la vez (el botón se deshabilita mientras
+      // `generating`), así que `count` acá es estable: podemos derivar el próximo.
+      const next = count + 1;
+      setCount(next);
+      if (next >= MAX_GENERATIONS) track("colorimetry_custom_limit_reached");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo salió mal. Probá de nuevo.");
     } finally {

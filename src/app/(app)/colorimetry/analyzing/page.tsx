@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MaterialIcon } from "@/components/brand/MaterialIcon";
+import { track } from "@/lib/analytics";
 
 // Pantalla de carga (spinner). Se usa como fallback del Suspense y como estado
 // mientras se genera: así el prerender estático tiene algo que mostrar sin tocar
@@ -51,6 +52,9 @@ function AnalyzingColorimetry() {
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error?.message ?? "No se pudo generar la colorimetría.");
+        // Éxito: cierra el funnel de recuperación. El `started` ref de arriba
+        // garantiza que se dispare una sola vez por generación.
+        track("colorimetry_generated");
         router.replace("/colorimetry/result");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Algo salió mal. Probá de nuevo.");
